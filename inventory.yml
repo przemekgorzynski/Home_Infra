@@ -1,0 +1,26 @@
+all:
+  vars:
+    admin_group:
+      - name: adm
+        gid: 1010
+    users:
+      - name: przemek
+        groups: 'users,sudo,adm,www-data' 
+        shell: '/bin/bash'
+        state: present
+        uid: '1011'
+    packages:
+      - docker.io
+      - docker-compose
+  hosts:
+    localhost:
+      ansible_connection: local
+    dell:
+      hostname: dellserver
+      ansible_host: 10.0.0.100
+      ansible_become: true
+      ansible_become_user: root
+      ansible_become_method: sudo
+      ansible_user: initialuser
+      ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'server_ubuntu_initial_account', field='password')[0] }}"
+      ansible_become_password: "{{ lookup('community.general.bitwarden', 'server_ubuntu_initial_account', field='password')[0] }}"

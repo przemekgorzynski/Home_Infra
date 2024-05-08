@@ -1,0 +1,19 @@
+---
+- name: Create users - "{{ item.name }}"
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    state: "{{ item.state }}"
+    shell: "{{ item.shell }}"
+    groups: "{{ item.groups }}"
+    create_home: true
+
+- name: Update authorized keys - "{{ item.name }}"
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "{{ inner_item }}"
+  loop: 
+    - "{{ lookup('file', 'files/{{ item.name }}_ssh-ed25519.pub') }}"
+  loop_control:
+    loop_var: inner_item

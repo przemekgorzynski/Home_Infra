@@ -1,0 +1,6 @@
+---
+- name: Reboot
+  reboot:
+    reboot_timeout: 180
+  tags:
+    - reboot
