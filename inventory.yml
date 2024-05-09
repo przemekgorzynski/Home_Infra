@@ -13,18 +13,18 @@ all:
       - docker.io
       - docker-compose
   hosts:
-    localhost:
-      ansible_connection: local
-    nas:
-      hostname: nas
-      type: pc
-      ansible_host: 10.0.0.10
-      ansible_become: true
-      ansible_become_user: root
-      ansible_become_method: sudo
-      ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='username')[0] }}"
-      ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
-      ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
+    # localhost:
+    #   ansible_connection: local
+    # nas:
+    #   hostname: nas
+    #   type: pc
+    #   ansible_host: 10.0.0.10
+    #   ansible_become: true
+    #   ansible_become_user: root
+    #   ansible_become_method: sudo
+    #   ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='username')[0] }}"
+    #   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
+    #   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
     pi:
       hostname: pi
       type: raspberry

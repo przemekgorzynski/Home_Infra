@@ -14,6 +14,9 @@
         - always
 
   tasks:
-    - name: Import user config tasks
+    - name: Import user_mgmnt role
       import_role:
         name: user_mgmnt
+    - name: Import reboot role
+      import_role:
+        name: reboot
