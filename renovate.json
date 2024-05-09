@@ -8,6 +8,6 @@
   "automerge": false,
   "pinDigests": true,
   "prConcurrentLimit": 3,
-  "schedule": "0 10 * * 6",
+  "schedule": "* 10 * * 6",
   "timezone": "Europe/Warsaw"
 }
