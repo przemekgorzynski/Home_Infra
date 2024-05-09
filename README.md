@@ -39,7 +39,6 @@ Home infrastructure configuration
 
 - dependencyDashboard:  Enables the Dependency Dashboard feature, providing insights into your project's dependencies.
 - ignoreUnstable: Ignores updates to unstable versions of dependencies.
-- semanticPrefix: Specifies semantic prefixes for commit messages to categorize changes (e.g., "fix", "deps", "chore", "others").
 - prHourlyLimit: Removes the hourly limit for creating pull requests.
 - baseBranches: Specifies the branches Renovate should target for creating pull requests (e.g., "main", "master").
 - labels: Applies labels to pull requests created by Renovate (e.g., "dependencies").
