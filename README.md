@@ -21,7 +21,6 @@ Home infrastructure configuration
 
 ```json
 {
-{
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "dependencyDashboard": true,
   "ignoreUnstable": true,
@@ -31,9 +30,8 @@ Home infrastructure configuration
   "automerge": false,
   "pinDigests": true,
   "prConcurrentLimit": 3,
-  "schedule": "at 10:00 AM on Saturdays",
+  "schedule": "0 10 * * 6",
   "timezone": "Europe/Warsaw"
-}
 }
 ```
 
