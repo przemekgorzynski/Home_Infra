@@ -3,11 +3,11 @@
   "dependencyDashboard": true,
   "ignoreUnstable": true,
   "prHourlyLimit": 10,
-  "baseBranches": ["main", "master"],
+  "baseBranches": ["main"],
   "labels": ["renovate"],
   "automerge": false,
   "pinDigests": true,
   "prConcurrentLimit": 3,
-  "schedule": "at 10:00 AM on Saturdays",
+  "schedule": "0 10 * * 6",
   "timezone": "Europe/Warsaw"
 }
