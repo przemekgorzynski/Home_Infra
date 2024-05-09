@@ -5,7 +5,7 @@
   "combinePatchMinorReleases": true,
   "ignoreUnstable": true,
   "prImmediately": true,
-  "prHourlyLimit": null,
+  "prHourlyLimit": 10,
   "dockerMajor": true,
   "baseBranches": ["main", "master"],
   "labels": ["renovate"],
