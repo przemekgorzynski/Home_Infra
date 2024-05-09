@@ -17,6 +17,7 @@ all:
       ansible_connection: local
     nas:
       hostname: nas
+      type: pc
       ansible_host: 10.0.0.10
       ansible_become: true
       ansible_become_user: root
@@ -26,6 +27,7 @@ all:
       ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
     pi:
       hostname: pi
+      type: raspberry
       ansible_host: 10.0.0.20
       ansible_become: true
       ansible_become_user: root
@@ -35,6 +37,7 @@ all:
       ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
     dell_sandbox:
       hostname: dell_sandbox
+      type: notebook
       ansible_host: 10.0.0.30
       ansible_become: true
       ansible_become_user: root

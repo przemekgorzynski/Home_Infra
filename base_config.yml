@@ -1,7 +1,7 @@
 ---
 - name: Basic PC configuration
-  hosts: localhost
-  gather_facts: true
+  hosts: all
+  gather_facts: false
   collections:
     - community.general
     - ansible.posix
@@ -17,7 +17,3 @@
     - name: Import user config tasks
       import_role:
         name: user_mgmnt
-    # - name: Import OS mgmnt role
-    #   import_role:
-    #     name: system_mgmnt 
-

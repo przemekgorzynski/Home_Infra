@@ -1,5 +1,5 @@
 ---
-- name: create administration group "{{ admin_group[0].name }}"
+- name: Create administration group "{{ admin_group[0].name }}"
   ansible.builtin.group:
     name: "{{ item.name }}"
     state: present
@@ -9,15 +9,15 @@
   tags:
     - user_mgmnt
 
-- name: Allow sudo for group "{{ admin_group[0].name }}"
+- name: Create sudoers file for group "{{ admin_group[0].name }}"
   copy:
-    content: "%admins ALL=(ALL) NOPASSWD:ALL"
-    dest: /etc/sudoers.d/admins
+    content: "%{{ admin_group[0].name }} ALL=(ALL) NOPASSWD:ALL"
+    dest: /etc/sudoers.d/{{ admin_group[0].name }} 
     mode: 0600
   tags:
     - user_mgmnt
 
-- name: User Configuration
+- name: Users Configuration
   include_tasks: user.yml
   with_items:
     - "{{ users }}"
