@@ -9,9 +9,18 @@ all:
         shell: '/bin/bash'
         state: present
         uid: '1011'
-    packages:
+    timezone: Europe/Warsaw
+    common_packages:
       - docker.io
       - docker-compose
+      - curl
+      - network-manager
+      - git
+      - net-tools
+      - vim
+      - wget
+      - ufw
+      - fail2ban
   hosts:
     # localhost:
     #   ansible_connection: local
@@ -19,9 +28,6 @@ all:
     #   hostname: nas
     #   type: pc
     #   ansible_host: 10.0.0.10
-    #   ansible_become: true
-    #   ansible_become_user: root
-    #   ansible_become_method: sudo
     #   ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='username')[0] }}"
     #   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
     #   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
@@ -29,19 +35,13 @@ all:
       hostname: pi
       type: raspberry
       ansible_host: 10.0.0.20
-      ansible_become: true
-      ansible_become_user: root
-      ansible_become_method: sudo
       ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='username')[0] }}"
       ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
       ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
-    dell_sandbox:
-      hostname: dell_sandbox
+    dell-sandbox:
+      hostname: dell-sandbox
       type: notebook
       ansible_host: 10.0.0.30
-      ansible_become: true
-      ansible_become_user: root
-      ansible_become_method: sudo
       ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='username')[0] }}"
       ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
       ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"

@@ -1,0 +1,13 @@
+---
+- name: Notebook - Disable sleep when lid closed
+  lineinfile: 
+    path: /etc/systemd/logind.conf
+    regexp: '^(.*)HandleLidSwitch=suspend$' 
+    line: 'HandleLidSwitch=ignore'
+    backrefs: yes
+    backup: true
+
+- name: Notebook - Restart systemd-logind service
+  ansible.builtin.service:
+    name: systemd-logind
+    state: restarted

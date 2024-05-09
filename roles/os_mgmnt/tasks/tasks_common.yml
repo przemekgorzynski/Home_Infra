@@ -1,0 +1,47 @@
+---
+- name: Update system
+  apt:
+    name: "*"
+    state: latest
+    update_cache: true
+    autoremove: true
+
+- name: Install common packages
+  apt:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Set hostname
+  hostname:
+    name: "{{ hostname }}"
+
+- name: Update /etc/hosts
+  blockinfile:
+    path: /etc/hosts
+    block: |
+      {% for host in groups['all'] %}
+      {{ hostvars[host].ansible_host }} {{ hostvars[host].hostname }}
+      {% endfor %}
+
+- name: Set timezone to Europe/Warsaw
+  community.general.timezone:
+    name: "{{ timezone }}"
+
+- name: SSH configure
+  block:
+    - name: Set ssh banner
+      ansible.builtin.copy:
+        src: files/ssh-banner.net
+        dest: /etc/issue.net
+        owner: root
+        group: root
+        mode: '0644'
+    - name: Set SSH config files
+      ansible.posix.synchronize:
+        src: files/sshd_config/
+        dest: /etc/ssh/sshd_config.d/
+        delete: true
+        owner: false
+        group: false
+  tags:
+   - ssh
