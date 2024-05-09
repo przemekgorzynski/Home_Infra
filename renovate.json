@@ -1,6 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ]
+  "dependencyDashboard": true,
+  "separateMajorReleases": true,
+  "combinePatchMinorReleases": true,
+  "ignoreUnstable": true,
+  "prImmediately": true,
+  "prHourlyLimit": null,
+  "dockerMajor": true,
+  "baseBranches": ["main", "master"],
+  "labels": ["renovate"],
+  "automerge": false,
+  "pinDigests": true,
+  "prConcurrentLimit": 3,
+  "schedule": "0 10 * * 6",
+  "timezone": "Europe/Warsaw"
 }

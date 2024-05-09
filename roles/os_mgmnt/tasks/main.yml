@@ -1,0 +1,19 @@
+---
+- name: Import Common tasks
+  ansible.builtin.import_tasks: tasks_common.yml
+  tags:
+    - os_mgmnt_common_tasks
+
+- name: Import Raspberry tasks
+  ansible.builtin.import_tasks: tasks_raspberry.yml
+  when:
+    - type == "raspberry"
+  tags:
+    - os_mgmnt_raspberry_tasks
+
+- name: Import Notebook tasks
+  ansible.builtin.import_tasks: tasks_notebook.yml
+  when:
+    - type == "notebook"
+  tags:
+    - os_mgmnt_notebook_tasks
