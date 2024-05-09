@@ -26,7 +26,7 @@ Home infrastructure configuration
   "dependencyDashboard": true,
   "ignoreUnstable": true,
   "prHourlyLimit": 10,
-  "baseBranches": ["main", "master"],
+  "baseBranches": ["main"],
   "labels": ["renovate"],
   "automerge": false,
   "pinDigests": true,
