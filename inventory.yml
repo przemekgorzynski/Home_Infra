@@ -11,7 +11,7 @@ all:
         state: present
         uid: '1011'
     timezone: Europe/Warsaw
-    common_packages:
+    standard_packages:
       - docker.io
       - docker-compose
       - curl
