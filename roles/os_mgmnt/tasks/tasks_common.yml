@@ -48,6 +48,7 @@
       ansible.posix.synchronize:
         src: files/sshd_config/
         dest: /etc/ssh/sshd_config.d/
+        private_key: "{{ users[0].private_key_path }}"
         delete: true
         owner: false
         group: false

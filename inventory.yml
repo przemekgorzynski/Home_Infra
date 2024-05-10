@@ -2,14 +2,15 @@
 all:
   vars:
     admin_group:
-      - name: adm
-        gid: 1010
+      - name: admins
+        gid: 1100
     users:
-      - name: przemek
-        groups: 'users,sudo,adm,www-data'
+      - name: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+        groups: 'users,sudo,adm,www-data,admins'
         shell: '/bin/bash'
         state: present
-        uid: '1011'
+        uid: 1000
+        private_key_path: '~/.ssh/ssh-ed25519'
     timezone: Europe/Warsaw
     standard_packages:
       - docker.io
@@ -30,9 +31,8 @@ all:
       hostname: nas
       type: pc
       ansible_host: 10.0.0.10
-      ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='username')[0] }}"
-      ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
-      ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
+      ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+      ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
     # pi:
     #   hostname: pi
     #   type: raspberry
@@ -40,10 +40,10 @@ all:
     #   ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='username')[0] }}"
     #   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
     #   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
-    dell-sandbox:
-      hostname: dell-sandbox
-      type: notebook
-      ansible_host: 10.0.0.30
-      ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='username')[0] }}"
-      ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
-      ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_ubuntu', field='password')[0] }}"
+    # dell-sandbox:
+    #   hostname: dell-sandbox
+    #   type: notebook
+    #   ansible_host: 10.0.0.30
+    #   ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+    #   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
+    #   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"

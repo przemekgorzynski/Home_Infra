@@ -4,11 +4,11 @@ Home infrastructure configuration
 
 # Prerequisites
 
-- Install Bitwarden CLI
+- Install locally Bitwarden CLI
 
     `https://bitwarden.com/help/cli/`
 
-- Install OS packages
+- Install locally OS packages
     - sshpass
     - ansible
 
@@ -17,6 +17,15 @@ Home infrastructure configuration
     export BW_CLIENTID=username
     export BW_CLIENTSECRET=password
     ```
+
+- You have locally generated SSh key-pair and this key is uploaded to GitHub account - will be fetched during OS installation
+# Server Instalation
+
+During installation process install OpenSSH server and import ssh keys from your GitHub account. 
+
+It will be used for ansible authentication.
+
+![image info](docs/images/import_ssh.png)
 
 # Renovate Configuration
 
@@ -66,6 +75,10 @@ bw login --apikey
 
 ```
 bw unlock
+```
+
+```
+bw sync
 ```
 
 ```
