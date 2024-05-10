@@ -6,7 +6,7 @@ all:
         gid: 1010
     users:
       - name: przemek
-        groups: 'users,sudo,adm,www-data,docker'
+        groups: 'users,sudo,adm,www-data'
         shell: '/bin/bash'
         state: present
         uid: '1011'

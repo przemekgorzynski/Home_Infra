@@ -11,6 +11,14 @@
     name: "{{ standard_packages }}"
     state: present
 
+- name: Append users to docker group
+  user:
+    name: "{{ item.name }}"
+    groups: docker
+    append: true
+  with_items:
+    - "{{ users }}"
+
 - name: Set hostname
   hostname:
     name: "{{ hostname }}"
