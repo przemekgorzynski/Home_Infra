@@ -4,6 +4,9 @@ yaml-files:
   - '*.yml'
   - '.yamllint'
 
+ignore:
+  - ./.github/workflows/yamllint.yml
+
 # https://yamllint.readthedocs.io/en/stable/configuration.html
 
 rules:

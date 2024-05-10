@@ -33,6 +33,19 @@ all:
       ansible_host: 10.0.0.10
       ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
       ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
+      samba_shares_partition:
+        - uuid: 1c5dcb51-59e7-4013-95e2-b2662611ccba   # 2TB
+          path: /samba_shares
+          chmod: '0777'
+          fstype: ext4
+          opts: defaults,nofail
+      samba_backup_partition:
+        - uuid: 6e88906f-dafc-476c-8a49-e345710f016f   # 4TB
+          path: /samba_backup
+          chmod: '0777'
+          fstype: ext4
+          opts: defaults,nofail
+
     # pi:
     #   hostname: pi
     #   type: raspberry

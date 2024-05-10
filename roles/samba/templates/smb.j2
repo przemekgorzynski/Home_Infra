@@ -1,0 +1,37 @@
+#======================= Global Settings =======================
+[global]
+workgroup = WORKGROUP
+server string = samba
+netbios name = {{ inventory_hostname }}
+security = user
+encrypt passwords = yes
+create mask = 0660
+directory mask = 0770
+#======================= Share Definitions =======================
+[public]
+path = {{ samba_shares_partition[0].path }}/public
+comment = Public share
+writable = yes
+browseable = yes
+public = yes
+guest only = yes
+force create mode = 0666
+force directory mode = 0777
+
+[shares]
+path = {{ samba_shares_partition[0].path }}/shares
+comment = Shares
+read only = yes
+browseable = yes
+hide dot files = yes
+valid users = @"admins",@"przemek"
+write list = @"admins",@"przemek"
+
+[prn]
+path = {{ samba_backup_partition[0].path }}/new
+comment = Prn
+read only = yes
+browseable = yes
+hide dot files = yes
+valid users = @"admins",@"przemek"
+write list = @"admins",@"przemek"
