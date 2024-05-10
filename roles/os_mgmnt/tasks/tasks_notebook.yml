@@ -1,10 +1,10 @@
 ---
 - name: Notebook - Disable sleep when lid closed
-  lineinfile: 
+  lineinfile:
     path: /etc/systemd/logind.conf
-    regexp: '^(.*)HandleLidSwitch=suspend$' 
+    regexp: '^(.*)HandleLidSwitch=suspend$'
     line: 'HandleLidSwitch=ignore'
-    backrefs: yes
+    backrefs: true
     backup: true
 
 - name: Notebook - Restart systemd-logind service

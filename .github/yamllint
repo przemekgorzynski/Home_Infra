@@ -1,0 +1,77 @@
+---
+yaml-files:
+  - '*.yaml'
+  - '*.yml'
+  - '.yamllint'
+
+# https://yamllint.readthedocs.io/en/stable/configuration.html
+
+rules:
+# Use this rule to set a limit to lines length.
+  line-length:
+    max: 150
+    level: warning
+# Use this rule to control the use of flow mappings or number of spaces inside braces ({ and })
+  braces:
+    forbid: false
+    min-spaces-inside: 0
+    max-spaces-inside: 0
+    min-spaces-inside-empty: -1
+    max-spaces-inside-empty: -1
+# Use this rule to control the use of flow sequences or the number of spaces inside brackets ([ and ])
+  brackets:
+    forbid: false
+    min-spaces-inside: 0
+    max-spaces-inside: 0
+    min-spaces-inside-empty: -1
+    max-spaces-inside-empty: -1
+# Use this rule to control the number of spaces before and after colons (:)
+  colons:
+    max-spaces-before: 0
+    max-spaces-after: 1
+# Use this rule to control the number of spaces before and after commas (,)
+  commas:
+    max-spaces-before: 0
+    min-spaces-after: 1
+    max-spaces-after: 1
+# Use this rule to control the position and formatting of comments
+  comments:
+    require-starting-space: true
+    ignore-shebangs: true
+    min-spaces-from-content: 2
+    level: warning
+# Use this rule to force comments to be indented like content
+  comments-indentation:
+    level: warning
+# Use this rule to require or forbid the use of document start marker (---)
+  document-start:
+    present: true
+    level: warning
+# Use this rule to set a maximal number of allowed consecutive blank lines
+  empty-lines:
+    max: 2
+    max-start: 0
+    max-end: 0
+# Use this rule to prevent nodes with empty content, that implicitly result in null values
+  empty-values: enable
+# Use this rule to control the number of spaces after hyphens (-)
+  hyphens:
+    max-spaces-after: 1
+# Use this rule to control the indentation
+  indentation:
+    spaces: consistent
+    indent-sequences: true
+    check-multi-line-strings: true
+# Use this rule to prevent multiple entries with the same key in mappings
+  key-duplicates: enable
+# Use this rule to enforce alphabetical ordering of keys in mappings
+  key-ordering: disable
+# Use this rule to require a new line character (\n) at the end of files
+  new-line-at-end-of-file: enable
+# Use this rule to forbid trailing spaces at the end of lines
+  trailing-spaces: enable
+# Use this rule to forbid non-explicitly typed truthy values
+  truthy:
+    allowed-values: ['true', 'false']
+    check-keys: true
+    level: warning

@@ -1,13 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "enabled": true,
   "dependencyDashboard": true,
   "ignoreUnstable": true,
+  "ignoreDeprecated": true,
   "prHourlyLimit": 10,
   "baseBranches": ["main"],
   "labels": ["renovate"],
   "automerge": false,
   "pinDigests": true,
   "prConcurrentLimit": 3,
-  "schedule": "* 10 * * 6",
+  "prCreation": "immediate",
+  "separateMajorMinor": true,
+  "separateMinorPatch": true,
+  "schedule": "0 10 * * 6",
   "timezone": "Europe/Warsaw"
 }
