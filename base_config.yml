@@ -16,14 +16,14 @@
   tasks:
     - name: Import user_mgmnt role
       import_role:
-        name: os_mgmnt
-      tags:
-        - os_mgmnt
-    - name: Import user_mgmnt role
-      import_role:
         name: user_mgmnt
       tags:
         - user_mgmnt
+    - name: Import user_mgmnt role
+      import_role:
+        name: os_mgmnt
+      tags:
+        - os_mgmnt
     - name: Import reboot role
       import_role:
         name: reboot
