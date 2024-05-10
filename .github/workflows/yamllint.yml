@@ -1,0 +1,20 @@
+---
+name: YAMLlint
+run-name: Commit on branch ${{ github.ref_name }} by @${{ github.actor }}
+
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+
+jobs:
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: 'Yamllint'
+        uses: karancode/yamllint-github-action@master
+        with:
+          yamllint_file_or_dir: .
+          yamllint_comment: true
+          yamllint_config_filepath: .github/yamllint
