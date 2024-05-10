@@ -3,6 +3,9 @@ name: YAMLlint
 run-name: Commit on branch ${{ github.ref_name }} by @${{ github.actor }}
 
 on:
+  push:
+    branches:
+      - 'main'
   pull_request:
     types: [opened, edited, reopened]
 

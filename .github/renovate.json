@@ -13,6 +13,6 @@
   "prCreation": "immediate",
   "separateMajorMinor": true,
   "separateMinorPatch": true,
-  "schedule": "0 10 * * 6",
+  "schedule": "* 10 * * 6",
   "timezone": "Europe/Warsaw"
 }
