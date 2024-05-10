@@ -1,6 +1,6 @@
 ---
 - name: Basic PC configuration
-  hosts: dell-sandbox
+  hosts: all
   gather_facts: false
   collections:
     - community.general
