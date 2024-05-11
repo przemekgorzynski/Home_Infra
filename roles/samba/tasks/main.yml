@@ -1,0 +1,61 @@
+---
+- name: Install Samba packages
+  apt:
+    name: "{{ packages }}"
+    state: present
+  tags:
+    - samba
+
+- name: Create Samba dirs
+  file:
+    state: directory
+    path: "{{ item.path }}"
+    owner: przemek
+    group: www-data
+    mode: "{{ item.chmod }}"
+  with_items:
+    - "{{ samba_shares_partition }}"
+    - "{{ samba_backup_partition }}"
+  tags:
+    - samba
+
+- name: Mount Drives
+  block:
+    - name: Mount Drives
+      mount:
+        path: "{{ item.path }}"
+        src: "UUID={{ item.uuid }}"
+        state: mounted
+        fstype: "{{ item.fstype }}"
+        opts: "{{ item.opts }}"
+      with_items:
+        - "{{ samba_shares_partition }}"
+        - "{{ samba_backup_partition }}"
+  tags:
+    - samba
+
+- name: Setup SMB config
+  block:
+    - name: Copy Samba config file
+      template:
+        src: ../templates/smb.j2
+        dest: /etc/samba/smb.conf
+        owner: root
+        group: root
+        mode: '0660'
+
+    - name: Update samba password
+      shell: |
+        echo "{{ lookup('community.general.bitwarden', 'samba_creds', field='password')[0] }}\n{{ lookup('community.general.bitwarden', 'samba_creds', field='password')[0] }}" | smbpasswd -a {{ lookup('community.general.bitwarden', 'samba_creds', field='username')[0] }}
+      tags:
+        - password
+
+    - name: UFW enable samba
+      shell: ufw allow samba
+
+    - name: Restart samba
+      service:
+        name: smbd
+        state: restarted
+  tags:
+    - samba

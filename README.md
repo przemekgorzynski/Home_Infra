@@ -88,5 +88,10 @@ export BW_SESSION=XXXXX
 # Base Config
 
 ```
-ansible-playbook -i inventory.yml base_config.yml 
+ansible-playbook -i inventory.yml playbook_base_config.yml 
+```
+
+# Software config
+```
+ansible-playbook -i inventory.yml playbook_software_config.yml 
 ```

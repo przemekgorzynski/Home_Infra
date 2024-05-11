@@ -1,0 +1,21 @@
+---
+- name: Basic PC configuration
+  hosts: nas
+  gather_facts: false
+  collections:
+    - community.general
+    - ansible.posix
+
+  pre_tasks:
+    - name: Check connectivity
+      action: ping
+      tags:
+        - pre
+        - always
+
+  tasks:
+    - name: Import user_mgmnt role
+      import_role:
+        name: samba
+      tags:
+        - samba
