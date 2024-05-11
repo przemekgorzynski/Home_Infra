@@ -46,7 +46,9 @@
 
     - name: Update samba password
       shell: |
-        echo "{{ lookup('community.general.bitwarden', 'samba_creds', field='password')[0] }}\n{{ lookup('community.general.bitwarden', 'samba_creds', field='password')[0] }}" | smbpasswd -a {{ lookup('community.general.bitwarden', 'samba_creds', field='username')[0] }}
+        echo "{{ lookup('community.general.bitwarden', 'samba_creds', field='password')[0] }}
+        {{ lookup('community.general.bitwarden', 'samba_creds', field='password')[0] }}" |
+        smbpasswd -a {{ lookup('community.general.bitwarden', 'samba_creds', field='username')[0] }}
       tags:
         - password
 

@@ -28,6 +28,7 @@ all:
     # localhost:
     #   ansible_connection: local
     nas:
+      domain: gorillabay.org
       hostname: nas
       type: pc
       ansible_host: 10.0.0.10
@@ -45,6 +46,28 @@ all:
           chmod: '0777'
           fstype: ext4
           opts: defaults,nofail
+      tooling_dirs:
+        - path: /samba_shares/config_files
+          chmod: '0770'
+        - path: /samba_shares/tools_data_dir
+          chmod: '0770'
+        - path: /samba_shares/tools_data_dir/jellyfin
+          chmod: '0770'
+      tools:
+        docker:
+          network:
+            name: tooling
+        jellyfin:
+          image: lscr.io/linuxserver/jellyfin
+          image_tag: 10.8.13
+          docker_compose_file: jellyfin.yml
+          container_name: jellyfin
+          ports:
+            - 8096:8096
+          media_dirs:
+            - /samba_shares/shares/filmy
+            - /samba_shares/shares/inne
+            - /samba_backup/new
 
     # pi:
     #   hostname: pi

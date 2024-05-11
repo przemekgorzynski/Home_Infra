@@ -88,6 +88,10 @@ export BW_SESSION=XXXXX
 # Base Config
 
 ```
+ansible-galaxy collection install -r requirments.yml
+```
+
+```
 ansible-playbook -i inventory.yml playbook_base_config.yml 
 ```
 

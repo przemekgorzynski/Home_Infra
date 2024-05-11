@@ -1,0 +1,28 @@
+---
+- name: Create jellyfin dir
+  file:
+    state: directory
+    path: "{{ tooling_dirs[0].path }}/jellyfin"
+    owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+    group: www-data
+    mode: 770
+- name: Copy jellyfin docker-compose file
+  template:
+    src: ../templates/jellyfin.j2
+    dest: "{{ tooling_dirs[0].path }}/jellyfin/{{ tools.jellyfin.docker_compose_file }}"
+    owner: root
+    group: root
+    mode: 0750
+- name: Start jellyfin container
+  ansible.builtin.shell:
+    cmd: docker-compose up -d -f "{{ tools.jellyfin.docker_compose_file }}"
+    chdir: "{{ tooling_dirs[0].path }}"
+- name: Get Jellyfin container info
+  docker_container_info:
+    name: "{{ tools.jellyfin.container_name }}"
+  register: result
+- name: Print the status of the jellyfin container
+  debug:
+    msg: |
+      State: {{ result.container['State']['Status'] }}
+  when: result.exists
