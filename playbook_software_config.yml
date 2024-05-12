@@ -1,5 +1,5 @@
 ---
-- name: Basic PC configuration
+- name: Software stack configuration
   hosts: nas
   gather_facts: false
   collections:
@@ -19,3 +19,22 @@
         name: samba
       tags:
         - samba
+    - name: Tools pre-configuration
+      block:
+        - name: Create docker network - {{ tools.docker.network.name }}
+          docker_network:
+            name: "{{ tools.docker.network.name }}"
+        - name: Create tools dirs
+          file:
+            state: directory
+            path: "{{ item.path }}"
+            owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+            group: www-data
+            mode: "{{ item.chmod }}"
+          with_items: "{{ tooling_dirs }}"
+        - name: Import jellyfin role
+          import_role:
+            name: jellyfin
+          tags: jellyfin
+      tags:
+        - tools
