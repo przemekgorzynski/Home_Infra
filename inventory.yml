@@ -49,25 +49,40 @@ all:
       tooling_dirs:
         - path: /samba_shares/config_files
           chmod: '0770'
-        - path: /samba_shares/tools_data_dir
-          chmod: '0770'
-        - path: /samba_shares/tools_data_dir/jellyfin
-          chmod: '0770'
       tools:
         docker:
           network:
             name: tooling
         jellyfin:
           image: lscr.io/linuxserver/jellyfin
-          image_tag: 10.8.13
-          docker_compose_file: jellyfin.yml
+          image_tag: 10.9.0
           container_name: jellyfin
+          docker_volume_name: jellyfin_volume
           ports:
             - 8096:8096
           media_dirs:
             - /samba_shares/shares/filmy
             - /samba_shares/shares/inne
             - /samba_backup/new
+        nextcloud:
+          app:
+            image: nextcloud
+            image_tag: latest
+            container_name: nextcloud
+            docker_volume_name: nextcloud_app_volume
+            host_port: 4000
+            container_port: 80
+          db: 
+            image: mariadb
+            image_tag: 11.3.2
+            container_name: nextcloud_db
+            docker_volume_name: nextcloud_db_volume
+            mysql_root_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_root_password', field='password')[0] }}"
+            mysql_user: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_user', field='username')[0] }}"
+            mysql_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_user', field='password')[0] }}"
+            mysql_database: nextclouddb
+            
+
 
     # pi:
     #   hostname: pi

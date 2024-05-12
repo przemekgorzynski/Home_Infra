@@ -1,0 +1,56 @@
+version: '3.8'
+
+networks: 
+  {{ tools.docker.network.name }}:
+    external: true
+    driver: bridge
+
+services:
+  db:
+    image: {{ tools.nextcloud.db.image }}:{{ tools.nextcloud.db.image_tag }}
+    restart: unless-stopped
+    container_name: {{ tools.nextcloud.db.container_name }}
+    networks:
+      - {{ tools.docker.network.name }}
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    volumes:
+      - nextcloud_db_volume:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD={{ tools.nextcloud.db.mysql_root_password }}
+      - MYSQL_USER={{ tools.nextcloud.db.mysql_user }}
+      - MYSQL_PASSWORD={{ tools.nextcloud.db.mysql_password }}
+      - MYSQL_DATABASE={{ tools.nextcloud.db.mysql_database }}
+
+  app:
+    image: {{ tools.nextcloud.app.image }}:{{ tools.nextcloud.app.image_tag }}
+    restart: unless-stopped
+    container_name: {{ tools.nextcloud.app.container_name }}
+    hostname: 'nextcloud.{{ domain }}'
+    ports:
+      - {{ tools.nextcloud.app.host_port }}:{{ tools.nextcloud.app.container_port }}
+    expose:
+    - {{ tools.nextcloud.app.container_port }}
+    networks:
+      - {{ tools.docker.network.name }}
+    links:
+      - db
+    volumes:
+      - nextcloud_app_volume:/var/www/html
+      - /samba_shares:/mnt/samba_shares
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - MYSQL_PASSWORD={{ tools.nextcloud.db.mysql_password }}
+      - MYSQL_DATABASE={{ tools.nextcloud.db.mysql_database }}
+      - MYSQL_USER={{ tools.nextcloud.db.mysql_user }}
+      - MYSQL_HOST=db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`nextcloud.{{ domain }}`)"
+      - "traefik.http.routers.nextcloud.entrypoints=websecure"
+      - "traefik.http.routers.nextcloud.tls.certresolver=production"     
+
+volumes:
+  nextcloud_db_volume:
+    name: {{ tools.nextcloud.db.docker_volume_name }}
+  nextcloud_app_volume:
+    name: {{ tools.nextcloud.app.docker_volume_name }}

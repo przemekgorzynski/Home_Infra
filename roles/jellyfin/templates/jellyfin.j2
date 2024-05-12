@@ -18,8 +18,12 @@ services:
     ports:
       {{ tools.jellyfin.ports }}
     volumes:
-      - {{ tooling_dirs[2].path }}:/config
+      - jellyfin_volume:/config
       - {{ tools.jellyfin.media_dirs[0] }}:/media
       - {{ tools.jellyfin.media_dirs[1] }}:/inne_multimedia
       - {{ tools.jellyfin.media_dirs[2] }}:/media_priv
     restart: unless-stopped
+
+volumes:
+  jellyfin_volume:
+    name: {{ tools.jellyfin.docker_volume_name }}
