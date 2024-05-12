@@ -40,5 +40,9 @@
           import_role:
             name: nextcloud
           tags: nextcloud
+        - name: Import Traefik role
+          import_role:
+            name: traefik
+          tags: traefik
       tags:
         - tools

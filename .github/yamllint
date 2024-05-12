@@ -5,7 +5,7 @@ yaml-files:
   - '.yamllint'
 
 ignore:
-  - ./.github/workflows/yamllint.yml
+  - .github/
 
 # https://yamllint.readthedocs.io/en/stable/configuration.html
 

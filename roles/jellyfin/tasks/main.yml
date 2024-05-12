@@ -15,7 +15,7 @@
     mode: '0750'
 - name: Start Jellyfin container
   ansible.builtin.shell:
-    cmd: docker-compose up -d 
+    cmd: docker-compose up -d
     chdir: "{{ tooling_dirs[0].path }}/jellyfin"
 - name: Get Jellyfin container info
   docker_container_info:

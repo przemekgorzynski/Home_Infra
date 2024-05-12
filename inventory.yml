@@ -53,6 +53,10 @@ all:
         docker:
           network:
             name: tooling
+        traefik:
+          container_name: traefik
+          log_dir: /var/log/traefik.log   # Host path, log file mounted into cintainer
+          dynu_api_key: "{{ lookup('community.general.bitwarden', 'dynu_api_key', field='password')[0] }}"
         jellyfin:
           image: lscr.io/linuxserver/jellyfin
           image_tag: 10.9.0
@@ -72,7 +76,7 @@ all:
             docker_volume_name: nextcloud_app_volume
             host_port: 4000
             container_port: 80
-          db: 
+          db:
             image: mariadb
             image_tag: 11.3.2
             container_name: nextcloud_db
@@ -81,20 +85,18 @@ all:
             mysql_user: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_user', field='username')[0] }}"
             mysql_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_user', field='password')[0] }}"
             mysql_database: nextclouddb
-            
 
-
-    # pi:
-    #   hostname: pi
-    #   type: raspberry
-    #   ansible_host: 10.0.0.20
-    #   ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='username')[0] }}"
-    #   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
-    #   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
-    # dell-sandbox:
-    #   hostname: dell-sandbox
-    #   type: notebook
-    #   ansible_host: 10.0.0.30
-    #   ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-    #   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
-    #   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
+# pi:
+#   hostname: pi
+#   type: raspberry
+#   ansible_host: 10.0.0.20
+#   ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='username')[0] }}"
+#   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
+#   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
+# dell-sandbox:
+#   hostname: dell-sandbox
+#   type: notebook
+#   ansible_host: 10.0.0.30
+#   ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+#   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
+#   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
