@@ -11,7 +11,7 @@ volumes:
 
 services:
   traefik:
-    image: "traefik:latest"
+    image: {{ tools.traefik.docker_image }}:{{ tools.traefik.docker_image_tag }}
     container_name: {{ tools.traefik.container_name }}
     networks:
       - {{ tools.docker.network.name }}

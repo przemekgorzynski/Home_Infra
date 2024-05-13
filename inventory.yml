@@ -54,12 +54,14 @@ all:
           network:
             name: tooling
         traefik:
+          docker_image: traefik
+          docker_image_tag: latest
           container_name: traefik
           log_dir: /var/log/traefik.log   # Host path, log file mounted into cintainer
           dynu_api_key: "{{ lookup('community.general.bitwarden', 'dynu_api_key', field='password')[0] }}"
         jellyfin:
-          image: lscr.io/linuxserver/jellyfin
-          image_tag: latest
+          docker_image: lscr.io/linuxserver/jellyfin
+          docker_image_tag: latest
           container_name: jellyfin
           docker_volume_name: jellyfin_volume
           ports:
@@ -70,15 +72,15 @@ all:
             - /samba_backup/new
         nextcloud:
           app:
-            image: nextcloud
-            image_tag: latest
+            docker_image: nextcloud
+            docker_image_tag: latest
             container_name: nextcloud
             docker_volume_name: nextcloud_app_volume
             host_port: 4000
             container_port: 80
           db:
-            image: mariadb
-            image_tag: latest
+            docker_image: mariadb
+            docker_image_tag: latest
             container_name: nextcloud_db
             docker_volume_name: nextcloud_db_volume
             mysql_root_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_root_password', field='password')[0] }}"
