@@ -25,8 +25,8 @@ all:
       - fail2ban
       - python3-pip
   hosts:
-    # localhost:
-    #   ansible_connection: local
+    localhost:
+      ansible_connection: local
     nas:
       domain: gorillabay.org
       hostname: nas
@@ -78,6 +78,9 @@ all:
             docker_volume_name: nextcloud_app_volume
             host_port: 4000
             container_port: 80
+            admin_user: "{{ lookup('community.general.bitwarden', 'nextcloud_admin', field='username')[0] }}"
+            admin_password: "{{ lookup('community.general.bitwarden', 'nextcloud_admin', field='password')[0] }}"
+            trusted_domains: "nextcloud.{{ domain }},{{ domain }}"
           db:
             docker_image: mariadb
             docker_image_tag: latest

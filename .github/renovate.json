@@ -16,6 +16,5 @@
   "schedule": "* 10 * * 6",
   "timezone": "Europe/Warsaw",
   "pinDigests": true,
-  "enabledManagers": ["ansible","dockerfile"],
-  "extends": [ "inventory.yml"]
+  "enabledManagers": ["ansible","dockerfile"]
 }
