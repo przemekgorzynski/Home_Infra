@@ -25,14 +25,14 @@ During installation process install OpenSSH server and import ssh keys from your
 
 It will be used for ansible authentication.
 
-![image info](docs/images/import_ssh.png)
+<img src="docs/images/import_ssh.png" alt="alt text" width="600">
 
 # Renovate
 
 https://docs.renovatebot.com/configuration-options/
 
 Local test command
-```
+```bash
 sudo apt install renovate
 LOG_LEVEL=info renovate --platform=local --repository-cache=reset
 ```
@@ -60,33 +60,33 @@ LOG_LEVEL=info renovate --platform=local --repository-cache=reset
 
 # BitWarden unlock
 
-```
+```bash
 bw login --apikey
 ```
 
-```
+```bash
 bw unlock
 ```
 
-```
+```bash
 bw sync
 ```
 
-```
+```bash
 export BW_SESSION=XXXXX
 ```
 
 # Base Config
 
-```
+```bash
 ansible-galaxy collection install -r requirments.yml
 ```
 
-```
+```bash
 ansible-playbook -i inventory.yml playbook_base_config.yml 
 ```
 
 # Software config
-```
+```bash
 ansible-playbook -i inventory.yml playbook_software_config.yml 
 ```
