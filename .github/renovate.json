@@ -17,7 +17,7 @@
   "separateMinorPatch": true,
   "schedule": "* 10 * * 6",
   "timezone": "Europe/Warsaw",
-  "pinDigests": true
+  "pinDigests": true,
   "ansible" : {
     "filematch": ["\\.yml$"]
   }
