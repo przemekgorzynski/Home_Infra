@@ -18,7 +18,16 @@
   "schedule": "* 10 * * 6",
   "timezone": "Europe/Warsaw",
   "pinDigests": true,
-  "ansible" : {
-    "filematch": ["\\.yml$"]
+  "manager": "ansible",
+  "ansible": {
+    "enabled": true,
+    "fileMatch": ["\\.yml$"],
+    "packageRules": [
+      {
+        "packageNames": ["ansible"],
+        "updateTypes": ["minor", "patch"],
+        "enabled": true
+      }
+    ]
   }
 }
