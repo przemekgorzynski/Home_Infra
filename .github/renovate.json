@@ -5,13 +5,29 @@
   "ignoreUnstable": true,
   "ignoreDeprecated": true,
   "prHourlyLimit": 10,
-  "baseBranches": ["main"],
-  "labels": ["renovate"],
-  "automerge": false,
   "prConcurrentLimit": 3,
   "prCreation": "immediate",
+  "assignees": [
+    "przemekgorzynski"
+  ],
+  "baseBranches": ["main", "/^renovate.*/"],
+  "labels": ["renovate"],
+  "automerge": false,
   "separateMajorMinor": true,
   "separateMinorPatch": true,
   "schedule": "* 10 * * 6",
-  "timezone": "Europe/Warsaw"
+  "timezone": "Europe/Warsaw",
+  "pinDigests": true,
+  "manager": "ansible",
+  "ansible": {
+    "enabled": true,
+    "fileMatch": ["\\.yml$"],
+    "packageRules": [
+      {
+        "packageNames": ["ansible"],
+        "updateTypes": ["minor", "patch"],
+        "enabled": true
+      }
+    ]
+  }
 }
