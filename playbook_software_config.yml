@@ -21,7 +21,7 @@
         - samba
     - name: Tools pre-configuration
       block:
-        - name: Create docker network - {{ tools.docker.network.name }}
+        - name: Create docker network - "{{ tools.docker.network.name }}"
           docker_network:
             name: "{{ tools.docker.network.name }}"
         - name: Create tools dirs
@@ -36,5 +36,13 @@
           import_role:
             name: jellyfin
           tags: jellyfin
+        - name: Import Nextcloud role
+          import_role:
+            name: nextcloud
+          tags: nextcloud
+        - name: Import Traefik role
+          import_role:
+            name: traefik
+          tags: traefik
       tags:
         - tools

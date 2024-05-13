@@ -1,0 +1,49 @@
+---
+- name: Create local Traefik log file
+  file:
+    state: touch
+    path: "{{ tools.traefik.log_dir }}"
+    owner: root
+    group: root
+    mode: '0750'
+- name: Create Traefik dirs
+  file:
+    state: directory
+    path: "{{ item }}"
+    owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+    group: www-data
+    mode: '0770'
+  with_items:
+    - "{{ tooling_dirs[0].path }}/traefik"
+    - /etc/traefik
+- name: Copy Traefik config files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+    group: www-data
+    mode: "{{ item.mode }}"
+  with_items:
+    - src: ../templates/traefik.j2
+      dest: "{{ tooling_dirs[0].path }}/traefik/docker-compose.yml"
+      mode: '0750'
+    - src: ../templates/traefik.yml
+      dest: /etc/traefik/traefik.yml
+      mode: '0750'
+- name: Setup DNS provider auth variables
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: DYNU_API_KEY={{ tools.traefik.dynu_api_key  }}
+- name: Start Traefik
+  ansible.builtin.shell:
+    cmd: docker-compose up -d
+    chdir: "{{ tooling_dirs[0].path }}/traefik"
+- name: Get {{ tools.traefik.container_name }} container info
+  docker_container_info:
+    name: "{{ tools.traefik.container_name }}"
+  register: result
+- name: Print the status of the {{ tools.traefik.container_name }} container
+  debug:
+    msg: |
+      State: {{ result.container['State']['Status'] }}
+  when: result.exists
