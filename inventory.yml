@@ -59,7 +59,7 @@ all:
           dynu_api_key: "{{ lookup('community.general.bitwarden', 'dynu_api_key', field='password')[0] }}"
         jellyfin:
           image: lscr.io/linuxserver/jellyfin
-          image_tag: 10.9.0
+          image_tag: latest
           container_name: jellyfin
           docker_volume_name: jellyfin_volume
           ports:
@@ -78,7 +78,7 @@ all:
             container_port: 80
           db:
             image: mariadb
-            image_tag: 11.3.1
+            image_tag: latest
             container_name: nextcloud_db
             docker_volume_name: nextcloud_db_volume
             mysql_root_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_root_password', field='password')[0] }}"
