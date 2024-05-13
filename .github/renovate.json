@@ -7,9 +7,7 @@
   "prHourlyLimit": 10,
   "prConcurrentLimit": 3,
   "prCreation": "immediate",
-  "assignees": [
-    "przemekgorzynski"
-  ],
+  "assignees": ["przemekgorzynski"],
   "baseBranches": ["main", "/^renovate.*/"],
   "labels": ["renovate"],
   "automerge": false,
@@ -17,5 +15,6 @@
   "separateMinorPatch": true,
   "schedule": "* 10 * * 6",
   "timezone": "Europe/Warsaw",
-  "pinDigests": true
+  "pinDigests": true,
+  "enabledManagers": ["ansible","dockerfile"]
 }

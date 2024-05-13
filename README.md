@@ -27,7 +27,15 @@ It will be used for ansible authentication.
 
 ![image info](docs/images/import_ssh.png)
 
-# Renovate Configuration
+# Renovate
+
+https://docs.renovatebot.com/configuration-options/
+
+Local test command
+```
+sudo apt install renovate
+LOG_LEVEL=info renovate --platform=local --repository-cache=reset
+```
 
 ```json
 {
@@ -49,23 +57,6 @@ It will be used for ansible authentication.
   "timezone": "Europe/Warsaw"
 }
 ```
-
-- schema: Specifies the JSON schema to validate the Renovate configuration file against.
-- enabled: Indicates whether Renovate is enabled for the project.
-- dependencyDashboard: This option enables a dashboard or interface to view the status of dependencies and their updates.
-- ignoreUnstable: If set to true, Renovate will ignore unstable versions of dependencies when considering updates.
-- ignoreDeprecated: If set to true, Renovate will ignore deprecated versions of dependencies when considering updates.
-- prHourlyLimit: Sets the maximum number of pull requests (PRs) that Renovate will create per hour.
-- baseBranches: Specifies the branches Renovate should target for creating pull requests.
-- labels: Labels to be applied to the pull requests created by Renovate.
-- automerge: If set to true, Renovate will automatically merge pull requests when all checks pass.
-- pinDigests: If set to true, Renovate will use dependency digests to pin dependency versions, ensuring exact reproducibility.
-- prConcurrentLimit: Sets the maximum number of concurrent pull requests that Renovate will create.
-- prCreation: Specifies when Renovate should create pull requests. In this case, it's set to "immediate", meaning it will create them as soon as updates are available.
-- separateMajorMinor: If set to true, Renovate will separate updates for major version changes.
-- separateMinorPatch: If set to true, Renovate will separate updates for minor and patch version changes.
-- schedule: Sets a schedule for when Renovate should check for updates and create pull requests. 
-- timezone: Specifies the timezone used for scheduling Renovate tasks.
 
 # BitWarden unlock
 
