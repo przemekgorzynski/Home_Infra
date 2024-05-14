@@ -55,7 +55,7 @@ all:
             name: tooling
         traefik:
           docker_image: traefik
-          docker_image_tag: latest@sha256:asd
+          docker_image_tag: latest@sha256:7996bdae8aaa70eaacf2978b6c949de5b68c0a24ddc3e40c06344ecc88cfaea3sd
           container_name: traefik
           log_dir: /var/log/traefik.log   # Host path, log file mounted into cintainer
           dynu_api_key: "{{ lookup('community.general.bitwarden', 'dynu_api_key', field='password')[0] }}"
