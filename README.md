@@ -39,22 +39,41 @@ LOG_LEVEL=info renovate --platform=local --repository-cache=reset
 
 ```json
 {
+{
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "enabled": true,
   "dependencyDashboard": true,
   "ignoreUnstable": true,
   "ignoreDeprecated": true,
   "prHourlyLimit": 10,
-  "baseBranches": ["main"],
-  "labels": ["renovate"],
-  "automerge": false,
-  "pinDigests": true,
   "prConcurrentLimit": 3,
   "prCreation": "immediate",
+  "assignees": ["przemekgorzynski"],
+  "baseBranches": ["main", "/^renovate.*/"],
+  "labels": ["renovate"],
+  "automerge": false,
   "separateMajorMinor": true,
   "separateMinorPatch": true,
-  "schedule": "0 10 * * 6",
-  "timezone": "Europe/Warsaw"
+  "schedule": "* 10 * * 6",
+  "timezone": "Europe/Warsaw",
+  "pinDigests": true,
+  "enabledManagers": [
+    "custom.regex",
+    "github-actions",
+    "dockerfile"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "update _IMAGE versions in Ansible inventory",
+      "fileMatch": ["^inventory.yml$"],
+      "matchStrings": [
+        ".*_image: (?<depName>\\S+)\\n\\s+.*_image_tag: (?<currentValue>\\S+)\\n\\s+image_digest: (?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
+  ]
 }
 ```
 
