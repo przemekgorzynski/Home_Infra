@@ -55,13 +55,13 @@ all:
             name: tooling
         traefik:
           docker_image: traefik
-          docker_image_tag: latest@sha256:7996bdae8aaa70eaacf2978b6c949de5b68c0a24ddc3e40c06344ecc88cfaea3sd
+          docker_image_tag: latest@sha256:7996bdae8aaa70eaacf2978b6c949de5b68c0a24ddc3e40c06344ecc88cfaea3
           container_name: traefik
           log_dir: /var/log/traefik.log   # Host path, log file mounted into cintainer
           dynu_api_key: "{{ lookup('community.general.bitwarden', 'dynu_api_key', field='password')[0] }}"
         jellyfin:
           docker_image: lscr.io/linuxserver/jellyfin
-          docker_image_tag: latest@sha256:b5b7ee2edbd2957d9981877d2e3db60c5a38ec7e0aca659d49e670f8f6941d1fsd
+          docker_image_tag: latest@sha256:b5b7ee2edbd2957d9981877d2e3db60c5a38ec7e0aca659d49e670f8f6941d1f
           container_name: jellyfin
           docker_volume_name: jellyfin_volume
           ports:
@@ -73,7 +73,7 @@ all:
         nextcloud:
           app:
             docker_image: nextcloud
-            docker_image_tag: latest@sha256:asd
+            docker_image_tag: latest@sha256:sha256:a29409ebc74c6225b1f9376d596383555ba3a72d099f8fb2e48963322c8d0b5c
             container_name: nextcloud
             docker_volume_name: nextcloud_app_volume
             host_port: 4000
@@ -83,7 +83,7 @@ all:
             trusted_domains: "nextcloud.{{ domain }},{{ domain }}"
           db:
             docker_image: mariadb
-            docker_image_tag: latest@sha256:f0a6faee9d0e55492f238d1d11ff13d77616ea12d8c38bedf090da2ee05532besd
+            docker_image_tag: latest@sha256:f0a6faee9d0e55492f238d1d11ff13d77616ea12d8c38bedf090da2ee05532be
             container_name: nextcloud_db
             docker_volume_name: nextcloud_db_volume
             mysql_root_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_root_password', field='password')[0] }}"
