@@ -16,5 +16,21 @@
   "schedule": "* 10 * * 6",
   "timezone": "Europe/Warsaw",
   "pinDigests": true,
-  "enabledManagers": ["ansible","dockerfile"]
+  "enabledManagers": [
+    "custom.regex",
+    "github-actions",
+    "dockerfile"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "update _IMAGE versions in Ansible inventory",
+      "fileMatch": ["^inventory.yml$"],
+      "matchStrings": [
+        ".*_image: (?<depName>\\S+)\\n\\s+.*_image_tag: (?<currentValue>\\S+)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
+  ]
 }
