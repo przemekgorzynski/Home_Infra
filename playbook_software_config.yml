@@ -19,7 +19,7 @@
         name: samba
       tags:
         - samba
-    - name: Tools pre-configuration
+    - name: Tools configuration
       block:
         - name: Create docker network - "{{ tools.docker.network.name }}"
           docker_network:
@@ -44,5 +44,9 @@
           import_role:
             name: traefik
           tags: traefik
+        - name: Import ddns role
+          import_role:
+            name: ddns
+          tags: ddns
       tags:
         - tools

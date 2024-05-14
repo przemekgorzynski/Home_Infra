@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# GET PUBLIC IP
+MY_IP=$(curl -s ipinfo.io/ip)
+
+# update IP
+curl "https://{{ dynu_username }}:{{ dynu_password }}@api.dynu.com/nic/update?hostname={{  domain }}&myip=$MY_IP"
