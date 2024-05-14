@@ -61,7 +61,7 @@ all:
           dynu_api_key: "{{ lookup('community.general.bitwarden', 'dynu_api_key', field='password')[0] }}"
         jellyfin:
           docker_image: lscr.io/linuxserver/jellyfin
-          docker_image_tag: latest@sha256:asd
+          docker_image_tag: latest@sha256:b5b7ee2edbd2957d9981877d2e3db60c5a38ec7e0aca659d49e670f8f6941d1fsd
           container_name: jellyfin
           docker_volume_name: jellyfin_volume
           ports:
