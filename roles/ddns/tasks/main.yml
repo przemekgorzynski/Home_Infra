@@ -1,0 +1,16 @@
+---
+- name: Copy DDNS update script
+  ansible.builtin.template:
+    src: ../templates/update_dynu_ddns.j2
+    dest: /update_dynu_ddns.sh
+    owner: root
+    group: root
+    mode: '0744'
+
+- name: Set root crontab DDNS update
+  ansible.builtin.cron:
+    name: "DDNS update"
+    minute: "*/10"
+    hour: "*"
+    user: root
+    job: "/update_dynu_ddns.sh"
