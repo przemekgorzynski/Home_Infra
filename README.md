@@ -9,7 +9,6 @@ Home infrastructure configuration
     `https://bitwarden.com/help/cli/`
 
 - Install locally OS packages
-    - sshpass
     - ansible
 
 - Genrate Bitwarden API key and export as env variable (Account Settings -> Security -> Keys -> API Key)
