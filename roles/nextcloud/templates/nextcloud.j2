@@ -7,7 +7,7 @@ networks:
 
 services:
   db:
-    image: {{ tools.nextcloud.db.docker_image }}:{{ tools.nextcloud.db.docker_image_tag }}
+    image: {{ tools.nextcloud.db.docker_image }}:{{ tools.nextcloud.db.docker_image_tag }}@{{ tools.nextcloud.db.image_digest }}
     restart: unless-stopped
     container_name: {{ tools.nextcloud.db.container_name }}
     networks:
@@ -22,7 +22,7 @@ services:
       - MYSQL_DATABASE={{ tools.nextcloud.db.mysql_database }}
 
   app:
-    image: {{ tools.nextcloud.app.docker_image }}:{{ tools.nextcloud.app.docker_image_tag }}
+    image: {{ tools.nextcloud.app.docker_image }}:{{ tools.nextcloud.app.docker_image_tag }}@{{ tools.nextcloud.app.image_digest }}
     restart: unless-stopped
     container_name: {{ tools.nextcloud.app.container_name }}
     hostname: 'nextcloud.{{ domain }}'
