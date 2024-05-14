@@ -39,7 +39,6 @@ LOG_LEVEL=info renovate --platform=local --repository-cache=reset
 
 ```json
 {
-{
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "enabled": true,
   "dependencyDashboard": true,
