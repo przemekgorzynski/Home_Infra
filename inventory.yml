@@ -27,8 +27,8 @@ all:
       - fail2ban
       - python3-pip
   hosts:
-    localhost:
-      ansible_connection: local
+    # localhost:
+    #   ansible_connection: local
     nas:
       domain: gorillabay.org
       hostname: nas
@@ -104,10 +104,10 @@ all:
 #   ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='username')[0] }}"
 #   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
 #   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
-# dell-sandbox:
-#   hostname: dell-sandbox
-#   type: notebook
-#   ansible_host: 10.0.0.30
-#   ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-#   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
-#   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
+    dell-sandbox:
+      hostname: dell-sandbox
+      type: notebook
+      ansible_host: 10.0.0.30
+      ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+      ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
+      ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"

@@ -1,7 +1,7 @@
 ---
 - name: Software stack configuration
   hosts: nas
-  gather_facts: false
+  gather_facts: true
   collections:
     - community.general
     - ansible.posix
