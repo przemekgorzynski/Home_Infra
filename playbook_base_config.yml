@@ -1,7 +1,7 @@
 ---
-- name: Basic PC configuration
+- name: Base config
   hosts: all
-  gather_facts: false
+  gather_facts: true
   collections:
     - community.general
     - ansible.posix
