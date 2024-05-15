@@ -19,7 +19,10 @@
   "enabledManagers": [
     "custom.regex",
     "github-actions",
-    "dockerfile"
+    "dockerfile",
+    "docker-compose",
+    "ansible",
+    "ansible-galaxy"
   ],
   "customManagers": [
     {
