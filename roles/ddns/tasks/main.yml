@@ -5,7 +5,7 @@
     dest: /update_dynu_ddns.sh
     owner: root
     group: "{{ admin_group[0].name }}"
-    mode: '0744'
+    mode: '0770'
 
 - name: Set root crontab DDNS update
   ansible.builtin.cron:
