@@ -7,6 +7,11 @@
     - ansible.posix
 
   pre_tasks:
+    - name: Import Bitwarden secrets
+      ansible.builtin.import_tasks: import_vault_data.yml
+      tags:
+        - pre
+        - always
     - name: Check connectivity
       action: ping
       tags:

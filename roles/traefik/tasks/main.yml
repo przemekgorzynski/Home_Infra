@@ -3,28 +3,28 @@
   file:
     state: directory
     path: "{{ item.path }}"
-    owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-    group: www-data
+    owner: "{{ os_username }}"
+    group: "{{ item.group }}"
     mode: '0770'
   with_items:
     - path: "{{ tooling_dirs[0].path }}/traefik"
-      owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-      group: www-data
+      owner: "{{ os_username }}"
+      group: "{{ admin_group[0].name }}"
       mode: '0770'
     - path: /etc/traefik
-      owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-      group: www-data
+      owner: "{{ os_username }}"
+      group: "{{ admin_group[0].name }}"
       mode: '0770'
     - path: "{{ tools.traefik.log_dir }}"
       owner: root
-      group: root
+      group: "{{ admin_group[0].name }}"
       mode: '0750'
 - name: Copy Traefik config files
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-    group: www-data
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
     mode: "{{ item.mode }}"
   with_items:
     - src: ../templates/traefik.j2
@@ -34,7 +34,7 @@
       dest: /etc/traefik/traefik.yml
       mode: '0750'
   register: config_files
-- name: Setup DNS provider auth variables
+- name: Setup DDNS provider auth variables
   ansible.builtin.lineinfile:
     path: /etc/environment
     line: DYNU_API_KEY={{ tools.traefik.dynu_api_key  }}

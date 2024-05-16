@@ -1,0 +1,15 @@
+---
+- name: Set secrets from Bitwarden
+  ansible.builtin.set_fact:
+    ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+    ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
+    dynu_api_key: "{{ lookup('community.general.bitwarden', 'dynu_api_key', field='password')[0] }}"
+    dynu_username: "{{ lookup('community.general.bitwarden', 'dynu_creds', field='username')[0] }}"
+    dynu_password: "{{ lookup('community.general.bitwarden', 'dynu_creds', field='password')[0] }}"
+    os_username: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+    samba_password: "{{ lookup('community.general.bitwarden', 'samba_creds', field='password')[0] }}"
+    nextcloud_admin_user: "{{ lookup('community.general.bitwarden', 'nextcloud_admin', field='username')[0] }}"
+    nextcloud_admin_password: "{{ lookup('community.general.bitwarden', 'nextcloud_admin', field='password')[0] }}"
+    nextcloud_mysql_root_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_root_password', field='password')[0] }}"
+    nextcloud_mysql_user: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_user', field='username')[0] }}"
+    nextcloud_mysql_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_user', field='password')[0] }}"

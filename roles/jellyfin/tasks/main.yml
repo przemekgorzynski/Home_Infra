@@ -3,15 +3,15 @@
   file:
     state: directory
     path: "{{ tooling_dirs[0].path }}/jellyfin"
-    owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-    group: www-data
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
     mode: '0770'
 - name: Copy Jellyfin docker-compose file
   template:
     src: ../templates/jellyfin.j2
     dest: "{{ tooling_dirs[0].path }}/jellyfin/docker-compose.yml"
-    owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-    group: www-data
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
     mode: '0750'
   register: compose
 - name: Start Jellyfin container

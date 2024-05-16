@@ -1,14 +1,12 @@
 ---
 all:
   vars:
-    dynu_username: "{{ lookup('community.general.bitwarden', 'dynu_creds', field='username')[0] }}"
-    dynu_password: "{{ lookup('community.general.bitwarden', 'dynu_creds', field='password')[0] }}"
     admin_group:
       - name: admins
         gid: 1100
     users:
-      - name: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-        groups: 'users,sudo,adm,www-data,admins'
+      - name: "{{ os_username }}"
+        groups: 'users,sudo,adm,www-data,{{ admin_group[0].name }}'
         shell: '/bin/bash'
         state: present
         uid: 1000
@@ -35,8 +33,6 @@ all:
       hostname: nas
       type: pc
       ansible_host: 10.0.0.10
-      ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-      ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
       samba_shares_partition:
         - uuid: 1c5dcb51-59e7-4013-95e2-b2662611ccba   # 2TB
           path: /samba_shares
@@ -52,10 +48,10 @@ all:
       tooling_dirs:
         - path: /samba_shares/config_files
           chmod: '0770'
-          group: przemek
+          group: "{{ admin_group[0].name }}"
         - path: /samba_backup/samba_shares_backup
           chmod: '0770'
-          group: przemek
+          group: "{{ admin_group[0].name }}"
       tools:
         docker:
           network:
@@ -65,8 +61,8 @@ all:
           docker_image_tag: 3.0.0
           image_digest: sha256:7996bdae8aaa70eaacf2978b6c949de5b68c0a24ddc3e40c06344ecc88cfaea3
           container_name: traefik
-          log_dir: /var/log/traefik # Host path, log file mounted into cintainer
-          dynu_api_key: "{{ lookup('community.general.bitwarden', 'dynu_api_key', field='password')[0] }}"
+          log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
+          dynu_api_key: "{{ dynu_api_key }}"
         jellyfin:
           docker_image: linuxserver/jellyfin
           docker_image_tag: 10.9.1
@@ -79,6 +75,8 @@ all:
             - /samba_shares/shares/filmy
             - /samba_shares/shares/inne
             - /samba_backup/new
+          admin_group:
+            - name: admins
         nextcloud:
           app:
             docker_image: nextcloud
@@ -88,8 +86,8 @@ all:
             docker_volume_name: nextcloud_app_volume
             host_port: 4000
             container_port: 80
-            admin_user: "{{ lookup('community.general.bitwarden', 'nextcloud_admin', field='username')[0] }}"
-            admin_password: "{{ lookup('community.general.bitwarden', 'nextcloud_admin', field='password')[0] }}"
+            admin_user: "{{ nextcloud_admin_user}}"
+            admin_password: "{{ nextcloud_admin_password }}"
             trusted_domains: "nextcloud.{{ domain }},{{ domain }}"
           db:
             docker_image: mariadb
@@ -97,22 +95,11 @@ all:
             image_digest: sha256:f0a6faee9d0e55492f238d1d11ff13d77616ea12d8c38bedf090da2ee05532be
             container_name: nextcloud_db
             docker_volume_name: nextcloud_db_volume
-            mysql_root_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_root_password', field='password')[0] }}"
-            mysql_user: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_user', field='username')[0] }}"
-            mysql_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_user', field='password')[0] }}"
+            mysql_root_password: "{{ nextcloud_mysql_root_password }}"
+            mysql_user: "{{ nextcloud_mysql_user }}"
+            mysql_password: "{{ nextcloud_mysql_password }}"
             mysql_database: nextclouddb
-
-# pi:
-#   hostname: pi
-#   type: raspberry
-#   ansible_host: 10.0.0.20
-#   ansible_user: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='username')[0] }}"
-#   ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
-#   ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_initial_account_pi', field='password')[0] }}"
     dell-sandbox:
       hostname: dell-sandbox
       type: notebook
       ansible_host: 10.0.0.30
-      ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-      ansible_ssh_pass: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
-      ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"

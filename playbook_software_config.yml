@@ -7,7 +7,7 @@
     - ansible.posix
 
   pre_tasks:
-    - name: Import Bitwarden secrets import
+    - name: Import Bitwarden secrets
       ansible.builtin.import_tasks: import_vault_data.yml
       tags:
         - pre
@@ -33,7 +33,7 @@
           file:
             state: directory
             path: "{{ item.path }}"
-            owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+            owner: "{{ os_username }}"
             group: "{{ item.group }}"
             mode: "{{ item.chmod }}"
           with_items: "{{ tooling_dirs }}"
