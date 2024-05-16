@@ -10,8 +10,8 @@
   file:
     state: directory
     path: "{{ item.path }}"
-    owner: przemek
-    group: www-data
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
     mode: "{{ item.chmod }}"
   with_items:
     - "{{ samba_shares_partition }}"
@@ -41,15 +41,15 @@
         src: ../templates/smb.j2
         dest: /etc/samba/smb.conf
         owner: root
-        group: root
+        group: "{{ admin_group[0].name }}"
         mode: '0660'
       register: config_copy
 
     - name: Update samba password
       shell: |
-        echo "{{ lookup('community.general.bitwarden', 'samba_creds', field='password')[0] }}
-        {{ lookup('community.general.bitwarden', 'samba_creds', field='password')[0] }}" |
-        smbpasswd -a {{ lookup('community.general.bitwarden', 'samba_creds', field='username')[0] }}
+        echo "{{ samba_password}}
+        {{ samba_password }}" |
+        smbpasswd -a {{ os_username }}
       tags:
         - password
 

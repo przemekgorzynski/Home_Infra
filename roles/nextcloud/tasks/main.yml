@@ -2,21 +2,16 @@
 - name: Create Nextcloud dirs
   file:
     state: directory
-    path: "{{ item.path }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
-    mode: "{{ item.chmod }}"
-  with_items:
-    - path: "{{ tooling_dirs[0].path }}/nextcloud"
-      owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-      group: www-data
-      chmod: '0770'
+    path: "{{ tooling_dirs[0].path }}/nextcloud"
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
+    mode: '0770'
 - name: Copy Nextcloud config file
   template:
     src: ../templates/nextcloud.j2
     dest: "{{ tooling_dirs[0].path }}/nextcloud/docker-compose.yml"
-    owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-    group: www-data
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
     mode: '0750'
   register: compose
 - name: Start Nextcloud container

@@ -4,7 +4,7 @@
     src: ../templates/update_dynu_ddns.j2
     dest: /update_dynu_ddns.sh
     owner: root
-    group: root
+    group: "{{ admin_group[0].name }}"
     mode: '0744'
 
 - name: Set root crontab DDNS update
