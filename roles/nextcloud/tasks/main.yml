@@ -13,21 +13,17 @@
       chmod: '0770'
 - name: Copy Nextcloud config file
   template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
-    mode: "{{ item.chmod }}"
-  with_items:
-    - src: ../templates/nextcloud.j2
-      dest: "{{ tooling_dirs[0].path }}/nextcloud/docker-compose.yml"
-      owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
-      group: www-data
-      chmod: '0750'
+    src: ../templates/nextcloud.j2
+    dest: "{{ tooling_dirs[0].path }}/nextcloud/docker-compose.yml"
+    owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
+    group: www-data
+    mode: '0750'
+  register: compose
 - name: Start Nextcloud container
   ansible.builtin.shell:
     cmd: docker-compose up -d
     chdir: "{{ tooling_dirs[0].path }}/nextcloud"
+  when: compose.changed
 - name: Get Nextcloud container info
   docker_container_info:
     name: "{{ tools.nextcloud.app.container_name }}"
@@ -35,5 +31,5 @@
 - name: Print the status of the Nextcloud container
   debug:
     msg: |
-      State: {{ result.container['State']['Status'] }}
+      Nextcloud state: {{ result.container['State']['Status'] }}
   when: result.exists
