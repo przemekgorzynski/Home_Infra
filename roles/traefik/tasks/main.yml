@@ -18,7 +18,7 @@
     - path: "{{ tools.traefik.log_dir }}"
       owner: root
       group: root
-      mode: '750'
+      mode: '0750'
 - name: Copy Traefik config files
   template:
     src: "{{ item.src }}"
