@@ -26,6 +26,7 @@ all:
       - ufw
       - fail2ban
       - python3-pip
+
   hosts:
     # localhost:
     #   ansible_connection: local
@@ -51,20 +52,24 @@ all:
       tooling_dirs:
         - path: /samba_shares/config_files
           chmod: '0770'
+          group: przemek
+        - path: /samba_backup/samba_shares_backup
+          chmod: '0770'
+          group: przemek
       tools:
         docker:
           network:
             name: tooling
         traefik:
           docker_image: traefik
-          docker_image_tag: latest
+          docker_image_tag: 3.0.0
           image_digest: sha256:7996bdae8aaa70eaacf2978b6c949de5b68c0a24ddc3e40c06344ecc88cfaea3
           container_name: traefik
-          log_dir: /var/log/traefik.log   # Host path, log file mounted into cintainer
+          log_dir: /var/log/traefik # Host path, log file mounted into cintainer
           dynu_api_key: "{{ lookup('community.general.bitwarden', 'dynu_api_key', field='password')[0] }}"
         jellyfin:
-          docker_image: lscr.io/linuxserver/jellyfin
-          docker_image_tag: latest
+          docker_image: linuxserver/jellyfin
+          docker_image_tag: 10.9.1
           image_digest: sha256:b5b7ee2edbd2957d9981877d2e3db60c5a38ec7e0aca659d49e670f8f6941d1f
           container_name: jellyfin
           docker_volume_name: jellyfin_volume
@@ -77,7 +82,7 @@ all:
         nextcloud:
           app:
             docker_image: nextcloud
-            docker_image_tag: latest
+            docker_image_tag: 29.0.0
             image_digest: sha256:586b7e6cd24c0058450bc05e203285bc6ca0c9ed2281cde171ee87e531daf089
             container_name: nextcloud
             docker_volume_name: nextcloud_app_volume
@@ -88,7 +93,7 @@ all:
             trusted_domains: "nextcloud.{{ domain }},{{ domain }}"
           db:
             docker_image: mariadb
-            docker_image_tag: latest
+            docker_image_tag: 11.3.2
             image_digest: sha256:f0a6faee9d0e55492f238d1d11ff13d77616ea12d8c38bedf090da2ee05532be
             container_name: nextcloud_db
             docker_volume_name: nextcloud_db_volume

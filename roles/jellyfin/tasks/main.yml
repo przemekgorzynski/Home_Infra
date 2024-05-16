@@ -13,10 +13,12 @@
     owner: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
     group: www-data
     mode: '0750'
+  register: compose
 - name: Start Jellyfin container
   ansible.builtin.shell:
     cmd: docker-compose up -d
     chdir: "{{ tooling_dirs[0].path }}/jellyfin"
+  when: compose.changed
 - name: Get Jellyfin container info
   docker_container_info:
     name: "{{ tools.jellyfin.container_name }}"
@@ -24,5 +26,5 @@
 - name: Print the status of the Jellyfin container
   debug:
     msg: |
-      State: {{ result.container['State']['Status'] }}
+      Jellyfin state: {{ result.container['State']['Status'] }}
   when: result.exists

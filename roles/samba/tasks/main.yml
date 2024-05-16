@@ -43,6 +43,7 @@
         owner: root
         group: root
         mode: '0660'
+      register: config_copy
 
     - name: Update samba password
       shell: |
@@ -52,12 +53,10 @@
       tags:
         - password
 
-    - name: UFW enable samba
-      shell: ufw allow samba
-
     - name: Restart samba
       service:
         name: smbd
         state: restarted
+      when: config_copy.changed
   tags:
     - samba
