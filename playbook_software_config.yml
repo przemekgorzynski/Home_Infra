@@ -23,7 +23,7 @@
       import_role:
         name: samba
       tags:
-        - samba
+        - samba_config
     - name: Enable disks backup
       ansible.builtin.cron:
         name: "RSYNC samba shares"
