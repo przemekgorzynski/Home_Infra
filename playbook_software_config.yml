@@ -31,7 +31,7 @@
         hour: "5"
         user: root
         job: "rsync -az --delete --exclude 'filmy' {{ samba_shares_partition[0].path }} {{ samba_backup_partition[0].path }}/samba_shares_backup/"
-      tags: 
+      tags:
         - samba_backup
     - name: Tools configuration
       block:
