@@ -1,7 +1,7 @@
 ---
 - name: Software stack configuration
   hosts: nas
-  gather_facts: true
+  gather_facts: false
   collections:
     - community.general
     - ansible.posix
@@ -24,6 +24,15 @@
         name: samba
       tags:
         - samba
+    - name: Enable disks backup
+      ansible.builtin.cron:
+        name: "RSYNC samba shares"
+        minute: "0"
+        hour: "5"
+        user: root
+        job: "rsync -az --delete --exclude 'filmy' {{ samba_shares_partition[0].path }} {{ samba_backup_partition[0].path }}/samba_shares_backup/"
+      tags:
+        - samba_backup
     - name: Tools configuration
       block:
         - name: Create docker network - "{{ tools.docker.network.name }}"
