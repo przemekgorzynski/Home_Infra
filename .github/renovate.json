@@ -8,7 +8,7 @@
   "prConcurrentLimit": 3,
   "prCreation": "immediate",
   "assignees": ["przemekgorzynski"],
-  "baseBranches": ["main", "/^renovate.*/"],
+  "baseBranches": ["main"],
   "labels": ["renovate"],
   "automerge": false,
   "separateMajorMinor": true,
