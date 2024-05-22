@@ -10,7 +10,7 @@ on:
     types: [opened, edited, reopened]
 
 jobs:
-  yamllint:
+  Yamllint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

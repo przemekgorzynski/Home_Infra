@@ -18,7 +18,6 @@
   ansible.builtin.shell:
     cmd: docker-compose up -d
     chdir: "{{ tooling_dirs[0].path }}/nextcloud"
-  when: compose.changed
 - name: Get Nextcloud container info
   docker_container_info:
     name: "{{ tools.nextcloud.app.container_name }}"

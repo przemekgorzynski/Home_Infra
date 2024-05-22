@@ -1,0 +1,35 @@
+---
+- name: Maintenance
+  hosts: all
+  gather_facts: false
+  collections:
+    - community.general
+    - ansible.posix
+    - community.docker
+
+  pre_tasks:
+    - name: Import Bitwarden secrets
+      ansible.builtin.import_tasks: import_vault_data.yml
+      tags:
+        - pre
+        - always
+    - name: Check connectivity
+      action: ping
+      tags:
+        - pre
+        - always
+
+  tasks:
+    - name: Update apt packages
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+        update_cache: true
+        autoremove: yes
+        purge: true
+    - name: Cleanup Journalctl log
+      ansible.builtin.shell: |
+        journalctl --vacuum-time=3d
+    - name: Prune dangling docker objects
+      community.docker.docker_prune:
+        images: true
