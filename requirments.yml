@@ -6,3 +6,5 @@ collections:
     src: https://galaxy.ansible.com
   - name: ansible.posix
     src: https://galaxy.ansible.com
+  - name: community.docker
+    src: https://galaxy.ansible.com

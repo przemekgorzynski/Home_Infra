@@ -42,7 +42,6 @@
   ansible.builtin.shell:
     cmd: docker-compose up -d
     chdir: "{{ tooling_dirs[0].path }}/traefik"
-  when: config_files.changed
 - name: Get {{ tools.traefik.container_name }} container info
   docker_container_info:
     name: "{{ tools.traefik.container_name }}"

@@ -1,7 +1,7 @@
 ---
 - name: Base config
   hosts: all
-  gather_facts: true
+  gather_facts: false
   collections:
     - community.general
     - ansible.posix
