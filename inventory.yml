@@ -92,7 +92,7 @@ all:
           db:
             docker_image: mariadb
             docker_image_tag: 11.3.2
-            image_digest: sha256:f0a6faee9d0e55492f238d1d11ff13d77616ea12d8c38bedf090da2ee05532be
+            image_digest: sha256:3c43c6f4bc2931825c1207328429f422f30ce2cb029567da1df9a8cdcf2b8552
             container_name: nextcloud_db
             docker_volume_name: nextcloud_db_volume
             mysql_root_password: "{{ nextcloud_mysql_root_password }}"
