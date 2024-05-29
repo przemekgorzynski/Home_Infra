@@ -1,0 +1,22 @@
+---
+- name: Get {{ item.name | upper}} container data
+  ansible.builtin.shell: docker inspect "{{ item.name }}"
+  register: docker_output
+
+- name: Check {{ item.name | upper}} URI reachability
+  ansible.builtin.uri:
+    url: "{{ item.http_endpoint }}"
+    return_content: false
+  register: uri_output
+  when: item.http_endpoint is defined
+
+- name: Print {{ item.name | upper}} container data
+  ansible.builtin.debug:
+    msg: |
+      Name: {{ item.name | upper }}
+      State: {{ (docker_output.stdout | from_json )[0].State.Status | upper }}
+      Image: {{ (docker_output.stdout | from_json )[0].Config.Image }}
+      Restarting: {{ (docker_output.stdout | from_json )[0].State.Restarting }}
+      Error: {{ (docker_output.stdout | from_json )[0].State.Error }}
+      HTTP_Endpoint: {{ item.http_endpoint | default('HTTP endpoint not defined') | upper }}
+      HTTP_code: {{ uri_output.status | default('HTTP endpoint not defined') | upper }}
