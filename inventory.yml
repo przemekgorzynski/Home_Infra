@@ -26,8 +26,8 @@ all:
       - python3-pip
 
   hosts:
-    # localhost:
-    #   ansible_connection: local
+    localhost:
+      ansible_connection: local
     nas:
       domain: gorillabay.org
       hostname: nas

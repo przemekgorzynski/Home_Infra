@@ -1,6 +1,6 @@
 ---
 - name: Base config
-  hosts: all
+  hosts: "{{ variable_host | default('all') }}"
   gather_facts: false
   collections:
     - community.general
