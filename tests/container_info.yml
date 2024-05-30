@@ -7,6 +7,7 @@
   ansible.builtin.uri:
     url: "{{ item.http_endpoint }}"
     return_content: false
+    status_code: 200
   register: uri_output
   when: item.http_endpoint is defined
 

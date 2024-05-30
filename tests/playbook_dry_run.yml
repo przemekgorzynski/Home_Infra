@@ -15,6 +15,12 @@
         ports:
           "{{ hostvars['nas']['tools']['jellyfin']['ports'] }}"
         state: started
+        healthcheck:
+          test: curl -i http://127.0.0.1:8096/health || exit 1
+          interval: 20s
+          timeout: 10s
+          retries: 3
+          start_period: 10s
     - name: Start "{{ hostvars['nas']['tools']['traefik']['container_name'] | upper }}"
       community.docker.docker_container:
         name: "{{ hostvars['nas']['tools']['traefik']['container_name'] }}"
@@ -25,6 +31,12 @@
           - "443:443"
           - "8080:8080"
         state: started
+        healthcheck:
+          test: wget --quiet --tries=1 --spider http://ping.127.0.0.1.nip.io/ping || exit 1
+          interval: 20s
+          timeout: 10s
+          retries: 3
+          start_period: 10s
     - name: Start "{{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] | upper }}"
       community.docker.docker_container:
         name: "{{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] }}"
@@ -34,10 +46,10 @@
           - "3306:3306"
         healthcheck:
           test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-          interval: 30s
+          interval: 20s
           timeout: 10s
           retries: 3
-          start_period: 30s
+          start_period: 20s
         env:
           MYSQL_ROOT_PASSWORD: root_password
           MYSQL_USER: user
@@ -66,3 +78,9 @@
           NEXTCLOUD_ADMIN_PASSWORD: nextcloud_admin_password
           NEXTCLOUD_TRUSTED_DOMAINS: "{{ hostvars['nas']['tools']['nextcloud']['app']['trusted_domains'] }}"
         state: started
+        healthcheck:
+          interval: 20s
+          timeout: 10s
+          retries: 3
+          start_period: 30s
+          test: curl -i http://127.0.0.1:80 || exit 1

@@ -1,37 +1,37 @@
 ---
-  name: Dry-run
-  run-name: Commit on branch ${{ github.ref_name }} by @${{ github.actor }}
+name: Dry-run
+run-name: Commit on branch ${{ github.ref_name }} by @${{ github.actor }}
       
-  on:
-    push:
-      branches:
-        - 'dry-run'
-    pull_request:
-      types: [opened, edited, reopened]
-    workflow_dispatch:
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    types: [opened, edited, reopened]
+  workflow_dispatch:
       
-  jobs:
-    Dry-Run:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
-        - name: Install Ansible
-          run: |
-            sudo apt update
-            sudo apt install ansible -y
-            ansible --version
-        - name: Install Docker
-          run: |
-            curl -fsSL https://get.docker.com -o get-docker.sh
-            sh get-docker.sh
-            docker --version
-        - name: Install Ansible-Galaxy requirements
-          run: |
-            ansible-galaxy collection install -r requirments.yml
-        - name: Deploy Dry-Run playbook
-          run: |
-            ansible-playbook -i inventory.yml tests/playbook_dry_run.yml
-        - name: Execute Testing playbook
-          run: |
-            ansible-playbook -i inventory.yml tests/playbook_test.yml
+jobs:
+  Dry-Run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install ansible -y
+          ansible --version
+      - name: Install Docker
+        run: |
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sh get-docker.sh
+          docker --version
+      - name: Install Ansible-Galaxy requirements
+        run: |
+          ansible-galaxy collection install -r requirments.yml
+      - name: Deploy Dry-Run playbook
+        run: |
+          ansible-playbook -i inventory.yml tests/playbook_dry_run.yml
+      - name: Execute Testing playbook
+        run: |
+          ansible-playbook -i inventory.yml tests/playbook_test.yml
