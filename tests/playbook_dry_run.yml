@@ -1,0 +1,86 @@
+---
+- name: Software stack configuration dry-run
+  hosts: "{{ variable_host | default('localhost') }}"
+  gather_facts: false
+  collections:
+    - community.general
+    - ansible.posix
+    - community.docker
+
+  tasks:
+    - name: Start "{{ hostvars['nas']['tools']['jellyfin']['container_name'] | upper }}"
+      community.docker.docker_container:
+        name: "{{ hostvars['nas']['tools']['jellyfin']['container_name'] }}"
+        image: "{{ hostvars['nas']['tools']['jellyfin']['docker_image'] }}:{{ hostvars['nas']['tools']['jellyfin']['docker_image_tag'] }}@{{ hostvars['nas']['tools']['jellyfin']['image_digest'] }}"
+        ports:
+          "{{ hostvars['nas']['tools']['jellyfin']['ports'] }}"
+        state: started
+        healthcheck:
+          test: curl -i http://127.0.0.1:8096/health || exit 1
+          interval: 20s
+          timeout: 10s
+          retries: 3
+          start_period: 10s
+    - name: Start "{{ hostvars['nas']['tools']['traefik']['container_name'] | upper }}"
+      community.docker.docker_container:
+        name: "{{ hostvars['nas']['tools']['traefik']['container_name'] }}"
+        image: "{{ hostvars['nas']['tools']['traefik']['docker_image'] }}:{{ hostvars['nas']['tools']['traefik']['docker_image_tag'] }}@{{ hostvars['nas']['tools']['traefik']['image_digest'] }}"
+        command: --api.insecure=true --providers.docker
+        ports:
+          - "80:80"
+          - "443:443"
+          - "8080:8080"
+        state: started
+        healthcheck:
+          test: wget --quiet --tries=1 --spider http://ping.127.0.0.1.nip.io/ping || exit 1
+          interval: 20s
+          timeout: 10s
+          retries: 3
+          start_period: 10s
+    - name: Start "{{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] | upper }}"
+      community.docker.docker_container:
+        name: "{{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] }}"
+        image: "{{ hostvars['nas']['tools']['nextcloud']['db']['docker_image'] }}:{{ hostvars['nas']['tools']['nextcloud']['db']['docker_image_tag'] }}@{{ hostvars['nas']['tools']['nextcloud']['db']['image_digest'] }}"
+        command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=RO
+        ports:
+          - "3306:3306"
+        healthcheck:
+          test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+          interval: 20s
+          timeout: 10s
+          retries: 3
+          start_period: 20s
+        env:
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_USER: user
+          MYSQL_PASSWORD: user_password
+          MYSQL_DATABASE: nextcloud_db
+        state: started
+    - name: Start "{{ hostvars['nas']['tools']['nextcloud']['app']['container_name'] | upper }}"
+      community.docker.docker_container:
+        name: "{{ hostvars['nas']['tools']['nextcloud']['app']['container_name'] }}"
+        image: "{{ hostvars['nas']['tools']['nextcloud']['app']['docker_image'] }}:{{ hostvars['nas']['tools']['nextcloud']['app']['docker_image_tag'] }}@{{ hostvars['nas']['tools']['nextcloud']['app']['image_digest'] }}"
+        hostname: "nextcloud.{{ hostvars['nas']['domain'] }}"
+        ports:
+          "{{ hostvars['nas']['tools']['nextcloud']['app']['host_port'] }}:{{ hostvars['nas']['tools']['nextcloud']['app']['container_port'] }}"
+        expose:
+          "{{ hostvars['nas']['tools']['nextcloud']['app']['container_port'] }}"
+        links:
+          "{{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] }}"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+        env:
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_USER: user
+          MYSQL_PASSWORD: user_password
+          MYSQL_HOST: nextcloud_db
+          NEXTCLOUD_ADMIN_USER: nextcloud_admin_user
+          NEXTCLOUD_ADMIN_PASSWORD: nextcloud_admin_password
+          NEXTCLOUD_TRUSTED_DOMAINS: "{{ hostvars['nas']['tools']['nextcloud']['app']['trusted_domains'] }}"
+        state: started
+        healthcheck:
+          interval: 20s
+          timeout: 10s
+          retries: 3
+          start_period: 30s
+          test: curl -i http://127.0.0.1:80 || exit 1

@@ -27,3 +27,9 @@ services:
       - traefik-ssl-certs:/letsencrypt
       - /etc/traefik:/etc/traefik
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: wget --quiet --tries=1 --spider http://ping.127.0.0.1.nip.io/ping || exit 1
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

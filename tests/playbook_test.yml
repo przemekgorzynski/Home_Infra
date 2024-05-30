@@ -1,0 +1,24 @@
+---
+- name: Software stack configuration dry-run
+  hosts: "{{ variable_host | default('localhost') }}"
+  gather_facts: false
+  collections:
+    - community.general
+    - ansible.posix
+    - community.docker
+
+  tasks:
+    - name: Pause for a 60 seconds before inspecting the containers
+      pause:
+        seconds: 60
+    - name: Display {{ item.name }} container info
+      ansible.builtin.include_tasks: container_info.yml
+      with_items:
+        - name: "{{ hostvars['nas']['tools']['jellyfin']['container_name'] }}"
+          http_endpoint: http://localhost:8096/web/#/wizardstart.html
+        - name: "{{ hostvars['nas']['tools']['traefik']['container_name'] }}"
+          http_endpoint: http://localhost:8080/api/rawdata
+        - name: "{{ hostvars['nas']['tools']['nextcloud']['app']['container_name'] }}"
+          http_endpoint: http://localhost:4000
+        - name: "{{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] }}"
+          healthcheck: ".State.Health.Status"

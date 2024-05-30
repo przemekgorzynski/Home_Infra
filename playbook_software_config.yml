@@ -1,6 +1,6 @@
 ---
 - name: Software stack configuration
-  hosts: nas
+  hosts: "{{ variable_host | default('nas') }}"
   gather_facts: false
   collections:
     - community.general

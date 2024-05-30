@@ -1,4 +1,5 @@
 [![YAMLlint](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/yamllint.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/yamllint.yml)
+[![Dry-run](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/dry-run.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/dry-run.yml)
 # Home_Infra
 Home infrastructure configuration
 
