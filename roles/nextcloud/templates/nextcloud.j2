@@ -20,6 +20,12 @@ services:
       - MYSQL_USER={{ tools.nextcloud.db.mysql_user }}
       - MYSQL_PASSWORD={{ tools.nextcloud.db.mysql_password }}
       - MYSQL_DATABASE={{ tools.nextcloud.db.mysql_database }}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   app:
     image: {{ tools.nextcloud.app.docker_image }}:{{ tools.nextcloud.app.docker_image_tag }}@{{ tools.nextcloud.app.image_digest }}
