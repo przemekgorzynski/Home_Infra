@@ -1,9 +1,13 @@
 ---
-- name: Get {{ item.name | upper}} container data
+- name: Pause for a 30 seconds before inspecting {{ item.name | upper }} container
+  pause:
+    seconds: 30
+
+- name: Get {{ item.name | upper }} container data
   ansible.builtin.shell: docker inspect "{{ item.name }}"
   register: docker_output
 
-- name: Check {{ item.name | upper}} URI reachability
+- name: Reach {{ item.name | upper }} URI
   ansible.builtin.uri:
     url: "{{ item.http_endpoint }}"
     return_content: false
@@ -11,7 +15,7 @@
   register: uri_output
   when: item.http_endpoint is defined
 
-- name: Print {{ item.name | upper}} container data
+- name: Print {{ item.name | upper }} container data
   ansible.builtin.debug:
     msg: |
       Name: {{ item.name | upper }}
