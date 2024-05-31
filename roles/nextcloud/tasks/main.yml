@@ -27,3 +27,4 @@
   with_items:
     - name: "{{ tools.nextcloud.app.container_name }}"
       http_endpoint: http://localhost:4000
+    - name: "{{ tools.nextcloud.db.container_name }}"

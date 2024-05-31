@@ -15,13 +15,20 @@
   register: uri_output
   when: item.http_endpoint is defined
 
+# yamllint disable rule:indentation
 - name: Print {{ item.name | upper }} container data
   ansible.builtin.debug:
     msg: |
-      Name: {{ item.name | upper }}
-      State: {{ (docker_output.stdout | from_json )[0].State.Status | upper }}
-      Image: {{ (docker_output.stdout | from_json )[0].Config.Image }}
-      Restarting: {{ (docker_output.stdout | from_json )[0].State.Restarting }}
-      Error: {{ (docker_output.stdout | from_json )[0].State.Error }}
-      HTTP_Endpoint: {{ item.http_endpoint | default('HTTP endpoint not defined') | upper }}
-      HTTP_code: {{ uri_output.status | default('HTTP endpoint not defined') | upper }}
+      GENERAL:
+        Name: {{ item.name | upper }}
+        State: {{ (docker_output.stdout | from_json )[0].State.Status | upper }}
+        Image: {{ (docker_output.stdout | from_json )[0].Config.Image }}
+        Restarting: {{ (docker_output.stdout | from_json )[0].State.Restarting }}
+        Error: {{ (docker_output.stdout | from_json )[0].State.Error }}
+      HTTP
+        Endpoint: {{ item.http_endpoint | default(' --- ') | upper }}
+        Code: {{ uri_output.status | default(' --- ') | upper }}
+      HEALTHCHECK:
+        Status: {{ (docker_output.stdout | from_json )[0].State.Health.Status | upper }}
+        Failing: {{ (docker_output.stdout | from_json )[0].State.Health.FailingStreak | upper }}
+# yamllint enable rule:indentation
