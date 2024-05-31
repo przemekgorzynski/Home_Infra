@@ -91,8 +91,8 @@ all:
             trusted_domains: "nextcloud.{{ domain }},{{ domain }}"
           db:
             docker_image: mariadb
-            docker_image_tag: 11.3.2
-            image_digest: sha256:e101f9db31916a5d4d7d594dd0dd092fb23ab4f499f1d7a7425d1afd4162c4bc
+            docker_image_tag: 11.4.2
+            image_digest: sha256:191810ff836b08017823d248a296702b6ea1d029572f92b15d606d3c2d2a90c5
             container_name: nextcloud_db
             docker_volume_name: nextcloud_db_volume
             mysql_root_password: "{{ nextcloud_mysql_root_password }}"
