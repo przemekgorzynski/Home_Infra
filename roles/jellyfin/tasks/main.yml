@@ -1,15 +1,15 @@
 ---
-- name: Create {{ tools.jellyfin.container_name | upper }} dir
-  file:
+- name: Create dirs - {{ tools.jellyfin.container_name | upper }}
+  ansible.builtin.file:
     state: directory
     path: "{{ tooling_dirs[0].path }}/jellyfin"
     owner: "{{ os_username }}"
     group: "{{ admin_group[0].name }}"
     mode: '0770'
 
-- name: Copy {{ tools.jellyfin.container_name | upper }} docker-compose file
-  template:
-    src: ../templates/jellyfin.j2
+- name: Copy compose - {{ tools.jellyfin.container_name | upper }}
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/jellyfin.j2"
     dest: "{{ tooling_dirs[0].path }}/jellyfin/docker-compose.yml"
     owner: "{{ os_username }}"
     group: "{{ admin_group[0].name }}"
@@ -17,13 +17,14 @@
   register: compose
 
 - name: Start {{ tools.jellyfin.container_name | upper }}
-  ansible.builtin.shell:
+  ansible.builtin.command:
     cmd: docker-compose up -d
     chdir: "{{ tooling_dirs[0].path }}/jellyfin"
-  when: compose.changed
+  changed_when: false
 
-- name: Display {{ tools.jellyfin.container_name | upper }} container info
-  ansible.builtin.include_tasks: "{{ playbook_dir }}/tests/container_info.yml"
+- name: Display container info - {{ tools.jellyfin.container_name | upper }}
+  ansible.builtin.include_tasks: "../tests/container_info.yml"
   with_items:
     - name: "{{ tools.jellyfin.container_name }}"
       http_endpoint: http://localhost:8096/web/#/wizardstart.html
+  when: not ansible_check_mode

@@ -1,18 +1,18 @@
 ---
 - name: Update system
-  apt:
+  ansible.builtin.apt:
     name: "*"
     state: latest
     update_cache: true
     autoremove: true
 
 - name: Install standard packages
-  apt:
+  ansible.builtin.apt:
     name: "{{ standard_packages }}"
     state: present
 
 - name: Append users to docker group
-  user:
+  ansible.builtin.user:
     name: "{{ item.name }}"
     groups: docker
     append: true
@@ -20,11 +20,11 @@
     - "{{ users }}"
 
 - name: Set hostname
-  hostname:
+  ansible.builtin.hostname:
     name: "{{ hostname }}"
 
 - name: Update /etc/hosts
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/hosts
     block: |
       {% for host in groups['all'] %}
@@ -36,6 +36,8 @@
     name: "{{ timezone }}"
 
 - name: SSH configure
+  tags:
+    - ssh
   block:
     - name: Set ssh banner
       ansible.builtin.copy:
@@ -52,5 +54,3 @@
         delete: true
         owner: false
         group: false
-  tags:
-    - ssh

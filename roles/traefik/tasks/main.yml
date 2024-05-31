@@ -1,6 +1,6 @@
 ---
-- name: Create {{ tools.traefik.container_name | upper }} dirs
-  file:
+- name: Create dirs - {{ tools.traefik.container_name | upper }}
+  ansible.builtin.file:
     state: directory
     path: "{{ item.path }}"
     owner: "{{ os_username }}"
@@ -20,18 +20,18 @@
       group: "{{ admin_group[0].name }}"
       mode: '0750'
 
-- name: Copy {{ tools.traefik.container_name | upper }} config files
-  template:
+- name: Copy compose - {{ tools.traefik.container_name | upper }}
+  ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     owner: "{{ os_username }}"
     group: "{{ admin_group[0].name }}"
     mode: "{{ item.mode }}"
   with_items:
-    - src: ../templates/traefik.j2
+    - src: "{{ role_path }}/templates/traefik.j2"
       dest: "{{ tooling_dirs[0].path }}/traefik/docker-compose.yml"
       mode: '0750'
-    - src: ../templates/traefik.yml
+    - src: "{{ role_path }}/templates/traefik.yml"
       dest: /etc/traefik/traefik.yml
       mode: '0750'
   register: config_files
@@ -39,16 +39,17 @@
 - name: Setup DDNS provider auth variables
   ansible.builtin.lineinfile:
     path: /etc/environment
-    line: DYNU_API_KEY={{ tools.traefik.dynu_api_key  }}
+    line: DYNU_API_KEY={{ tools.traefik.dynu_api_key }}
 
 - name: Start {{ tools.traefik.container_name | upper }}
-  ansible.builtin.shell:
+  ansible.builtin.command:
     cmd: docker-compose up -d
     chdir: "{{ tooling_dirs[0].path }}/traefik"
-  when: config_files.changed
+  changed_when: false
 
-- name: Display {{ tools.traefik.container_name | upper }} container info
-  ansible.builtin.include_tasks: "{{ playbook_dir }}/tests/container_info.yml"
+- name: Display container info - {{ tools.traefik.container_name | upper }}
+  ansible.builtin.include_tasks: "../tests/container_info.yml"
   with_items:
     - name: "{{ tools.traefik.container_name }}"
       http_endpoint: http://localhost:8080/api/rawdata
+  when: not ansible_check_mode

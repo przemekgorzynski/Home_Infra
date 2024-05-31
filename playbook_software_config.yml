@@ -2,9 +2,6 @@
 - name: Software stack configuration
   hosts: "{{ variable_host | default('nas') }}"
   gather_facts: false
-  collections:
-    - community.general
-    - ansible.posix
 
   pre_tasks:
     - name: Import Bitwarden secrets
@@ -13,14 +10,14 @@
         - pre
         - always
     - name: Check connectivity
-      action: ping
+      action: ansible.builtin.ping
       tags:
         - pre
         - always
 
   tasks:
     - name: Import samba role
-      import_role:
+      ansible.builtin.import_role:
         name: samba
       tags:
         - samba_config
@@ -34,12 +31,14 @@
       tags:
         - samba_backup
     - name: Tools configuration
+      tags:
+        - tools
       block:
         - name: Create docker network - "{{ tools.docker.network.name }}"
-          docker_network:
+          community.docker.docker_network:
             name: "{{ tools.docker.network.name }}"
         - name: Create tool dirs
-          file:
+          ansible.builtin.file:
             state: directory
             path: "{{ item.path }}"
             owner: "{{ os_username }}"
@@ -47,20 +46,18 @@
             mode: "{{ item.chmod }}"
           with_items: "{{ tooling_dirs }}"
         - name: Import Jellyfin role
-          import_role:
+          ansible.builtin.import_role:
             name: jellyfin
           tags: jellyfin
         - name: Import Nextcloud role
-          import_role:
+          ansible.builtin.import_role:
             name: nextcloud
           tags: nextcloud
         - name: Import Traefik role
-          import_role:
+          ansible.builtin.import_role:
             name: traefik
           tags: traefik
         - name: Import DDNS role
-          import_role:
+          ansible.builtin.import_role:
             name: ddns
           tags: ddns
-      tags:
-        - tools

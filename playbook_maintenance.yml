@@ -2,10 +2,6 @@
 - name: Maintenance
   hosts: "{{ variable_host | default('all') }}"
   gather_facts: false
-  collections:
-    - community.general
-    - ansible.posix
-    - community.docker
 
   pre_tasks:
     - name: Import Bitwarden secrets
@@ -14,7 +10,7 @@
         - pre
         - always
     - name: Check connectivity
-      action: ping
+      action: ansible.builtin.ping
       tags:
         - pre
         - always
@@ -29,7 +25,8 @@
         purge: true
     - name: Cleanup Journalctl log
       ansible.builtin.shell: |
-        journalctl --vacuum-time=3d
+        journalctl --vacuum-time=2d
+      changed_when: false
     - name: Prune dangling docker objects
       community.docker.docker_prune:
         images: true

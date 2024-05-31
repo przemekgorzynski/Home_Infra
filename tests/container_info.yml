@@ -1,13 +1,15 @@
 ---
-- name: Pause for a 30 seconds before inspecting {{ item.name | upper }} container
-  pause:
+- name: Pause for a 30 seconds before inspecting {{ item.name | upper }}
+  ansible.builtin.pause:
     seconds: 30
 
-- name: Get {{ item.name | upper }} container data
-  ansible.builtin.shell: docker inspect "{{ item.name }}"
+- name: Get container data - {{ item.name | upper }}
+  ansible.builtin.command:
+    cmd: docker inspect "{{ item.name }}"
   register: docker_output
+  changed_when: false
 
-- name: Reach {{ item.name | upper }} URI
+- name: Reach URI - {{ item.name | upper }}
   ansible.builtin.uri:
     url: "{{ item.http_endpoint }}"
     return_content: false
@@ -16,19 +18,19 @@
   when: item.http_endpoint is defined
 
 # yamllint disable rule:indentation
-- name: Print {{ item.name | upper }} container data
+- name: Print container data - {{ item.name | upper }}
   ansible.builtin.debug:
     msg: |
       GENERAL:
         Name: {{ item.name | upper }}
-        State: {{ (docker_output.stdout | from_json )[0].State.Status | upper }}
-        Image: {{ (docker_output.stdout | from_json )[0].Config.Image }}
-        Restarting: {{ (docker_output.stdout | from_json )[0].State.Restarting }}
-        Error: {{ (docker_output.stdout | from_json )[0].State.Error }}
+        State: {{ (docker_output.stdout | from_json)[0].State.Status | upper }}
+        Image: {{ (docker_output.stdout | from_json)[0].Config.Image }}
+        Restarting: {{ (docker_output.stdout | from_json)[0].State.Restarting }}
+        Error: {{ (docker_output.stdout | from_json)[0].State.Error }}
       HTTP
         Endpoint: {{ item.http_endpoint | default(' --- ') | upper }}
         Code: {{ uri_output.status | default(' --- ') | upper }}
       HEALTHCHECK:
-        Status: {{ (docker_output.stdout | from_json )[0].State.Health.Status | upper }}
-        Failing: {{ (docker_output.stdout | from_json )[0].State.Health.FailingStreak | upper }}
+        Status: {{ (docker_output.stdout | from_json)[0].State.Health.Status | upper }}
+        Failing: {{ (docker_output.stdout | from_json)[0].State.Health.FailingStreak | upper }}
 # yamllint enable rule:indentation

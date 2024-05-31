@@ -1,7 +1,7 @@
 ---
 - name: Copy DDNS update script
   ansible.builtin.template:
-    src: ../templates/update_dynu_ddns.j2
+    src: "{{ playbook_dir }}/roles/ddns/templates/update_dynu_ddns.j2"
     dest: /update_dynu_ddns.sh
     owner: root
     group: "{{ admin_group[0].name }}"

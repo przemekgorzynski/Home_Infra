@@ -1,13 +1,13 @@
 ---
 - name: Install Samba packages
-  apt:
-    name: "{{ packages }}"
+  ansible.builtin.apt:
+    name: "{{ samba_packages }}"
     state: present
   tags:
     - samba
 
 - name: Create Samba dirs
-  file:
+  ansible.builtin.file:
     state: directory
     path: "{{ item.path }}"
     owner: "{{ os_username }}"
@@ -20,9 +20,11 @@
     - samba
 
 - name: Mount Drives
+  tags:
+    - samba
   block:
     - name: Mount Drives
-      mount:
+      ansible.posix.mount:
         path: "{{ item.path }}"
         src: "UUID={{ item.uuid }}"
         state: mounted
@@ -31,32 +33,31 @@
       with_items:
         - "{{ samba_shares_partition }}"
         - "{{ samba_backup_partition }}"
-  tags:
-    - samba
 
 - name: Setup SMB config
+  tags:
+    - samba
   block:
     - name: Copy Samba config file
-      template:
-        src: ../templates/smb.j2
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/roles/samba/templates/smb.j2"
         dest: /etc/samba/smb.conf
         owner: root
         group: "{{ admin_group[0].name }}"
         mode: '0660'
-      register: config_copy
+      notify: Restart samba
 
     - name: Update samba password
-      shell: |
-        echo "{{ samba_password}}
+      ansible.builtin.shell: |
+        set -o pipefail
+        echo "{{ samba_password }}
         {{ samba_password }}" |
         smbpasswd -a {{ os_username }}
+      args:
+        executable: /bin/bash
+      changed_when: false
       tags:
         - password
 
-    - name: Restart samba
-      service:
-        name: smbd
-        state: restarted
-      when: config_copy.changed
-  tags:
-    - samba
+    - name: Flush handlers    # Triggers handlers instantly
+      ansible.builtin.meta: flush_handlers
