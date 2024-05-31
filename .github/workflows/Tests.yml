@@ -1,5 +1,5 @@
 ---
-name: Dry-run
+name: Tests
 run-name: Commit on branch ${{ github.ref_name }} by @${{ github.actor }}
 
 on:
@@ -21,27 +21,29 @@ on:
           - debug
 
 jobs:
-  Dry-Run:
+  YAML-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29   # v4
-      - name: Install Ansible
+      - name: 'Yamllint'
+        uses: karancode/yamllint-github-action@master
+        with:
+          yamllint_file_or_dir: .
+          yamllint_comment: true
+          yamllint_config_filepath: .github/yamllint
+  Ansible-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29   # v4
+      - name: Install Ansible && dependencies
         run: |
           sudo apt update
           sudo apt install ansible -y
           ansible --version
-      - name: Install Docker
-        run: |
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sh get-docker.sh
-          docker --version
-      - name: Install Ansible-Galaxy requirements
-        run: |
           ansible-galaxy collection install -r requirments.yml
-      - name: Deploy Dry-Run playbook
-        run: |
-          ansible-playbook -i inventory.yml tests/playbook_dry_run.yml
-      - name: Execute Testing playbook
-        run: |
-          ansible-playbook -i inventory.yml tests/playbook_test.yml
+      - name: Install Ansible-lint
+        run: pip3 install ansible-lint
+      - name: Execute Ansible-lint
+        run: ansible-lint

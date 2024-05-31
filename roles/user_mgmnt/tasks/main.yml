@@ -10,15 +10,15 @@
     - user_mgmnt
 
 - name: Create sudoers file for group "{{ admin_group[0].name }}"
-  copy:
+  ansible.builtin.copy:
     content: "%{{ admin_group[0].name }} ALL=(ALL) NOPASSWD:ALL"
     dest: /etc/sudoers.d/{{ admin_group[0].name }}
-    mode: 0600
+    mode: "0600"
   tags:
     - user_mgmnt
 
 - name: Users Configuration
-  include_tasks: user.yml
+  ansible.builtin.include_tasks: user.yml
   with_items:
     - "{{ users }}"
   tags:

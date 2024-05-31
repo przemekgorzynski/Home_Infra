@@ -2,10 +2,6 @@
 - name: Software stack configuration dry-run
   hosts: "{{ variable_host | default('localhost') }}"
   gather_facts: false
-  collections:
-    - community.general
-    - ansible.posix
-    - community.docker
 
   vars:
     pip_package_requirements:
@@ -13,7 +9,7 @@
 
   tasks:
     - name: Install pip requests library
-      pip:
+      ansible.builtin.pip:
         name: "{{ item }}"
         state: present
       with_items: "{{ pip_package_requirements }}"
