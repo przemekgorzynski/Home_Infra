@@ -7,13 +7,24 @@
     - ansible.posix
     - community.docker
 
+  vars:
+    pip_package_requirements:
+      - "requests"
+
   tasks:
+    - name: Install pip requests library
+      pip:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ pip_package_requirements }}"
     - name: Start "{{ hostvars['nas']['tools']['jellyfin']['container_name'] | upper }}"
       community.docker.docker_container:
         name: "{{ hostvars['nas']['tools']['jellyfin']['container_name'] }}"
         image: "{{ hostvars['nas']['tools']['jellyfin']['docker_image'] }}:{{ hostvars['nas']['tools']['jellyfin']['docker_image_tag'] }}@{{ hostvars['nas']['tools']['jellyfin']['image_digest'] }}"
         ports:
           "{{ hostvars['nas']['tools']['jellyfin']['ports'] }}"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
         state: started
         healthcheck:
           test: curl -i http://127.0.0.1:8096/health || exit 1
@@ -30,9 +41,11 @@
           - "80:80"
           - "443:443"
           - "8080:8080"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
         state: started
         healthcheck:
-          test: wget --quiet --tries=1 --spider http://ping.127.0.0.1.nip.io/ping || exit 1
+          test: wget -q http://ping.127.0.0.1/ping -O index_check.html || exit 1
           interval: 20s
           timeout: 10s
           retries: 3
