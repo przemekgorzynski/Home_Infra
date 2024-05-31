@@ -1,5 +1,5 @@
 ---
-name: Tests
+name: Lint-Ansible
 run-name: Commit on branch ${{ github.ref_name }} by @${{ github.actor }}
 
 on:
@@ -21,17 +21,6 @@ on:
           - debug
 
 jobs:
-  YAML-lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29   # v4
-      - name: 'Yamllint'
-        uses: karancode/yamllint-github-action@master
-        with:
-          yamllint_file_or_dir: .
-          yamllint_comment: true
-          yamllint_config_filepath: .github/yamllint
   Ansible-lint:
     runs-on: ubuntu-latest
     steps:
