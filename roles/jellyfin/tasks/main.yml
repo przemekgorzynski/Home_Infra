@@ -1,12 +1,13 @@
 ---
-- name: Create Jellyfin dir
+- name: Create {{ tools.jellyfin.container_name | upper }} dir
   file:
     state: directory
     path: "{{ tooling_dirs[0].path }}/jellyfin"
     owner: "{{ os_username }}"
     group: "{{ admin_group[0].name }}"
     mode: '0770'
-- name: Copy Jellyfin docker-compose file
+
+- name: Copy {{ tools.jellyfin.container_name | upper }} docker-compose file
   template:
     src: ../templates/jellyfin.j2
     dest: "{{ tooling_dirs[0].path }}/jellyfin/docker-compose.yml"
@@ -14,16 +15,15 @@
     group: "{{ admin_group[0].name }}"
     mode: '0750'
   register: compose
-- name: Start Jellyfin container
+
+- name: Start {{ tools.jellyfin.container_name | upper }}
   ansible.builtin.shell:
     cmd: docker-compose up -d
     chdir: "{{ tooling_dirs[0].path }}/jellyfin"
-- name: Get Jellyfin container info
-  docker_container_info:
-    name: "{{ tools.jellyfin.container_name }}"
-  register: result
-- name: Print the status of the Jellyfin container
-  debug:
-    msg: |
-      Jellyfin state: {{ result.container['State']['Status'] }}
-  when: result.exists
+  when: compose.changed
+
+- name: Display {{ tools.jellyfin.container_name | upper }} container info
+  ansible.builtin.include_tasks: "{{ playbook_dir }}/tests/container_info.yml"
+  with_items:
+    - name: "{{ tools.jellyfin.container_name }}"
+      http_endpoint: http://localhost:8096/web/#/wizardstart.html

@@ -17,10 +17,12 @@
         name: "{{ item }}"
         state: present
       with_items: "{{ pip_package_requirements }}"
-    - name: Start "{{ hostvars['nas']['tools']['jellyfin']['container_name'] | upper }}"
+    - name: Start {{ hostvars['nas']['tools']['jellyfin']['container_name'] | upper }}
       community.docker.docker_container:
         name: "{{ hostvars['nas']['tools']['jellyfin']['container_name'] }}"
-        image: "{{ hostvars['nas']['tools']['jellyfin']['docker_image'] }}:{{ hostvars['nas']['tools']['jellyfin']['docker_image_tag'] }}@{{ hostvars['nas']['tools']['jellyfin']['image_digest'] }}"
+        image: "{{ hostvars['nas']['tools']['jellyfin']['docker_image'] }}:\
+                {{ hostvars['nas']['tools']['jellyfin']['docker_image_tag'] }}@\
+                {{ hostvars['nas']['tools']['jellyfin']['image_digest'] }}"
         ports:
           "{{ hostvars['nas']['tools']['jellyfin']['ports'] }}"
         volumes:
@@ -32,10 +34,12 @@
           timeout: 10s
           retries: 3
           start_period: 10s
-    - name: Start "{{ hostvars['nas']['tools']['traefik']['container_name'] | upper }}"
+    - name: Start {{ hostvars['nas']['tools']['traefik']['container_name'] | upper }}
       community.docker.docker_container:
         name: "{{ hostvars['nas']['tools']['traefik']['container_name'] }}"
-        image: "{{ hostvars['nas']['tools']['traefik']['docker_image'] }}:{{ hostvars['nas']['tools']['traefik']['docker_image_tag'] }}@{{ hostvars['nas']['tools']['traefik']['image_digest'] }}"
+        image: "{{ hostvars['nas']['tools']['traefik']['docker_image'] }}:\
+                {{ hostvars['nas']['tools']['traefik']['docker_image_tag'] }}@\
+                {{ hostvars['nas']['tools']['traefik']['image_digest'] }}"
         command: --api.insecure=true --providers.docker
         ports:
           - "80:80"
@@ -50,10 +54,12 @@
           timeout: 10s
           retries: 3
           start_period: 10s
-    - name: Start "{{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] | upper }}"
+    - name: Start {{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] | upper }}
       community.docker.docker_container:
         name: "{{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] }}"
-        image: "{{ hostvars['nas']['tools']['nextcloud']['db']['docker_image'] }}:{{ hostvars['nas']['tools']['nextcloud']['db']['docker_image_tag'] }}@{{ hostvars['nas']['tools']['nextcloud']['db']['image_digest'] }}"
+        image: "{{ hostvars['nas']['tools']['nextcloud']['db']['docker_image'] }}:\
+                {{ hostvars['nas']['tools']['nextcloud']['db']['docker_image_tag'] }}@\
+                {{ hostvars['nas']['tools']['nextcloud']['db']['image_digest'] }}"
         command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=RO
         ports:
           - "3306:3306"
@@ -69,10 +75,12 @@
           MYSQL_PASSWORD: user_password
           MYSQL_DATABASE: nextcloud_db
         state: started
-    - name: Start "{{ hostvars['nas']['tools']['nextcloud']['app']['container_name'] | upper }}"
+    - name: Start {{ hostvars['nas']['tools']['nextcloud']['app']['container_name'] | upper }}
       community.docker.docker_container:
         name: "{{ hostvars['nas']['tools']['nextcloud']['app']['container_name'] }}"
-        image: "{{ hostvars['nas']['tools']['nextcloud']['app']['docker_image'] }}:{{ hostvars['nas']['tools']['nextcloud']['app']['docker_image_tag'] }}@{{ hostvars['nas']['tools']['nextcloud']['app']['image_digest'] }}"
+        image: "{{ hostvars['nas']['tools']['nextcloud']['app']['docker_image'] }}:\
+                {{ hostvars['nas']['tools']['nextcloud']['app']['docker_image_tag'] }}@\
+                {{ hostvars['nas']['tools']['nextcloud']['app']['image_digest'] }}"
         hostname: "nextcloud.{{ hostvars['nas']['domain'] }}"
         ports:
           "{{ hostvars['nas']['tools']['nextcloud']['app']['host_port'] }}:{{ hostvars['nas']['tools']['nextcloud']['app']['container_port'] }}"
