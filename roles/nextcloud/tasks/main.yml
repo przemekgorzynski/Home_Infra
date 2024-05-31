@@ -1,12 +1,13 @@
 ---
-- name: Create Nextcloud dirs
+- name: Create {{ tools.nextcloud.app.container_name | upper }} dirs
   file:
     state: directory
     path: "{{ tooling_dirs[0].path }}/nextcloud"
     owner: "{{ os_username }}"
     group: "{{ admin_group[0].name }}"
     mode: '0770'
-- name: Copy Nextcloud config file
+
+- name: Copy {{ tools.nextcloud.app.container_name | upper }} docker-compose file
   template:
     src: ../templates/nextcloud.j2
     dest: "{{ tooling_dirs[0].path }}/nextcloud/docker-compose.yml"
@@ -14,16 +15,15 @@
     group: "{{ admin_group[0].name }}"
     mode: '0750'
   register: compose
-- name: Start Nextcloud container
+
+- name: Start {{ tools.nextcloud.app.container_name | upper }}
   ansible.builtin.shell:
     cmd: docker-compose up -d
     chdir: "{{ tooling_dirs[0].path }}/nextcloud"
-- name: Get Nextcloud container info
-  docker_container_info:
-    name: "{{ tools.nextcloud.app.container_name }}"
-  register: result
-- name: Print the status of the Nextcloud container
-  debug:
-    msg: |
-      Nextcloud state: {{ result.container['State']['Status'] }}
-  when: result.exists
+  when: compose.changed
+
+- name: Display {{ tools.nextcloud.app.container_name | upper }} container info
+  ansible.builtin.include_tasks: "{{ playbook_dir }}/tests/container_info.yml"
+  with_items:
+    - name: "{{ tools.nextcloud.app.container_name }}"
+      http_endpoint: http://localhost:4000

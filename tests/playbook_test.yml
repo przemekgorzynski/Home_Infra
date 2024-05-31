@@ -8,10 +8,7 @@
     - community.docker
 
   tasks:
-    - name: Pause for a 60 seconds before inspecting the containers
-      pause:
-        seconds: 60
-    - name: Display {{ item.name }} container info
+    - name: Display container info
       ansible.builtin.include_tasks: container_info.yml
       with_items:
         - name: "{{ hostvars['nas']['tools']['jellyfin']['container_name'] }}"

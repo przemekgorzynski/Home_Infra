@@ -25,7 +25,7 @@
         name: "*"
         state: latest
         update_cache: true
-        autoremove: yes
+        autoremove: true
         purge: true
     - name: Cleanup Journalctl log
       ansible.builtin.shell: |
