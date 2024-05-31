@@ -18,4 +18,3 @@
         - name: "{{ hostvars['nas']['tools']['nextcloud']['app']['container_name'] }}"
           http_endpoint: http://localhost:4000
         - name: "{{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] }}"
-          healthcheck: ".State.Health.Status"
