@@ -59,7 +59,7 @@ all:
         traefik:
           docker_image: traefik
           docker_image_tag: v3.0.1
-          image_digest: sha256:6c8144b1f380a059e770dfe69d5e16424f4eb49bd6c1eca1cd08ee0aae9b846c
+          image_digest: sha256:9ad110e745f68e15c09a4d6ccc0dc3cd674ab21466c0884b8e7823a445ac4d25
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
           dynu_api_key: "{{ dynu_api_key }}"
