@@ -50,27 +50,28 @@ bw sync
 export BW_SESSION=XXXXX
 ```
 
-# Playbooks
+# Deploying
 
-Install Ansible collection
+### Ansible collection
 
 ```bash
 ansible-galaxy collection install -r requirments.yml
 ```
 
-## Base Config
+### Base Config
 
 ```bash
 ansible-playbook -i inventory.yml playbook_base_config.yml 
 ```
 
-## Software config
+### Software config
 ```bash
 ansible-playbook -i inventory.yml playbook_software_config.yml 
 ```
 
-## Maintenance
+### Maintenance
 ```bash
 ansible-playbook -i inventory.yml playbook_maintenance.yml 
 ```
 
+# Testing
