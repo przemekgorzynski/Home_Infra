@@ -1,6 +1,6 @@
-[![YAML-lint](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/yaml-lint.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/yaml-lint.yml)
-[![Ansible-lint](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/ansible-lint.yml)
-[![Dry-run](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/dry-run.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/dry-run.yml)
+[![YAML-lint](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/YAML-lint.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/YAML-lint.yml)
+[![Ansible-lint](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/Ansible-lint.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/Ansible-lint.yml)
+[![Dry-Run](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/Dry-Run.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/Dry-Run.yml)
 # Home_Infra
 Home infrastructure configuration
 
@@ -13,74 +13,44 @@ Home infrastructure configuration
 - Install locally OS packages
     - ansible
 
+- Install Ansible collections
+
+    ```bash
+    ansible-galaxy collection install -r requirments.yml
+    ``` 
+
 - Genrate Bitwarden API key and export as env variable (Account Settings -> Security -> Keys -> API Key)
     ```
     export BW_CLIENTID=username
     export BW_CLIENTSECRET=password
     ```
 
-- You have locally generated SSh key-pair and this key is uploaded to GitHub account - will be fetched during OS installation
-# Server Instalation
+- You have locally generated SSH key-pair and this key is uploaded to GitHub account - will be fetched during OS installation
+# Remote Server Instalation
 
-During installation process install OpenSSH server and import ssh keys from your GitHub account. 
+During remote server installation install "OpenSSH server" and import ssh keys from your GitHub account. 
 
 It will be used for ansible authentication.
 
 <img src="docs/images/import_ssh.png" alt="alt text" width="600">
 
-# Renovate
 
+# External tools
+
+## Renovate
+
+Renovate tools check docker images definition inside `inventory.yml` file and checks for new releases available. If found creates PR.
+
+It's configuration stored in `.github/renovate.json` file.  
+Official docs:  
 https://docs.renovatebot.com/configuration-options/
 
-Local test command
-```bash
-sudo apt install renovate
-LOG_LEVEL=info renovate --platform=local --repository-cache=reset
-```
+## BitWarden
 
-```json
-{
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "enabled": true,
-  "dependencyDashboard": true,
-  "ignoreUnstable": true,
-  "ignoreDeprecated": true,
-  "prHourlyLimit": 10,
-  "prConcurrentLimit": 3,
-  "prCreation": "immediate",
-  "assignees": ["przemekgorzynski"],
-  "baseBranches": ["main", "/^renovate.*/"],
-  "labels": ["renovate"],
-  "automerge": false,
-  "separateMajorMinor": true,
-  "separateMinorPatch": true,
-  "schedule": "* 10 * * 6",
-  "timezone": "Europe/Warsaw",
-  "pinDigests": true,
-  "enabledManagers": [
-    "custom.regex",
-    "github-actions",
-    "dockerfile"
-  ],
-  "customManagers": [
-    {
-      "customType": "regex",
-      "description": "update _IMAGE versions in Ansible inventory",
-      "fileMatch": ["^inventory.yml$"],
-      "matchStrings": [
-        ".*_image: (?<depName>\\S+)\\n\\s+.*_image_tag: (?<currentValue>\\S+)\\n\\s+image_digest: (?<currentDigest>sha256:[a-f0-9]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "docker"
-    }
-  ]
-}
-```
-
-# BitWarden unlock
+All secrets passed into playbooks are fetchec from Bitwarden secret manager. In order to make it available need to execute following steps before playbooks execution.
 
 ```bash
-bw login --apikey
+bw login [--apikey]
 ```
 
 ```bash
@@ -95,17 +65,68 @@ bw sync
 export BW_SESSION=XXXXX
 ```
 
-# Base Config
+# Deploying
 
-```bash
-ansible-galaxy collection install -r requirments.yml
-```
+## Base Config
 
 ```bash
 ansible-playbook -i inventory.yml playbook_base_config.yml 
 ```
 
-# Software config
+## Software config
 ```bash
 ansible-playbook -i inventory.yml playbook_software_config.yml 
+```
+
+## Maintenance
+```bash
+ansible-playbook -i inventory.yml playbook_maintenance.yml 
+```
+
+# Testing
+
+All following tests are implemented and executed in Github Actions pipelines.
+
+## Lint
+
+Check before pushing lints pass, as this will be check in pipeline
+```
+pip3 install yamllint ansible-lint
+```
+
+```
+yamllint  -c .github/yamllint .
+```
+```
+ansible-lint
+```
+
+## Dry-run
+
+Deploy software stack locally.
+
+```bash
+ansible-playbook -i inventory.yml tests/playbook_dry_run.yml
+```
+
+Test local software deployment.
+```
+ansible-playbook -i inventory.yml tests/playbook_test.yml
+```
+
+Testing pipeline runs against each container and return it's status:
+
+```yml
+    GENERAL:
+      Name: JELLYFIN
+      State: RUNNING
+      Image: linuxserver/jellyfin:10.9.3@sha256:8c02cf2b830fd770e270e8947a5232a15cd860c53fb15c10e2773e16548156e8
+      Restarting: False
+      Error:
+    HTTP:
+      Endpoint: HTTP://LOCALHOST:8096/WEB/#/WIZARDSTART.HTML
+      Code: 200
+    HEALTHCHECK:
+      Status: HEALTHY
+      Failing: 0
 ```
