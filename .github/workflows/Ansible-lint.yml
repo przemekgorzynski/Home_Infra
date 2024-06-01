@@ -1,5 +1,5 @@
 ---
-name: Lint-Ansible
+name: Ansible-lint
 run-name: Commit on branch ${{ github.ref_name }} by @${{ github.actor }}
 
 on:

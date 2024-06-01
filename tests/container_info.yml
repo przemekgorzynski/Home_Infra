@@ -27,7 +27,7 @@
         Image: {{ (docker_output.stdout | from_json)[0].Config.Image }}
         Restarting: {{ (docker_output.stdout | from_json)[0].State.Restarting }}
         Error: {{ (docker_output.stdout | from_json)[0].State.Error }}
-      HTTP
+      HTTP:
         Endpoint: {{ item.http_endpoint | default(' --- ') | upper }}
         Code: {{ uri_output.status | default(' --- ') | upper }}
       HEALTHCHECK:
