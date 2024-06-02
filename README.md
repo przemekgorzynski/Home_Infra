@@ -4,50 +4,70 @@
 # Home_Infra
 Home infrastructure configuration
 
-# Prerequisites
+## Table of content
 
-- Install locally Bitwarden CLI
+- [Home_Infra](#Home_Infra)
+  - [Table of Content](#table-of-content)
+  - [Prerequisites](#prerequisites)
+    - [Local Host requirements](#local-host-requirements)
+    - [Remote Server Instalation](#remote-server-instalation)
+  - [External tools](#external-tools)
+    - [Renovate](#renovate)
+    - [BitWarden](#bitwarden)
+  - [Deployments](#deployments)
+    - [Base Config](#base-config)
+    - [Software config](#software-config)
+    - [Maintenance](#maintenance)
+  - [Tests](#tests)
+    - [Lint](#lint)
+    - [Dry-Run](#dry-run)
+
+## Prerequisites
+
+### Local Host requirements
+- Installed Bitwarden CLI
 
     `https://bitwarden.com/help/cli/`
 
-- Install locally OS packages
+- Installed packages
     - ansible
 
-- Install Ansible collections
+- Installed Ansible collections
 
     ```bash
     ansible-galaxy collection install -r requirments.yml
     ``` 
 
-- Genrate Bitwarden API key and export as env variable (Account Settings -> Security -> Keys -> API Key)
+- Genrateed Bitwarden API key and exported as env variable (Account Settings -> Security -> Keys -> API Key)
     ```
     export BW_CLIENTID=username
     export BW_CLIENTSECRET=password
     ```
 
-- You have locally generated SSH key-pair and this key is uploaded to GitHub account - will be fetched during OS installation
-# Remote Server Instalation
+- Have locally generated SSH key-pair and public key is uploaded to GitHub account - will be fetched during OS installation
 
-During remote server installation install "OpenSSH server" and import ssh keys from your GitHub account. 
+### Remote Server Instalation
 
-It will be used for ansible authentication.
+  During remote server installation install "OpenSSH server" and import ssh keys from your GitHub account. 
+
+  It will be used for ansible authentication.
 
 <img src="docs/images/import_ssh.png" alt="alt text" width="600">
 
 
-# External tools
+## External tools
 
-## Renovate
+### Renovate
 
-Renovate tools check docker images definition inside `inventory.yml` file and checks for new releases available. If found creates PR.
+Renovate tool checks docker images definition inside `inventory.yml` file for new releases. If found creates PR.
 
-It's configuration stored in `.github/renovate.json` file.  
+It's configuration stored within `.github/renovate.json` file.  
 Official docs:  
 https://docs.renovatebot.com/configuration-options/
 
-## BitWarden
+### BitWarden
 
-All secrets passed into playbooks are fetchec from Bitwarden secret manager. In order to make it available need to execute following steps before playbooks execution.
+All secrets passed into playbooks are fetched from Bitwarden secret manager. In order to make it available need to execute following steps before playbooks execution.
 
 ```bash
 bw login [--apikey]
@@ -65,31 +85,35 @@ bw sync
 export BW_SESSION=XXXXX
 ```
 
-# Deploying
+## Deployments
 
-## Base Config
+### Base Config
 
 ```bash
 ansible-playbook -i inventory.yml playbook_base_config.yml 
 ```
 
-## Software config
+### Software config
 ```bash
 ansible-playbook -i inventory.yml playbook_software_config.yml 
 ```
 
-## Maintenance
+### Maintenance
 ```bash
 ansible-playbook -i inventory.yml playbook_maintenance.yml 
 ```
 
-# Testing
+## Tests
 
-All following tests are implemented and executed in Github Actions pipelines.
+All of following tests are implemented and executed in Github Actions pipelines.
 
-## Lint
+### Lint
 
-Check before pushing lints pass, as this will be check in pipeline
+Check before pushing lints pass, as this will be check in pipeline.
+Using two of lints:
+  - Yamllint - configuration inside `.github/yamllint` file
+  - Ansible-lint
+
 ```
 pip3 install yamllint ansible-lint
 ```
@@ -101,7 +125,7 @@ yamllint  -c .github/yamllint .
 ansible-lint
 ```
 
-## Dry-run
+### Dry-run
 
 Deploy software stack locally.
 
@@ -109,12 +133,12 @@ Deploy software stack locally.
 ansible-playbook -i inventory.yml tests/playbook_dry_run.yml
 ```
 
-Test local software deployment.
+Test local deployment.
 ```
 ansible-playbook -i inventory.yml tests/playbook_test.yml
 ```
 
-Testing pipeline runs against each container and return it's status:
+Testing playbook runs against each container and return it's status:
 
 ```yml
     GENERAL:
