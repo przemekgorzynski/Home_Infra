@@ -81,7 +81,7 @@ all:
           app:
             docker_image: nextcloud
             docker_image_tag: 29.0.1
-            image_digest: sha256:5fee0332a1e1276a3dba2ca863c530b75db6598f3f899e728e11f7cc140a7d85
+            image_digest: sha256:c5af7e7fa6c1117d004c9d705c2173925c0c8250a1dd57849704c3af24aeb730
             container_name: nextcloud
             docker_volume_name: nextcloud_app_volume
             host_port: 4000
