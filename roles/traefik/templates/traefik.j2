@@ -14,7 +14,8 @@ services:
     image: {{ tools.traefik.docker_image }}:{{ tools.traefik.docker_image_tag }}
     container_name: {{ tools.traefik.container_name }}
     networks:
-      - {{ tools.docker.network.name }}
+      {{ tools.docker.network.name }}: 
+        ipv4_address: {{ tools.docker.network.containers.traefik }}
     ports:
       - "80:80"
       - "443:443"

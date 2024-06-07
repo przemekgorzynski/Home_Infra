@@ -42,6 +42,9 @@ certificatesResolvers:
       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
       dnschallenge:
         provider: dynu
+        resolvers:
+          - 1.1.1.1
+          - 8.8.8.8
   production:
     acme:
       email: pszemazzz@proton.me
@@ -49,6 +52,9 @@ certificatesResolvers:
       caServer: "https://acme-v02.api.letsencrypt.org/directory"
       dnschallenge:
         provider: dynu
+        resolvers:
+          - 1.1.1.1
+          - 8.8.8.8
 
 providers:
   docker:

@@ -14,7 +14,8 @@ services:
       - PGID=0
       - TZ=Europe/Warsaw
     networks:
-      - tooling
+      {{ tools.docker.network.name }}: 
+        ipv4_address: {{ tools.docker.network.containers.jellyfin }}
     ports:
       {{ tools.jellyfin.ports }}
     volumes:

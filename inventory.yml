@@ -56,12 +56,30 @@ all:
         docker:
           network:
             name: tooling
+            subnet: 172.18.0.0/16
+            gateway: 172.18.0.1
+            containers:
+              traefik: 172.18.0.2
+              home_assistant: 172.18.0.3
+              jellyfin: 172.18.0.4
+              nextcloud:
+                app: 172.18.0.5
+                db: 172.18.0.6
         traefik:
           docker_image: traefik
           docker_image_tag: v3.0.2
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
           dynu_api_key: "{{ dynu_api_key }}"
+        home_assistant:
+          docker_image: homeassistant/home-assistant
+          docker_image_tag: 2024.6
+          image_digest: sha256:0c2a3f04bdac8f4658ae42fdc83464f77f9f3c87b67bfea608cfa0356e6ed5b0
+          container_name: homeassistant
+          docker_volume_name: home_assistant_volume
+          ports:
+            - 8123:8123
+          expose_by_reverse_proxy: true
         jellyfin:
           docker_image: linuxserver/jellyfin
           docker_image_tag: 10.9.6
