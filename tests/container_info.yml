@@ -47,7 +47,9 @@
         Failing: {{ container_health_failing }}
 # yamllint enable rule:indentation
 
-- name: Fail when contianer not healthy - {{ container_name }}
-  ansible.builtin.fail:
-    msg: Container is not healthy - {{ container_name }}
+- name: Fail container - {{ container_name }}
   when: container_health_status != 'HEALTHY'
+  block:
+    - name: Fail
+      ansible.builtin.fail:
+        msg: Container is not healthy - {{ container_name }}

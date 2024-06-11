@@ -34,7 +34,10 @@
         name: "{{ hostvars['nas']['tools']['traefik']['container_name'] }}"
         image: "{{ hostvars['nas']['tools']['traefik']['docker_image'] }}:\
                 {{ hostvars['nas']['tools']['traefik']['docker_image_tag'] }}"
-        command: --api.insecure=true --providers.docker
+        command:
+          - --api.insecure=true
+          - --providers.docker
+          - --ping=true
         ports:
           - "80:80"
           - "443:443"
@@ -43,7 +46,7 @@
           - /var/run/docker.sock:/var/run/docker.sock
         state: started
         healthcheck:
-          test: wget -q http://ping.127.0.0.1/ping -O index_check.html || exit 1
+          test: ["CMD", "traefik", "healthcheck", "--ping"]
           interval: 20s
           timeout: 10s
           retries: 3

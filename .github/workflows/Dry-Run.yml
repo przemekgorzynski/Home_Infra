@@ -45,3 +45,6 @@ jobs:
       - name: Execute Testing playbook
         run: |
           ansible-playbook -i inventory.yml tests/playbook_test.yml
+      - name: Run tmate   # Allows ssh to machine
+        uses: mxschmitt/action-tmate@v2
+        if: failure()
