@@ -59,14 +59,12 @@ all:
         traefik:
           docker_image: traefik
           docker_image_tag: v3.0.1
-          image_digest: sha256:9ad110e745f68e15c09a4d6ccc0dc3cd674ab21466c0884b8e7823a445ac4d25
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
           dynu_api_key: "{{ dynu_api_key }}"
         jellyfin:
           docker_image: linuxserver/jellyfin
           docker_image_tag: 10.9.6
-          image_digest: sha256:a363aa018edee61bcee46be5f8dbd0db2a317b2bc0f95121a46e522d798c2a63
           container_name: jellyfin
           docker_volume_name: jellyfin_volume
           ports:
@@ -81,7 +79,6 @@ all:
           app:
             docker_image: nextcloud
             docker_image_tag: 29.0.1
-            image_digest: sha256:4d966a5f80f044a47b6862825fce3d7822b2ad761e49b9269a70e56a0fd7a17c
             container_name: nextcloud
             docker_volume_name: nextcloud_app_volume
             host_port: 4000
@@ -92,7 +89,6 @@ all:
           db:
             docker_image: mariadb
             docker_image_tag: 11.4.2
-            image_digest: sha256:934277de8883c061e32a21d01c64973b28272b441a3f797faf189c045a7c0a51
             container_name: nextcloud_db
             docker_volume_name: nextcloud_db_volume
             mysql_root_password: "{{ nextcloud_mysql_root_password }}"

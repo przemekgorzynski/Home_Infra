@@ -14,7 +14,7 @@
   "separateMajorMinor": true,
   "separateMinorPatch": true,
   "timezone": "Europe/Warsaw",
-  "pinDigests": true,
+  "pinDigests": false,
   "enabledManagers": [
     "custom.regex",
     "github-actions",
