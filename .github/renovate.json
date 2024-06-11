@@ -29,7 +29,7 @@
       "description": "update _IMAGE versions in Ansible inventory",
       "fileMatch": ["^inventory.yml$"],
       "matchStrings": [
-        ".*_image: (?<depName>\\S+)\\n\\s+.*_image_tag: (?<currentValue>\\S+)\\n\\s+image_digest: (?<currentDigest>sha256:[a-f0-9]+)"
+        ".*_image: (?<depName>\\S+)\\n\\s+.*_image_tag: (?<currentValue>\\S+)"
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
