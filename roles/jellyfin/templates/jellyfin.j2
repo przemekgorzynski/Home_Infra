@@ -7,7 +7,7 @@ networks:
 
 services:
   jellyfin:
-    image: {{ tools.jellyfin.docker_image }}:{{ tools.jellyfin.docker_image_tag }}@{{ tools.jellyfin.image_digest }}
+    image: {{ tools.jellyfin.docker_image }}:{{ tools.jellyfin.docker_image_tag }}
     container_name: {{ tools.jellyfin.container_name }}
     environment:
       - PUID=0
