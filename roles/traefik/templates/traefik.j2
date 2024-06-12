@@ -13,6 +13,10 @@ services:
   traefik:
     image: {{ tools.traefik.docker_image }}:{{ tools.traefik.docker_image_tag }}
     container_name: {{ tools.traefik.container_name }}
+    command:
+      - --ping=true
+      - --api.insecure=true
+      - --providers.docker
     networks:
       - {{ tools.docker.network.name }}
     ports:
@@ -28,7 +32,7 @@ services:
       - /etc/traefik:/etc/traefik
       - /var/run/docker.sock:/var/run/docker.sock:ro
     healthcheck:
-      test: wget -q http://ping.127.0.0.1/ping -O index_check.html || exit 1
+      test: wget http://localhost:8080/api/rawdata -O test.html || exit 1
       interval: 20s
       timeout: 10s
       retries: 3

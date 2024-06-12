@@ -46,7 +46,7 @@
           - /var/run/docker.sock:/var/run/docker.sock
         state: started
         healthcheck:
-          test: ["CMD", "traefik", "healthcheck", "--ping"]
+          test: wget http://localhost:8080/api/rawdata -O test.html || exit 1
           interval: 20s
           timeout: 10s
           retries: 3
