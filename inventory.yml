@@ -64,7 +64,7 @@ all:
           dynu_api_key: "{{ dynu_api_key }}"
         jellyfin:
           docker_image: linuxserver/jellyfin
-          docker_image_tag: 10.9.6
+          docker_image_tag: 2021.12.16
           container_name: jellyfin
           docker_volume_name: jellyfin_volume
           ports:
