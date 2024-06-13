@@ -13,34 +13,31 @@ domain={{ domain }}
 get_cloudflare_zone_id(){
     cloudflare_zone_id=$(curl -s -X GET \
     --url $cloudflare_base/zones \
-    --header "X-Auth-Key: $global_api_key" \
+    --header "X-Auth-Key: $cloudflare_global_api_key" \
     --header "X-Auth-Email: $cloudflare_email"\
     --header "Content-Type: application/json" | jq -r --arg name "$domain" '.result[] | select(.name==$name) | .id')
-    return 0 
 }
 
 get_cloudflare_dns_record_id(){
     cloudflare_dns_record_id=$(curl -s -X GET \
     --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
-    --header "X-Auth-Key: $global_api_key" \
+    --header "X-Auth-Key: $cloudflare_global_api_key" \
     --header "X-Auth-Email: $cloudflare_email"\
     --header "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id')
-    return 0 
 }
 
 get_cloudflare_ip_assigned(){
     cloudflare_ip=$(curl -s -X GET \
     --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
-    --header "X-Auth-Key: $global_api_key" \
+    --header "X-Auth-Key: $cloudflare_global_api_key" \
     --header "X-Auth-Email: $cloudflare_email"\
     --header "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .content')
     echo "$cloudflare_ip"
-    return 0 
 }
 
 update_ip(){
     curl -s -X PUT "$cloudflare_base/zones/$cloudflare_zone_id/dns_records/$cloudflare_dns_record_id" \
-    --header "X-Auth-Key: $global_api_key" \
+    --header "X-Auth-Key: $cloudflare_global_api_key" \
     --header "X-Auth-Email: $cloudflare_email"\
     --header "Content-Type: application/json" \
     --data '{

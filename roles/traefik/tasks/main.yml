@@ -31,15 +31,20 @@
     - src: "{{ role_path }}/templates/traefik.j2"
       dest: "{{ tooling_dirs[0].path }}/traefik/docker-compose.yml"
       mode: '0750'
-    - src: "{{ role_path }}/templates/traefik.yml"
+    - src: "{{ role_path }}/templates/traefik_config.j2"
       dest: /etc/traefik/traefik.yml
       mode: '0750'
   register: config_files
 
 - name: Setup DDNS provider auth variables
-  ansible.builtin.lineinfile:
+  ansible.builtin.blockinfile:
     path: /etc/environment
-    line: DYNU_API_KEY={{ tools.traefik.dynu_api_key }}
+    block: |
+      # AUTH VARIABLES FOR TRAEFIK DDNS CHALLANGE PROVIDERS
+      # https://doc.traefik.io/traefik/https/acme/#providers
+      DYNU_API_KEY={{ tools.traefik.dynu_api_key }}
+      CF_API_EMAIL={{ tools.traefik.cloudflare_email }}   # Cloudflare
+      CF_API_KEY={{ tools.traefik.cloudflare_api_key }}
 
 - name: Start {{ tools.traefik.container_name | upper }}
   ansible.builtin.command:

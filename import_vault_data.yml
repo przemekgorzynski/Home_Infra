@@ -3,10 +3,10 @@
   ansible.builtin.set_fact:
     ansible_user: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
     ansible_become_password: "{{ lookup('community.general.bitwarden', 'os_account', field='password')[0] }}"
-    dynu_api_key: "{{ lookup('community.general.bitwarden', 'dynu_api_key', field='password')[0] }}"
+    dynu_api_key: "{{ lookup('community.general.bitwarden', 'API_KEY_Dynu', field='password')[0] }}"
     dynu_username: "{{ lookup('community.general.bitwarden', 'dynu_creds', field='username')[0] }}"
     dynu_password: "{{ lookup('community.general.bitwarden', 'dynu_creds', field='password')[0] }}"
-    cloudflare_email: "{{ lookup('community.general.bitwarden', 'Cloudflare', field='username')[0] }}"
+    cloudflare_email: "{{ lookup('community.general.bitwarden', 'cloudflare', field='username')[0] }}"
     cloudflare_global_api_key: "{{ lookup('community.general.bitwarden', 'API_KEY_Cloudflare', field='password')[0] }}"
     os_username: "{{ lookup('community.general.bitwarden', 'os_account', field='username')[0] }}"
     samba_password: "{{ lookup('community.general.bitwarden', 'samba_creds', field='password')[0] }}"

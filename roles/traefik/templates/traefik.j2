@@ -24,7 +24,12 @@ services:
       - "443:443"
       - "8080:8080"
     environment:
+{% if tools.traefik.provider == "dynu" %}
       DYNU_API_KEY: ${DYNU_API_KEY}
+{% else %}
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_API_KEY=${CF_API_KEY}
+{% endif %}
     restart: unless-stopped 
     volumes:
       - {{ tools.traefik.log_dir }}:{{ tools.traefik.log_dir }}
