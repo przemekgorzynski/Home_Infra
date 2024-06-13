@@ -46,7 +46,7 @@ update_ip(){
     --data '{
             "content": "'${public_ip}'",
             "name": "'${domain}'",
-            "proxied": true,
+            "proxied": false,
             "type": "A",
             "comment": "Domain verification record",
             "ttl": 3600
