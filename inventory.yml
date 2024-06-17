@@ -61,7 +61,10 @@ all:
           docker_image_tag: v3.0.2
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
+          provider: cloudflare    # dynu | cloudflare
           dynu_api_key: "{{ dynu_api_key }}"
+          cloudflare_email: "{{ cloudflare_email }}"
+          cloudflare_api_key: "{{ cloudflare_global_api_key }}"
         jellyfin:
           docker_image: linuxserver/jellyfin
           docker_image_tag: 10.9.6
