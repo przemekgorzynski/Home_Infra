@@ -1,0 +1,66 @@
+#/bin/bash
+
+# Define variables
+cloudflare_base="https://api.cloudflare.com/client/v4"
+public_ip=$(curl -s ipinfo.io/ip)
+
+# Dynamically updated vars
+cloudflare_email={{ cloudflare_email }}
+cloudflare_global_api_key={{ cloudflare_global_api_key }}
+domain={{ domain }}
+
+# Define functions
+get_cloudflare_zone_id(){
+    cloudflare_zone_id=$(curl -s -X GET \
+    --url $cloudflare_base/zones \
+    --header "X-Auth-Key: $cloudflare_global_api_key" \
+    --header "X-Auth-Email: $cloudflare_email"\
+    --header "Content-Type: application/json" | jq -r --arg name "$domain" '.result[] | select(.name==$name) | .id')
+}
+
+get_cloudflare_dns_record_id(){
+    cloudflare_dns_record_id=$(curl -s -X GET \
+    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
+    --header "X-Auth-Key: $cloudflare_global_api_key" \
+    --header "X-Auth-Email: $cloudflare_email"\
+    --header "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id')
+}
+
+get_cloudflare_ip_assigned(){
+    cloudflare_ip=$(curl -s -X GET \
+    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
+    --header "X-Auth-Key: $cloudflare_global_api_key" \
+    --header "X-Auth-Email: $cloudflare_email"\
+    --header "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .content')
+    echo "$cloudflare_ip"
+}
+
+update_ip(){
+    curl -s -X PUT "$cloudflare_base/zones/$cloudflare_zone_id/dns_records/$cloudflare_dns_record_id" \
+    --header "X-Auth-Key: $cloudflare_global_api_key" \
+    --header "X-Auth-Email: $cloudflare_email"\
+    --header "Content-Type: application/json" \
+    --data '{
+            "content": "'${public_ip}'",
+            "name": "'${domain}'",
+            "proxied": false,
+            "type": "A",
+            "comment": "Domain verification record",
+            "ttl": 3600
+    }'  > /dev/null
+}
+
+# Execute scripts
+get_cloudflare_zone_id
+get_cloudflare_dns_record_id
+cloudflare_ip=$(get_cloudflare_ip_assigned)
+
+echo "$public_ip - Public IP"
+echo "$cloudflare_ip - Cloudflare IP"
+
+if [ "${cloudflare_ip}" == "${public_ip}" ]; then
+    :
+else
+    echo "Updating"
+    update_ip
+fi

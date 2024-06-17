@@ -70,7 +70,11 @@ all:
           docker_image_tag: v3.0.2
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
+          provider: cloudflare    # dynu | cloudflare
           dynu_api_key: "{{ dynu_api_key }}"
+          expose_by_reverse_proxy: true
+          cloudflare_email: "{{ cloudflare_email }}"
+          cloudflare_api_key: "{{ cloudflare_global_api_key }}"
         home_assistant:
           docker_image: homeassistant/home-assistant
           docker_image_tag: 2024.6
@@ -79,7 +83,6 @@ all:
           docker_volume_name: home_assistant_volume
           ports:
             - 8123:8123
-          expose_by_reverse_proxy: true
         jellyfin:
           docker_image: linuxserver/jellyfin
           docker_image_tag: 10.9.6

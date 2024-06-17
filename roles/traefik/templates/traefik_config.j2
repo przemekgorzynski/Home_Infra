@@ -8,7 +8,7 @@ global:
 # (Optional) Log information
 # ---
 log:
-  level: DEBUG  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
   format: logfmt  # common, json, logfmt
   filePath: /var/log/traefik/traefik.log
 
@@ -37,21 +37,21 @@ entryPoints:
 certificatesResolvers:
   staging:
     acme:
-      email: pszemazzz@proton.me
+      email: {{ cloudflare_email }}
       storage: /letsencrypt/acme.json
       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
       dnschallenge:
-        provider: dynu
+        provider: {{ tools.traefik.provider }}
         resolvers:
           - 1.1.1.1
           - 8.8.8.8
   production:
     acme:
-      email: pszemazzz@proton.me
+      email: {{ cloudflare_email }}
       storage: /letsencrypt/acme.json
       caServer: "https://acme-v02.api.letsencrypt.org/directory"
       dnschallenge:
-        provider: dynu
+        provider: {{ tools.traefik.provider }}
         resolvers:
           - 1.1.1.1
           - 8.8.8.8
