@@ -8,7 +8,7 @@ networks:
 services:
   homeassistant:
     container_name: {{ tools.home_assistant.container_name }}
-    image: {{ tools.home_assistant.docker_image }}:{{ tools.home_assistant.docker_image_tag }}@{{ tools.home_assistant.image_digest }}
+    image: {{ tools.home_assistant.docker_image }}:{{ tools.home_assistant.docker_image_tag }}
     hostname: 'ha.{{ domain }}'
     volumes:
       - {{ tooling_dirs[0].path }}/home_assistant/configuration.yml:/config/configuration.yaml

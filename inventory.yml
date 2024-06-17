@@ -77,7 +77,6 @@ all:
         home_assistant:
           docker_image: homeassistant/home-assistant
           docker_image_tag: 2024.6
-          image_digest: sha256:0c2a3f04bdac8f4658ae42fdc83464f77f9f3c87b67bfea608cfa0356e6ed5b0
           container_name: homeassistant
           docker_volume_name: home_assistant_volume
           expose_by_reverse_proxy: true
