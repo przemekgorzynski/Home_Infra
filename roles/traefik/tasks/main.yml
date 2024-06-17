@@ -42,7 +42,6 @@
     block: |
       # AUTH VARIABLES FOR TRAEFIK DDNS CHALLANGE PROVIDERS
       # https://doc.traefik.io/traefik/https/acme/#providers
-      DYNU_API_KEY={{ tools.traefik.dynu_api_key }}
       CF_API_EMAIL={{ tools.traefik.cloudflare_email }}   # Cloudflare
       CF_API_KEY={{ tools.traefik.cloudflare_api_key }}
 

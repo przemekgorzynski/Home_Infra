@@ -6,7 +6,7 @@ networks:
     driver: bridge
 
 services:
-  homeassistant:
+  ha:
     container_name: {{ tools.home_assistant.container_name }}
     image: {{ tools.home_assistant.docker_image }}:{{ tools.home_assistant.docker_image_tag }}
     hostname: 'ha.{{ domain }}'
