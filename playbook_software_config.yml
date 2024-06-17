@@ -37,6 +37,11 @@
         - name: Create docker network - "{{ tools.docker.network.name }}"
           community.docker.docker_network:
             name: "{{ tools.docker.network.name }}"
+            ipam_config:
+              - subnet: "{{ tools.docker.network.subnet }}"
+                gateway: "{{ tools.docker.network.gateway }}"
+          tags:
+            - docker_network
         - name: Create tool dirs
           ansible.builtin.file:
             state: directory
@@ -45,18 +50,22 @@
             group: "{{ item.group }}"
             mode: "{{ item.chmod }}"
           with_items: "{{ tooling_dirs }}"
-        - name: Import Jellyfin role
-          ansible.builtin.import_role:
-            name: jellyfin
-          tags: jellyfin
-        - name: Import Nextcloud role
-          ansible.builtin.import_role:
-            name: nextcloud
-          tags: nextcloud
         - name: Import Traefik role
           ansible.builtin.import_role:
             name: traefik
           tags: traefik
+        - name: Import Home_Assistant role
+          ansible.builtin.import_role:
+            name: home_assistant
+          tags: home_assistant
+        - name: Import Nextcloud role
+          ansible.builtin.import_role:
+            name: nextcloud
+          tags: nextcloud
+        - name: Import Jellyfin role
+          ansible.builtin.import_role:
+            name: jellyfin
+          tags: jellyfin
         - name: Import DDNS role
           ansible.builtin.import_role:
             name: ddns

@@ -1,0 +1,44 @@
+version: '3.8'
+
+networks: 
+  {{ tools.docker.network.name }}:
+    external: true
+    driver: bridge
+
+services:
+  homeassistant:
+    container_name: {{ tools.home_assistant.container_name }}
+    image: {{ tools.home_assistant.docker_image }}:{{ tools.home_assistant.docker_image_tag }}
+    hostname: 'ha.{{ domain }}'
+    volumes:
+      - {{ tooling_dirs[0].path }}/home_assistant/configuration.yml:/config/configuration.yaml
+      - home_assistant_data:/config
+    cap_add:
+      - NET_ADMIN
+      - NET_BIND_SERVICE
+      - SYS_ADMIN
+    environment:
+      - TZ=Europe/Warsaw
+    ports:
+      {{ tools.home_assistant.ports }}
+    expose:
+      - 8123
+    networks:
+      {{ tools.docker.network.name }}: 
+        ipv4_address: {{ tools.docker.network.containers.home_assistant }}
+    labels:
+      - "traefik.enable={{ tools.home_assistant.expose_by_reverse_proxy }}"
+      - "traefik.http.routers.homeassistant.rule=Host(`ha.{{ domain }}`)"
+      - "traefik.http.routers.homeassistant.entrypoints=websecure"
+      - "traefik.http.routers.homeassistant.tls.certresolver=production"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8123"]
+      interval: "30s"
+      timeout: "10s"
+      retries: "10"
+    privileged: true
+    restart: unless-stopped
+
+volumes:
+  home_assistant_data:
+    name: {{ tools.home_assistant.docker_volume_name }}

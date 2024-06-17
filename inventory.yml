@@ -56,6 +56,15 @@ all:
         docker:
           network:
             name: tooling
+            subnet: 172.18.0.0/16
+            gateway: 172.18.0.1
+            containers:
+              traefik: 172.18.0.2
+              home_assistant: 172.18.0.3
+              jellyfin: 172.18.0.4
+              nextcloud:
+                app: 172.18.0.5
+                db: 172.18.0.6
         traefik:
           docker_image: traefik
           docker_image_tag: v3.0.2
@@ -65,6 +74,14 @@ all:
           dynu_api_key: "{{ dynu_api_key }}"
           cloudflare_email: "{{ cloudflare_email }}"
           cloudflare_api_key: "{{ cloudflare_global_api_key }}"
+        home_assistant:
+          docker_image: homeassistant/home-assistant
+          docker_image_tag: 2024.6
+          container_name: homeassistant
+          docker_volume_name: home_assistant_volume
+          expose_by_reverse_proxy: true
+          ports:
+            - 8123:8123
         jellyfin:
           docker_image: linuxserver/jellyfin
           docker_image_tag: 10.9.6

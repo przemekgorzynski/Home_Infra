@@ -11,7 +11,8 @@ services:
     restart: unless-stopped
     container_name: {{ tools.nextcloud.db.container_name }}
     networks:
-      - {{ tools.docker.network.name }}
+      {{ tools.docker.network.name }}: 
+        ipv4_address: {{ tools.docker.network.containers.nextcloud.db }}
     command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
     volumes:
       - nextcloud_db_volume:/var/lib/mysql
@@ -37,7 +38,8 @@ services:
     expose:
     - {{ tools.nextcloud.app.container_port }}
     networks:
-      - {{ tools.docker.network.name }}
+      {{ tools.docker.network.name }}: 
+        ipv4_address: {{ tools.docker.network.containers.nextcloud.app }}
     links:
       - db
     volumes:

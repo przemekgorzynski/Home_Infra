@@ -1,0 +1,40 @@
+homeassistant:
+  name: My Home
+  latitude: 53.123482
+  longitude: 18.008438
+  elevation: 60
+  temperature_unit: C
+  unit_system: metric
+  time_zone: Europe/Warsaw
+  internal_url: "http://localhost:8123"
+  country: PL
+
+  auth_providers:
+    - type: homeassistant
+    - type: trusted_networks
+      trusted_networks:
+        - 192.168.0.0/16
+        - 10.0.0.0/24
+
+http:
+  use_x_forwarded_for: {{ tools.home_assistant.expose_by_reverse_proxy }}
+  trusted_proxies:
+    - 172.30.33.3
+    - 127.0.0.1
+    - ::1
+    - 172.18.0.0/16
+    - {{ tools.docker.network.containers.traefik }}
+
+default_config:
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+# https://github.com/home-assistant/core/tree/dev/homeassistant/components
+mobile_app:
+
+sun:
