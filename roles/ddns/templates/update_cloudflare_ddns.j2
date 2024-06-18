@@ -8,6 +8,7 @@ public_ip=$(curl -s ipinfo.io/ip)
 cloudflare_email={{ cloudflare_email }}
 cloudflare_global_api_key={{ cloudflare_global_api_key }}
 domain={{ domain }}
+dns_entries=({{ tools.ddns.dns_entries_to_update | join(" ") }})
 
 # Define functions
 get_cloudflare_zone_id(){
@@ -20,15 +21,15 @@ get_cloudflare_zone_id(){
 
 get_cloudflare_dns_record_id(){
     cloudflare_dns_record_id=$(curl -s -X GET \
-    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
+    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$dns_entry.$domain" \
     --header "X-Auth-Key: $cloudflare_global_api_key" \
     --header "X-Auth-Email: $cloudflare_email"\
-    --header "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id')
+    --header "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id' )
 }
 
 get_cloudflare_ip_assigned(){
     cloudflare_ip=$(curl -s -X GET \
-    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
+    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$dns_entry.$domain" \
     --header "X-Auth-Key: $cloudflare_global_api_key" \
     --header "X-Auth-Email: $cloudflare_email"\
     --header "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .content')
@@ -42,25 +43,30 @@ update_ip(){
     --header "Content-Type: application/json" \
     --data '{
             "content": "'${public_ip}'",
-            "name": "'${domain}'",
+            "name": "'${dns_entry}'",
             "proxied": false,
             "type": "A",
-            "comment": "Domain verification record",
+            "comment": "'${dns_entry}' verification record",
             "ttl": 3600
     }'  > /dev/null
 }
 
 # Execute scripts
 get_cloudflare_zone_id
-get_cloudflare_dns_record_id
-cloudflare_ip=$(get_cloudflare_ip_assigned)
 
-echo "$public_ip - Public IP"
-echo "$cloudflare_ip - Cloudflare IP"
-
-if [ "${cloudflare_ip}" == "${public_ip}" ]; then
-    :
-else
-    echo "Updating"
-    update_ip
-fi
+for dns_entry in "${dns_entries[@]}"; do
+    get_cloudflare_dns_record_id
+    cloudflare_ip=$(get_cloudflare_ip_assigned)
+    echo "===================================="
+    echo "Checking $dns_entry.$domain"
+    echo "$cloudflare_zone_id - ZoneID"
+    echo "$public_ip - Public IP"
+    echo "$cloudflare_ip - Cloudflare IP"
+    if [ "${cloudflare_ip}" == "${public_ip}" ]; then
+        echo "Skipping update $dns_entry.$domain"
+        :
+    else
+        echo "Updating entry $dns_entry.$domain"
+        update_ip
+    fi
+done

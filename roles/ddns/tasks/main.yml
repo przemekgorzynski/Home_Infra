@@ -22,11 +22,6 @@
     user: "{{ item.user }}"
     job: "{{ item.job }}"
   loop:
-    - name: "DDNS Dynu update"
-      minute: "*/10"
-      hour: "*"
-      user: root
-      job: "/update_dynu_ddns.sh"
     - name: "DDNS Cloudflare update"
       minute: "*/20"
       hour: "*"
