@@ -50,7 +50,7 @@ all:
           chmod: '0770'
           group: "{{ admin_group[0].name }}"
         - path: /samba_backup/samba_shares_backup
-          chmod: '0770'
+          chmod: '0777'
           group: "{{ admin_group[0].name }}"
       tools:
         docker:
