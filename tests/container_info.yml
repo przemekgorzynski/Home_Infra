@@ -1,7 +1,7 @@
 ---
-- name: Pause for a 30 seconds before inspecting {{ item.name | upper }}
+- name: Pause for a 45 seconds before inspecting {{ item.name | upper }}
   ansible.builtin.pause:
-    seconds: 30
+    seconds: 45
 
 - name: Get container data - {{ item.name | upper }}
   ansible.builtin.command:

@@ -13,6 +13,8 @@
     nextcloud_mysql_user: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_user', field='username')[0] }}"
     nextcloud_mysql_password: "{{ lookup('community.general.bitwarden', 'nextcloud_mysql_user', field='password')[0] }}"
     dynu_api_key: "{{ lookup('community.general.bitwarden', 'API_KEY_Dynu', field='password')[0] }}"
+    dynu_email: "{{ lookup('community.general.bitwarden', 'API_KEY_Dynu', field='username')[0] }}"
     dynu_username: "{{ lookup('community.general.bitwarden', 'dynu_creds', field='username')[0] }}"
     dynu_password: "{{ lookup('community.general.bitwarden', 'dynu_creds', field='password')[0] }}"
+    asd: dsa
   no_log: true
