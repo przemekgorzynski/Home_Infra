@@ -73,6 +73,7 @@ all:
           provider: cloudflare
           cloudflare_email: "{{ cloudflare_email }}"
           cloudflare_api_key: "{{ cloudflare_global_api_key }}"
+          dynu_api_key: "{{ dynu_api_key }}"
         ddns:
           dns_entries_to_update:
             - nextcloud
