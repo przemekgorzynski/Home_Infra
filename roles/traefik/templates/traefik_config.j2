@@ -37,24 +37,21 @@ entryPoints:
 certificatesResolvers:
   staging:
     acme:
-      email: {{ cloudflare_email }}
+      email: {% if tools.traefik.provider == "dynu" %}{{ dynu_email }}{% else %}{{ cloudflare_email }}{% endif %}
+
       storage: /letsencrypt/acme.json
       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
       dnschallenge:
         provider: {{ tools.traefik.provider }}
-        resolvers:
-          - 1.1.1.1
-          - 8.8.8.8
+
   production:
     acme:
-      email: {{ cloudflare_email }}
+      email: {% if tools.traefik.provider == "dynu" %}{{ dynu_email }}{% else %}{{ cloudflare_email }}{% endif %}
+      
       storage: /letsencrypt/acme.json
       caServer: "https://acme-v02.api.letsencrypt.org/directory"
       dnschallenge:
         provider: {{ tools.traefik.provider }}
-        resolvers:
-          - 1.1.1.1
-          - 8.8.8.8
 
 providers:
   docker:

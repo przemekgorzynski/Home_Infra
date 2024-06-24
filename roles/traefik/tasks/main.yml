@@ -44,6 +44,7 @@
       # https://doc.traefik.io/traefik/https/acme/#providers
       CF_API_EMAIL={{ tools.traefik.cloudflare_email }}   # Cloudflare
       CF_API_KEY={{ tools.traefik.cloudflare_api_key }}
+      DYNU_API_KEY={{ tools.traefik.dynu_api_key }}       # Dynu
 
 - name: Start {{ tools.traefik.container_name | upper }}
   ansible.builtin.command:
