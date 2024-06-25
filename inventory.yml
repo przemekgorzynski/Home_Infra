@@ -29,7 +29,8 @@ all:
     localhost:
       ansible_connection: local
     nas:
-      domain: gorillabay.org
+      # domain: gorillabay.org
+      domain: gorillabay.click
       hostname: nas
       type: pc
       ansible_host: 10.0.0.10
@@ -70,14 +71,16 @@ all:
           docker_image_tag: v3.0.3
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
-          provider: cloudflare
+          # provider: cloudflare
+          provider: dynu
           cloudflare_email: "{{ cloudflare_email }}"
           cloudflare_api_key: "{{ cloudflare_global_api_key }}"
+          dynu_email: "{{ dynu_username }}"
+          dynu_api_key: "{{ dynu_api_key }}"
         ddns:
           dns_entries_to_update:
             - nextcloud
             - ha
-            - test
         home_assistant:
           docker_image: homeassistant/home-assistant
           docker_image_tag: 2024.6
@@ -102,14 +105,14 @@ all:
         nextcloud:
           app:
             docker_image: nextcloud
-            docker_image_tag: 29.0.2
+            docker_image_tag: 28.0.6
             container_name: nextcloud
             docker_volume_name: nextcloud_app_volume
             host_port: 4000
             container_port: 80
             admin_user: "{{ nextcloud_admin_user}}"
             admin_password: "{{ nextcloud_admin_password }}"
-            trusted_domains: "nextcloud.{{ domain }},{{ domain }}"
+            trusted_domains: "nextcloud.{{ domain }}"
           db:
             docker_image: mariadb
             docker_image_tag: 11.4.2

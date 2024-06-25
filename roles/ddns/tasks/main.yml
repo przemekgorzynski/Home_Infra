@@ -27,3 +27,8 @@
       hour: "*"
       user: root
       job: "/update_cloudflare_ddns.sh"
+    - name: "DDNS Dynu update"
+      minute: "*/10"
+      hour: "*"
+      user: root
+      job: "/update_dynu_ddns.sh"
