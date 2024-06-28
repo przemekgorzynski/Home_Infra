@@ -105,7 +105,7 @@ all:
         nextcloud:
           app:
             docker_image: nextcloud
-            docker_image_tag: 28.0.6
+            docker_image_tag: 28.0.7
             container_name: nextcloud
             docker_volume_name: nextcloud_app_volume
             host_port: 4000
