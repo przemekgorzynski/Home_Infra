@@ -21,6 +21,8 @@ Home infrastructure configuration
   - [Tests](#tests)
     - [Lint](#lint)
     - [Dry-Run](#dry-run)
+  - [Off-Topic](#off-topic)
+    - [Commands](#commands)
 
 ## Prerequisites
 
@@ -154,3 +156,9 @@ Testing playbook runs against each container and return it's status:
       Status: HEALTHY
       Failing: 0
 ```
+
+## Off-Topic
+
+### Commands
+
+`docker exec -it -u www-data nextcloud /var/www/html/occ maintenance:repair --include-expensive`
