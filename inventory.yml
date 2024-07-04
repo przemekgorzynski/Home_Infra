@@ -68,7 +68,7 @@ all:
                 db: 172.18.0.6
         traefik:
           docker_image: traefik
-          docker_image_tag: v3.0.3
+          docker_image_tag: v3.0.4
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
           # provider: cloudflare
