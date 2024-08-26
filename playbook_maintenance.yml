@@ -4,11 +4,6 @@
   gather_facts: false
 
   pre_tasks:
-    - name: Import Bitwarden secrets
-      ansible.builtin.import_tasks: import_vault_data.yml
-      tags:
-        - pre
-        - always
     - name: Check connectivity
       action: ansible.builtin.ping
       tags:
