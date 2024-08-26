@@ -21,7 +21,7 @@
         name: user_mgmnt
       tags:
         - user_mgmnt
-    - name: Import user_mgmnt role
+    - name: Import os_mgmnt role
       ansible.builtin.import_role:
         name: os_mgmnt
       tags:

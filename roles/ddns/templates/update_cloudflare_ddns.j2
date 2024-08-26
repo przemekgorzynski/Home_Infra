@@ -5,7 +5,7 @@ cloudflare_base="https://api.cloudflare.com/client/v4"
 public_ip=$(curl -s ipinfo.io/ip)
 
 # Dynamically updated vars
-cloudflare_email={{ cloudflare_email }}
+cloudflare_email={{ cloudflare_user }}
 cloudflare_global_api_key={{ cloudflare_global_api_key }}
 domain={{ domain }}
 dns_entries=({{ tools.ddns.dns_entries_to_update | join(" ") }})

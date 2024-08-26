@@ -23,13 +23,13 @@
   ansible.builtin.hostname:
     name: "{{ hostname }}"
 
-- name: Update /etc/hosts
-  ansible.builtin.blockinfile:
-    path: /etc/hosts
-    block: |
-      {% for host in groups['all'] %}
-      {{ hostvars[host].ansible_host }} {{ hostvars[host].hostname }}
-      {% endfor %}
+# - name: Update /etc/hosts
+#   ansible.builtin.blockinfile:
+#     path: /etc/hosts
+#     block: |
+#       {% for host in groups['all'] %}
+#       {{ hostvars[host].ansible_host }} {{ hostvars[host].hostname }}
+#       {% endfor %}
 
 - name: Set timezone to Europe/Warsaw
   community.general.timezone:

@@ -73,7 +73,7 @@ all:
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
           # provider: cloudflare
           provider: dynu
-          cloudflare_email: "{{ cloudflare_email }}"
+          cloudflare_email: "{{ cloudflare_user }}"
           cloudflare_api_key: "{{ cloudflare_global_api_key }}"
           dynu_email: "{{ dynu_username }}"
           dynu_api_key: "{{ dynu_api_key }}"

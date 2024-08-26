@@ -27,10 +27,6 @@ Home infrastructure configuration
 ## Prerequisites
 
 ### Local Host requirements
-- Installed Bitwarden CLI
-
-    `https://bitwarden.com/help/cli/`
-
 - Installed packages
     - ansible
 
@@ -39,12 +35,6 @@ Home infrastructure configuration
     ```bash
     ansible-galaxy collection install -r requirments.yml
     ``` 
-
-- Genrateed Bitwarden API key and exported as env variable (Account Settings -> Security -> Keys -> API Key)
-    ```
-    export BW_CLIENTID=username
-    export BW_CLIENTSECRET=password
-    ```
 
 - Have locally generated SSH key-pair and public key is uploaded to GitHub account - will be fetched during OS installation
 
@@ -69,22 +59,11 @@ https://docs.renovatebot.com/configuration-options/
 
 ### BitWarden
 
-All secrets passed into playbooks are fetched from Bitwarden secret manager. In order to make it available need to execute following steps before playbooks execution.
+All secrets passed into playbooks are fetched from Bitwarden secret manager. In order to make it available need to export access token before playbooks execution.
+
 
 ```bash
-bw login [--apikey]
-```
-
-```bash
-bw unlock
-```
-
-```bash
-bw sync
-```
-
-```bash
-export BW_SESSION=XXXXX
+export BWS_ACCESS_TOKEN=XXXXX
 ```
 
 ## Deployments
@@ -103,6 +82,12 @@ ansible-playbook -i inventory.yml playbook_software_config.yml
 ### Maintenance
 ```bash
 ansible-playbook -i inventory.yml playbook_maintenance.yml 
+```
+
+#### Run against single host
+
+```bash
+ansible-playbook -i inventory.yml playbook_base_config.yml --extra-vars "variable_host=nas"
 ```
 
 ## Tests
