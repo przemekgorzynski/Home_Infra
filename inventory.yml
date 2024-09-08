@@ -91,7 +91,7 @@ all:
             - 8123:8123
         jellyfin:
           docker_image: linuxserver/jellyfin
-          docker_image_tag: 10.9.10
+          docker_image_tag: 10.9.11
           container_name: jellyfin
           docker_volume_name: jellyfin_volume
           ports:
