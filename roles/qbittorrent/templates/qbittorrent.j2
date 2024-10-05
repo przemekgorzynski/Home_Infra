@@ -1,0 +1,32 @@
+version: '3.8'
+
+networks: 
+  {{ tools.docker.network.name }}:
+    external: true
+    driver: bridge
+
+services:
+  qbittorrent:
+    image: {{ tools.qbittorrent.docker_image }}:{{ tools.qbittorrent.docker_image_tag }}
+    container_name: {{ tools.qbittorrent.container_name }}
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - WEBUI_PORT={{ tools.qbittorrent.web_ui_port }}
+      - TORRENTING_PORT={{ tools.qbittorrent.torrenting_port }}
+    networks:
+      {{ tools.docker.network.name }}: 
+        ipv4_address: {{ tools.docker.network.containers.qbittorrent }}
+    ports:
+      - {{ tools.qbittorrent.web_ui_port }}:{{ tools.qbittorrent.web_ui_port }}
+      - {{ tools.qbittorrent.torrenting_port }}:{{ tools.qbittorrent.torrenting_port }}
+      - {{ tools.qbittorrent.torrenting_port }}:{{ tools.qbittorrent.torrenting_port }}/udp
+    volumes:
+      - qbittorrent_volume:/config
+      - {{ tools.qbittorrent.downloading_path }}:/downloads
+    restart: unless-stopped
+
+volumes:
+  qbittorrent_volume:
+    name: {{ tools.qbittorrent.docker_volume_name }}
