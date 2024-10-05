@@ -66,6 +66,7 @@ all:
               nextcloud:
                 app: 172.18.0.5
                 db: 172.18.0.6
+              qbittorrent: 172.18.0.7
         traefik:
           docker_image: traefik
           docker_image_tag: v3.1.4
@@ -122,6 +123,14 @@ all:
             mysql_user: "{{ nextcloud_mysql_user }}"
             mysql_password: "{{ nextcloud_mysql_password }}"
             mysql_database: nextclouddb
+        qbittorrent:
+          docker_image: lscr.io/linuxserver/qbittorrent
+          docker_image_tag: 5.0.0-r1-ls355
+          container_name: qbittorrent
+          docker_volume_name: qbittorrent
+          web_ui_port: 8090
+          torrenting_port: 6881
+          downloading_path: /samba_backup/new/Toreview/In_progress
     # dell-sandbox:
     #   hostname: dell-sandbox
     #   type: notebook
