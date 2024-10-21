@@ -12,6 +12,7 @@
       ansible.builtin.pip:
         name: "{{ item }}"
         state: present
+        break_system_packages: true
       with_items: "{{ pip_package_requirements }}"
     - name: Start {{ hostvars['nas']['tools']['jellyfin']['container_name'] | upper }}
       community.docker.docker_container:
