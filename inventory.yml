@@ -70,6 +70,7 @@ all:
         traefik:
           docker_image: traefik
           docker_image_tag: v3.1.6
+          platform: amd64
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
           # provider: cloudflare
