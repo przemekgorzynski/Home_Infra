@@ -12,6 +12,7 @@ volumes:
 services:
   traefik:
     image: {{ tools.traefik.docker_image }}:{{ tools.traefik.docker_image_tag }}
+    platform: {{ tools.traefik.platform }}
     container_name: {{ tools.traefik.container_name }}
     command:
       - --ping=true
