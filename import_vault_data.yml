@@ -3,65 +3,65 @@
   block:
     - name: Get OS username
       ansible.builtin.set_fact:
-        os_username: "{{ lookup('bitwarden.secrets.lookup', '98664d30-a930-4b75-a527-b1d800ab33ff') }}"
+        os_username: "{{ lookup('bitwarden.secrets.lookup', '9a99c8b1-d03c-4c01-8e43-b21801113627') }}"
       no_log: true
 
     - name: Get Samba password
       ansible.builtin.set_fact:
-        samba_password: "{{ lookup('bitwarden.secrets.lookup', '6c3c2189-aa21-42eb-910e-b1d800b28ece') }}"
+        samba_password: "{{ lookup('bitwarden.secrets.lookup', '31379641-1ae3-4db6-a356-b218011224cd') }}"
       no_log: true
 
     - name: Get Cloudflare user
       ansible.builtin.set_fact:
-        cloudflare_user: "{{ lookup('bitwarden.secrets.lookup', '456bac3c-c0e5-4f3b-a6df-b1d800b3e0de') }}"
+        cloudflare_user: "{{ lookup('bitwarden.secrets.lookup', '9ecb8aef-62b0-4040-9be5-b218010ee7ea') }}"
       no_log: true
 
     - name: Get Cloudflare API Key
       ansible.builtin.set_fact:
-        cloudflare_global_api_key: "{{ lookup('bitwarden.secrets.lookup', 'a015ed00-baec-4126-99ee-b1c5008265c2') }}"
+        cloudflare_global_api_key: "{{ lookup('bitwarden.secrets.lookup', '9f9ece58-9542-466c-b949-b218010ebe6e') }}"
       no_log: true
 
     - name: Get Dynu user
       ansible.builtin.set_fact:
-        dynu_username: "{{ lookup('bitwarden.secrets.lookup', 'b6f6599f-7c1a-4ea4-9e87-b1d800b591a9') }}"
+        dynu_username: "{{ lookup('bitwarden.secrets.lookup', '83bc2b4c-24bb-4c39-aa74-b218010f4d76') }}"
       no_log: true
 
     - name: Get Dynu password
       ansible.builtin.set_fact:
-        dynu_password: "{{ lookup('bitwarden.secrets.lookup', '53529eeb-6e48-41d5-aeb2-b1d800bb18ff') }}"
+        dynu_password: "{{ lookup('bitwarden.secrets.lookup', 'ffad31ab-3bae-46a1-926b-b218010f372d') }}"
       no_log: true
 
     - name: Get Dynu email
       ansible.builtin.set_fact:
-        dynu_email: "{{ lookup('bitwarden.secrets.lookup', '62270217-563f-43d7-b291-b1d800b9a2fc') }}"
+        dynu_email: "{{ lookup('bitwarden.secrets.lookup', '35f975c2-0f27-405c-a660-b218010f1934') }}"
       no_log: true
 
     - name: Get Dynu API KEY
       ansible.builtin.set_fact:
-        dynu_api_key: "{{ lookup('bitwarden.secrets.lookup', 'e5682d26-af7c-4567-b186-b1c50082e639') }}"
+        dynu_api_key: "{{ lookup('bitwarden.secrets.lookup', '940d2a61-d6fc-4255-886c-b218010efdc9') }}"
       no_log: true
 
     - name: Get Nextcloud admin user
       ansible.builtin.set_fact:
-        nextcloud_admin_user: "{{ lookup('bitwarden.secrets.lookup', '24bd07e8-1a84-40d9-b28b-b1d800b77523') }}"
+        nextcloud_admin_user: "{{ lookup('bitwarden.secrets.lookup', '8b8e6fee-8081-4a06-b493-b218010f9446') }}"
       no_log: true
 
     - name: Get Nextcloud admin password
       ansible.builtin.set_fact:
-        nextcloud_admin_password: "{{ lookup('bitwarden.secrets.lookup', '72a285aa-b910-4e53-8c2c-b1d800b789b2') }}"
+        nextcloud_admin_password: "{{ lookup('bitwarden.secrets.lookup', '7a126e4e-c81b-466f-b74d-b218010f8159') }}"
       no_log: true
 
     - name: Get Nextcloud Mysql root password
       ansible.builtin.set_fact:
-        nextcloud_mysql_root_password: "{{ lookup('bitwarden.secrets.lookup', '7496ccd1-6764-4e19-8eb5-b1d800b8102c') }}"
+        nextcloud_mysql_root_password: "{{ lookup('bitwarden.secrets.lookup', '5b5515c4-c555-492e-a1ac-b218010fb6e2') }}"
       no_log: true
 
     - name: Get Nextcloud Mysql user
       ansible.builtin.set_fact:
-        nextcloud_mysql_user: "{{ lookup('bitwarden.secrets.lookup', '24b88a42-f92d-48b1-9203-b1d800b83507') }}"
+        nextcloud_mysql_user: "{{ lookup('bitwarden.secrets.lookup', '6400c152-865e-41f1-9d6d-b2180110eff9') }}"
       no_log: true
 
     - name: Get Nextcloud Mysql user password
       ansible.builtin.set_fact:
-        nextcloud_mysql_password: "{{ lookup('bitwarden.secrets.lookup', '416d169c-f9f1-4bda-aecf-b1d800b85b10') }}"
+        nextcloud_mysql_password: "{{ lookup('bitwarden.secrets.lookup', 'e07cdcf4-b567-4f2c-a673-b218010fc836') }}"
       no_log: true
