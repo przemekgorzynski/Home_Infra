@@ -69,7 +69,7 @@ all:
               qbittorrent: 172.18.0.7
         traefik:
           docker_image: traefik
-          docker_image_tag: v3.1.6
+          docker_image_tag: v3.2.0
           platform: amd64
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
