@@ -1,6 +1,6 @@
 ---
 - name: Base config
-  hosts: "{{ variable_host | default('all') }}"
+  hosts: all:!localhost
   gather_facts: false
 
   pre_tasks:
