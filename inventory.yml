@@ -31,6 +31,7 @@ all:
     nas:
       # domain: gorillabay.org
       domain: gorillabay.click
+      domain2: pszemazzz.com
       hostname: nas
       type: pc
       ansible_host: 10.0.0.10
