@@ -118,7 +118,7 @@ all:
             trusted_domains: "nextcloud.{{ domain }}"
           db:
             docker_image: mariadb
-            docker_image_tag: 11.5.2
+            docker_image_tag: 11.6.2
             container_name: nextcloud_db
             docker_volume_name: nextcloud_db_volume
             mysql_root_password: "{{ nextcloud_mysql_root_password }}"
