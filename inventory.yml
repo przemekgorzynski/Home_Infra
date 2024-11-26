@@ -28,10 +28,16 @@ all:
   hosts:
     localhost:
       ansible_connection: local
+    mikrus_l263:  # l263
+      ansible_host: srv15.mikr.us
+      ansible_port: 10263
+      ansible_user: root
+      hostname: l263
+      type: pc
     nas:
-      # domain: gorillabay.org
       domain: gorillabay.click
       domain2: pszemazzz.com
+      domain3: gorillabay.org
       hostname: nas
       type: pc
       ansible_host: 10.0.0.10
