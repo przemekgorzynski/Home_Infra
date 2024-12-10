@@ -28,6 +28,12 @@ all:
   hosts:
     localhost:
       ansible_connection: local
+    mikrus_c343:
+      ansible_host: srv29.mikr.us
+      ansible_port: 10343
+      ansible_user: root
+      hostname: c343
+      type: pc
     mikrus_l263:  # l263
       ansible_host: srv15.mikr.us
       ansible_port: 10263
