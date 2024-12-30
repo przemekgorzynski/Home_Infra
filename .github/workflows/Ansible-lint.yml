@@ -29,7 +29,7 @@ jobs:
       - name: Install Ansible && dependencies
         run: |
           sudo apt update
-          sudo apt install ansible -y
+          pip3 install ansible
           ansible --version
           ansible-galaxy collection install -r requirments.yml
       - name: Install Ansible-lint
