@@ -31,4 +31,4 @@ jobs:
         with:
           yamllint_file_or_dir: .
           yamllint_comment: true
-          yamllint_config_filepath: .github/yamllint
+          yamllint_config_filepath: .github/yamllint.yml
