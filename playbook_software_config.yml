@@ -27,9 +27,14 @@
         minute: "0"
         hour: "5"
         user: root
-        job: "rsync -az --delete --exclude 'filmy' {{ samba_shares_partition[0].path }}/ {{ samba_backup_partition[0].path }}/samba_shares_backup/"
+        job: >-
+          rsync -az --delete
+          --exclude 'filmy'
+          --exclude 'cwik'
+          {{ samba_shares_partition[0].path }}/
+          {{ samba_backup_partition[0].path }}/samba_shares_backup/
       tags:
-        - samba_backup
+        - rsync
     - name: Tools configuration
       tags:
         - tools
