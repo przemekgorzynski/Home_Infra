@@ -1,5 +1,4 @@
 [![YAML-lint](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/YAML-lint.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/YAML-lint.yml)
-[![Ansible-lint](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/Ansible-lint.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/Ansible-lint.yml)
 [![Dry-Run](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/Dry-Run.yml/badge.svg)](https://github.com/przemekgorzynski/Home_Infra/actions/workflows/Dry-Run.yml)
 # Home_Infra
 Home infrastructure configuration
@@ -99,17 +98,13 @@ All of following tests are implemented and executed in Github Actions pipelines.
 Check before pushing lints pass, as this will be check in pipeline.
 Using two of lints:
   - Yamllint - configuration inside `.github/yamllint` file
-  - Ansible-lint
 
 ```
-pip3 install yamllint ansible-lint
+pip3 install yamllint
 ```
 
 ```
 yamllint  -c .github/yamllint .
-```
-```
-ansible-lint
 ```
 
 ### Dry-run
