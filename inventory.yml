@@ -139,7 +139,7 @@ all:
             mysql_database: nextclouddb
         qbittorrent:
           docker_image: lscr.io/linuxserver/qbittorrent
-          docker_image_tag: 5.0.0-r1-ls355
+          docker_image_tag: 5.0.3-r0-ls380
           container_name: qbittorrent
           docker_volume_name: qbittorrent
           web_ui_port: 8090
