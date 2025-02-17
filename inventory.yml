@@ -138,7 +138,7 @@ all:
             mysql_password: "{{ nextcloud_mysql_password }}"
             mysql_database: nextclouddb
         qbittorrent:
-          docker_image: lscr.io/linuxserver/qbittorrent
+          docker_image: linuxserver/qbittorrent
           docker_image_tag: 5.0.3-r0-ls380
           container_name: qbittorrent
           docker_volume_name: qbittorrent
