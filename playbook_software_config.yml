@@ -20,7 +20,12 @@
       ansible.builtin.import_role:
         name: samba
       tags:
-        - samba_config
+        - samba
+    - name: Import nfs role
+      ansible.builtin.import_role:
+        name: nfs
+      tags:
+        - nfs
     - name: Enable disks backup
       ansible.builtin.cron:
         name: "RSYNC samba shares"
@@ -59,10 +64,6 @@
           ansible.builtin.import_role:
             name: traefik
           tags: traefik
-        # - name: Import Home_Assistant role
-        #   ansible.builtin.import_role:
-        #     name: home_assistant
-        #   tags: home_assistant
         - name: Import Nextcloud role
           ansible.builtin.import_role:
             name: nextcloud

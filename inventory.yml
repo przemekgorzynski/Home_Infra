@@ -59,6 +59,12 @@ all:
           chmod: '0777'
           fstype: ext4
           opts: defaults,nofail
+      nfs_config:
+        config_file: /etc/exports
+        nfs_share: /samba_shares/nfs
+        nfs_share_chmod: 777
+        nfs_network: 10.0.0.0/24
+        nfs_params: rw,sync,no_subtree_check,insecure
       tooling_dirs:
         - path: /samba_shares/config_files
           chmod: '0770'
