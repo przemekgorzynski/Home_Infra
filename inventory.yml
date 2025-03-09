@@ -91,6 +91,7 @@ all:
           docker_image_tag: v3.3.4
           platform: amd64
           container_name: traefik
+          dynamic_config: /etc/traefik/dynamic
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
           # provider: cloudflare
           provider: dynu

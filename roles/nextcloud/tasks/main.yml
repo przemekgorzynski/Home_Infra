@@ -16,6 +16,15 @@
     mode: '0750'
   register: compose
 
+- name: Copy cron file
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/cron.sh"
+    dest: "{{ tooling_dirs[0].path }}/nextcloud/cron.sh"
+    owner: root
+    group: root
+    mode: '0664'
+  register: cronjob
+
 - name: Start {{ tools.nextcloud.app.container_name | upper }}
   ansible.builtin.command:
     cmd: docker-compose up -d

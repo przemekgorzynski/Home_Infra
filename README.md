@@ -141,6 +141,9 @@ Testing playbook runs against each container and return it's status:
 
 ### Commands
 
-`docker exec -it -u www-data nextcloud /var/www/html/occ db:add-missing-indices`
-
-`docker exec -it -u www-data nextcloud /var/www/html/occ maintenance:repair --include-expensive`
+```bash
+sudo docker exec -u www-data nextcloud php occ background:cron
+sudo docker exec -u www-data nextcloud php occ integrity:check-core
+sudo docker exec -u www-data nextcloud php occ maintenance:repair --include-expensive
+sudo docker exec -u www-data nextcloud php occ db:add-missing-indices
+```

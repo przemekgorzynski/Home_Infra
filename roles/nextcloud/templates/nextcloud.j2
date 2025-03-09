@@ -30,6 +30,7 @@ services:
 
   app:
     image: {{ tools.nextcloud.app.docker_image }}:{{ tools.nextcloud.app.docker_image_tag }}
+    command: /bin/bash -c "apt-get update && apt-get install -y cron && cron && apache2-foreground"
     restart: unless-stopped
     container_name: {{ tools.nextcloud.app.container_name }}
     hostname: 'nextcloud.{{ domain }}'
@@ -44,6 +45,7 @@ services:
       - db
     volumes:
       - nextcloud_app_volume:/var/www/html
+      - "{{ tooling_dirs[0].path }}/nextcloud/cron.sh:/etc/cron.d/nextcloud-cron"
       - /samba_shares:/mnt/samba_shares
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -65,6 +67,7 @@ services:
       - "traefik.http.routers.nextcloud.rule=Host(`nextcloud.{{ domain }}`)"
       - "traefik.http.routers.nextcloud.entrypoints=websecure"
       - "traefik.http.routers.nextcloud.tls.certresolver=production"
+      - "traefik.http.routers.nextcloud.middlewares=hsts-header@file"
 
 volumes:
   nextcloud_db_volume:
