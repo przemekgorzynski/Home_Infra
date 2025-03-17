@@ -86,6 +86,7 @@ all:
                 app: 172.18.0.5
                 db: 172.18.0.6
               qbittorrent: 172.18.0.7
+              uptime_kuma: 172.18.0.8
         traefik:
           docker_image: traefik
           docker_image_tag: v3.3.4
@@ -151,6 +152,13 @@ all:
           web_ui_port: 8090
           torrenting_port: 6881
           downloading_path: /samba_backup/new/Toreview/In_progress
+        uptime_kuma:
+          docker_image: louislam/uptime-kuma
+          docker_image_tag: 1.23.16
+          container_name: uptime_kuma
+          docker_volume_name: uptime_kuma
+          ports:
+            - 3001:3001
     # dell-sandbox:
     #   hostname: dell-sandbox
     #   type: notebook

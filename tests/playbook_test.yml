@@ -11,6 +11,10 @@
           http_endpoint: http://localhost:8096/web/#/wizardstart.html
         - name: "{{ hostvars['nas']['tools']['traefik']['container_name'] }}"
           http_endpoint: http://localhost:8080/api/rawdata
+        # - name: "{{ hostvars['nas']['tools']['qbittorrent']['container_name'] }}"
+        #   http_endpoint: http://localhost:8090
+        - name: "{{ hostvars['nas']['tools']['uptime_kuma']['container_name'] }}"
+          http_endpoint: http://localhost:3001/dashboard
         - name: "{{ hostvars['nas']['tools']['nextcloud']['app']['container_name'] }}"
           http_endpoint: http://localhost:4000
         - name: "{{ hostvars['nas']['tools']['nextcloud']['db']['container_name'] }}"

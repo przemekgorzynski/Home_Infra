@@ -1,0 +1,30 @@
+---
+- name: Create dirs - {{ tools.uptime_kuma.container_name | upper }}
+  ansible.builtin.file:
+    state: directory
+    path: "{{ tooling_dirs[0].path }}/uptime_kuma"
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
+    mode: '0770'
+
+- name: Copy compose - {{ tools.uptime_kuma.container_name | upper }}
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/uptime_kuma.j2"
+    dest: "{{ tooling_dirs[0].path }}/uptime_kuma/docker-compose.yml"
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
+    mode: '0750'
+  register: compose
+
+- name: Start {{ tools.uptime_kuma.container_name | upper }}
+  ansible.builtin.command:
+    cmd: docker-compose up -d
+    chdir: "{{ tooling_dirs[0].path }}/uptime_kuma"
+  changed_when: false
+
+- name: Display container info - {{ tools.uptime_kuma.container_name | upper }}
+  ansible.builtin.include_tasks: "../tests/container_info.yml"
+  with_items:
+    - name: "{{ tools.uptime_kuma.container_name }}"
+      http_endpoint: http://localhost:3001
+  when: not ansible_check_mode

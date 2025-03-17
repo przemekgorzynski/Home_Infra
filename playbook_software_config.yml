@@ -80,3 +80,7 @@
           ansible.builtin.import_role:
             name: ddns
           tags: ddns
+        - name: Import Uptime-Kuma role
+          ansible.builtin.import_role:
+            name: uptime_kuma
+          tags: uptime_kuma
