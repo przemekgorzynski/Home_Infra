@@ -17,6 +17,7 @@ services:
       {{ tools.uptime_kuma.ports }}
     volumes:
       - uptime_kuma:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001"]
       interval: 30s
