@@ -89,7 +89,7 @@ all:
               uptime_kuma: 172.18.0.8
         traefik:
           docker_image: traefik
-          docker_image_tag: v3.3.4
+          docker_image_tag: v3.3.5
           platform: amd64
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
