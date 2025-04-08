@@ -8,7 +8,7 @@ public_ip=$(curl -s ipinfo.io/ip)
 cloudflare_email={{ cloudflare_user }}
 cloudflare_global_api_key={{ cloudflare_global_api_key }}
 domain={{ domain3 }}
-cnames=(nextcloud jellyfin)
+cnames=({{ tools.ddns.dns_entries_to_update | join(' ') }})
 
 # Define functions
 get_cloudflare_zone_id(){
