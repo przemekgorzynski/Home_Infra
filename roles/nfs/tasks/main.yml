@@ -24,14 +24,14 @@
 - name: Export NFS shares
   command: exportfs -ra
 
-- name: Ensure /etc/idmapd.conf has multiple domains under [General]
+- name: Ensure both domains are set under [General] in /etc/idmapd.conf
   blockinfile:
     path: /etc/idmapd.conf
-    marker: "# BEGIN ANSIBLE MANAGED BLOCK"
+    marker: "# {mark} ANSIBLE MANAGED NFS DOMAIN BLOCK"
     block: |
       Domain = nas
       Domain = nas.internal
-    insertafter: '\[General\]'
+    insertafter: '^\[General\]'
 
 - name: Ensure /etc/idmapd.conf is configured for NFSv4
   lineinfile:
