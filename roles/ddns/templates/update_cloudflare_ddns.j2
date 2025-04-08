@@ -7,8 +7,8 @@ public_ip=$(curl -s ipinfo.io/ip)
 # Dynamically updated vars
 cloudflare_email={{ cloudflare_user }}
 cloudflare_global_api_key={{ cloudflare_global_api_key }}
-domain={{ domain }}
-dns_entries=({{ tools.ddns.dns_entries_to_update | join(" ") }})
+domain={{ domain3 }}
+cnames=(nextcloud jellyfin)
 
 # Define functions
 get_cloudflare_zone_id(){
@@ -17,19 +17,60 @@ get_cloudflare_zone_id(){
     --header "X-Auth-Key: $cloudflare_global_api_key" \
     --header "X-Auth-Email: $cloudflare_email"\
     --header "Content-Type: application/json" | jq -r --arg name "$domain" '.result[] | select(.name==$name) | .id')
+    echo "ZoneID: $cloudflare_zone_id"
 }
 
 get_cloudflare_dns_record_id(){
     cloudflare_dns_record_id=$(curl -s -X GET \
-    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$dns_entry.$domain" \
+    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
     --header "X-Auth-Key: $cloudflare_global_api_key" \
-    --header "X-Auth-Email: $cloudflare_email"\
-    --header "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .id' )
+    --header "X-Auth-Email: $cloudflare_email" \
+    --header "Content-Type: application/json" | jq -r '.result | length')
+
+    # Check if no records are found (length == 0)
+    if [[ "$cloudflare_dns_record_id" -eq 0 ]]; then
+        echo "No DNS record found. Creating a new one."
+        create_dns_record
+    else
+        # Retrieve the first record id
+        cloudflare_dns_record_id=$(curl -s -X GET \
+        --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
+        --header "X-Auth-Key: $cloudflare_global_api_key" \
+        --header "X-Auth-Email: $cloudflare_email" \
+        --header "Content-Type: application/json" | jq -r '.result[0].id')
+        echo "DNS record id: $cloudflare_dns_record_id"
+    fi
+}
+
+create_dns_record(){
+    cloudflare_dns_record_id=$(curl -s -X POST \
+    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records" \
+    --header "X-Auth-Key: $cloudflare_global_api_key" \
+    --header "X-Auth-Email: $cloudflare_email" \
+    --header "Content-Type: application/json" \
+    --data '{
+        "content": "'${public_ip}'",
+        "name": "'${domain}'",
+        "proxied": false,
+        "type": "A",
+        "comment": "'${domain}' verification record",
+        "ttl": 3600
+    }' | jq -r '.id')
+
+    # Check if the DNS record was created successfully
+    if [[ -n "$cloudflare_dns_record_id" ]]; then
+        echo "DNS record created."
+        # Set the new_dns_record_created variable to true
+        new_dns_record_created=true
+    else
+        echo "Failed to create DNS record."
+        new_dns_record_created=false
+    fi
 }
 
 get_cloudflare_ip_assigned(){
     cloudflare_ip=$(curl -s -X GET \
-    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$dns_entry.$domain" \
+    --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
     --header "X-Auth-Key: $cloudflare_global_api_key" \
     --header "X-Auth-Email: $cloudflare_email"\
     --header "Content-Type: application/json" | jq -r '{"result"}[] | .[0] | .content')
@@ -43,30 +84,78 @@ update_ip(){
     --header "Content-Type: application/json" \
     --data '{
             "content": "'${public_ip}'",
-            "name": "'${dns_entry}'",
+            "name": "'${domain}'",
             "proxied": false,
             "type": "A",
-            "comment": "'${dns_entry}' verification record",
+            "comment": "'${domain}' verification record",
             "ttl": 3600
     }'  > /dev/null
 }
 
-# Execute scripts
-get_cloudflare_zone_id
+add_cname(){
+    local cname=$1  # Accept cname as the first parameter
+    local fqdn="${cname}.${domain}"  # Fully Qualified Domain Name
+    # Query Cloudflare for the CNAME record and output the result for debugging
+    response=$(curl -s -X GET \
+        --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=CNAME&name=$fqdn" \
+        --header "X-Auth-Key: $cloudflare_global_api_key" \
+        --header "X-Auth-Email: $cloudflare_email" \
+        --header "Content-Type: application/json")
 
-for dns_entry in "${dns_entries[@]}"; do
-    get_cloudflare_dns_record_id
-    cloudflare_ip=$(get_cloudflare_ip_assigned)
-    echo "===================================="
-    echo "Checking $dns_entry.$domain"
-    echo "$cloudflare_zone_id - ZoneID"
-    echo "$public_ip - Public IP"
-    echo "$cloudflare_ip - Cloudflare IP"
-    if [ "${cloudflare_ip}" == "${public_ip}" ]; then
-        echo "Skipping update $dns_entry.$domain"
-        :
+    cname_exists=$(echo "$response" | jq -r '.result_info.count')
+
+    if [[ "$cname_exists" -gt 0 ]]; then
+        cname_record_id=$(echo "$response" | jq -r '.result[0].id')
+        echo "CNAME record found for $fqdn. Updating record with id: $cname_record_id."
+        curl -s -X PUT "$cloudflare_base/zones/$cloudflare_zone_id/dns_records/$cname_record_id" \
+            --header "X-Auth-Key: $cloudflare_global_api_key" \
+            --header "X-Auth-Email: $cloudflare_email" \
+            --header "Content-Type: application/json" \
+            --data '{
+                "content": "'${domain}'",
+                "name": "'${fqdn}'",
+                "proxied": true,
+                "type": "CNAME",
+                "comment": "'${fqdn}' verification record",
+                "ttl": 3600
+            }' > /dev/null
     else
-        echo "Updating entry $dns_entry.$domain"
-        update_ip
+        echo "CNAME record not found for $fqdn. Creating a new record."
+        curl -s -X POST "$cloudflare_base/zones/$cloudflare_zone_id/dns_records" \
+            --header "X-Auth-Key: $cloudflare_global_api_key" \
+            --header "X-Auth-Email: $cloudflare_email" \
+            --header "Content-Type: application/json" \
+            --data '{
+                "content": "'${domain}'",
+                "name": "'${fqdn}'",
+                "proxied": true,
+                "type": "CNAME",
+                "comment": "'${fqdn}' verification record",
+                "ttl": 3600
+            }' > /dev/null
     fi
+
+}
+#####################################################################################################################
+
+get_cloudflare_zone_id
+get_cloudflare_dns_record_id
+cloudflare_ip=$(get_cloudflare_ip_assigned)
+
+# Only run the IP update if a new DNS record was not created
+if [[ "$new_dns_record_created" != true ]]; then
+    # Update domain IPs if not the same
+    if [[ "$public_ip" != "$cloudflare_ip" ]]; then
+        echo "Updating DNS record."
+        update_ip
+    else
+        echo "No DNS update needed."
+    fi
+else
+    echo "Skipping IP update as a new DNS record was created."
+fi
+
+# Update CNAMEs
+for cname in "${cnames[@]}"; do
+    add_cname "$cname"
 done
