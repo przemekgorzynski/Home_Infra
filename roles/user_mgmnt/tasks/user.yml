@@ -15,6 +15,6 @@
     key: "{{ inner_item }}"
     exclusive: true
   loop:
-    - "{{ lookup('file', 'files/{{ item.name }}_ssh-ed25519.pub') }}"
+    - "{{ lookup('bitwarden.secrets.lookup', 'ba69e620-bddf-4dae-b0a8-b21801125498') }}"
   loop_control:
     loop_var: inner_item
