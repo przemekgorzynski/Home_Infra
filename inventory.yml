@@ -87,6 +87,10 @@ all:
                 db: 172.18.0.6
               qbittorrent: 172.18.0.7
               uptime_kuma: 172.18.0.8
+        monitoring:
+          repository: https://github.com/przemekgorzynski/CustomMetricsMonitoring.git
+          repo_path: repos
+          branch: main
         traefik:
           docker_image: traefik
           docker_image_tag: v3.3.5

@@ -1,0 +1,24 @@
+---
+- name: Set repo name variable
+  ansible.builtin.set_fact:
+    repo_name: "{{ tools.monitoring.repository.split('/')[4].split('.')[0] }}"
+
+- name: Create destination directory
+  ansible.builtin.file:
+    path: "{{ tools.monitoring.repo_path }}"
+    state: directory
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
+    mode: '0770'
+
+- name: Checkout monitoring repository
+  ansible.builtin.git:
+    repo: "{{ tools.monitoring.repository }}"
+    dest: "{{ tools.monitoring.repo_path }}/{{ repo_name }}"
+    version: "{{ tools.monitoring.branch }}"   # optional, forces clone if dest exists but isn't a git repo
+
+- name: Start monitoring stack
+  ansible.builtin.command:
+    cmd: docker-compose up -d
+    chdir: "{{ tools.monitoring.repo_path }}/{{ repo_name }}"
+  changed_when: false
