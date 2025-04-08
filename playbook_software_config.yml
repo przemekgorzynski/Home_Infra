@@ -84,3 +84,7 @@
           ansible.builtin.import_role:
             name: uptime_kuma
           tags: uptime_kuma
+        - name: Deploy monitoring
+          ansible.builtin.import_tasks: deploy_monitoring.yml
+          tags:
+            - monitoring

@@ -21,14 +21,17 @@
     hour: "{{ item.hour }}"
     user: "{{ item.user }}"
     job: "{{ item.job }}"
+    state: "{{ item.state }}"
   loop:
     - name: "DDNS Cloudflare update"
       minute: "*/20"
       hour: "*"
       user: root
-      job: "/update_cloudflare_ddns.sh"
+      job: "/bin/bash /update_cloudflare_ddns.sh >> /var/log/cloudflare_ddns.log 2>&1"
+      state: present
     - name: "DDNS Dynu update"
       minute: "*/10"
       hour: "*"
       user: root
-      job: "/update_dynu_ddns.sh"
+      job: "/bin/bash /update_dynu_ddns.sh >> /var/log/dynu_ddns.log 2>&1"
+      state: present
