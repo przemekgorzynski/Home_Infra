@@ -87,4 +87,4 @@
         - name: Deploy monitoring
           ansible.builtin.import_tasks: deploy_monitoring.yml
           tags:
-            - monitoring        
+            - monitoring
