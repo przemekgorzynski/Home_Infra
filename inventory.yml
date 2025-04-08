@@ -102,15 +102,7 @@ all:
         ddns:
           dns_entries_to_update:
             - nextcloud
-            - ha
-        home_assistant:
-          docker_image: homeassistant/home-assistant
-          docker_image_tag: 2025.4
-          container_name: homeassistant
-          docker_volume_name: home_assistant_volume
-          expose_by_reverse_proxy: true
-          ports:
-            - 8123:8123
+            - kuma
         jellyfin:
           docker_image: linuxserver/jellyfin
           docker_image_tag: 10.10.7
