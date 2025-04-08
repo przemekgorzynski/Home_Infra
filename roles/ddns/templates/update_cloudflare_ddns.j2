@@ -11,7 +11,13 @@ domain={{ domain3 }}
 cnames=( {{ tools.ddns.dns_entries_to_update | join(' ') }} )
 
 # Define functions
+log_with_timestamp() {
+    local message="$1"
+    echo "$(date '+%H:%M:%S') - $message"
+}
+
 get_cloudflare_zone_id(){
+    log_with_timestamp "Getting Cloudflare Zone ID"
     cloudflare_zone_id=$(curl -s -X GET \
     --url $cloudflare_base/zones \
     --header "X-Auth-Key: $cloudflare_global_api_key" \
@@ -21,6 +27,7 @@ get_cloudflare_zone_id(){
 }
 
 get_cloudflare_dns_record_id(){
+    log_with_timestamp "Getting Cloudflare DNS Record ID"
     cloudflare_dns_record_id=$(curl -s -X GET \
     --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
     --header "X-Auth-Key: $cloudflare_global_api_key" \
@@ -43,6 +50,7 @@ get_cloudflare_dns_record_id(){
 }
 
 create_dns_record(){
+    log_with_timestamp "Create DNS Record"
     cloudflare_dns_record_id=$(curl -s -X POST \
     --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records" \
     --header "X-Auth-Key: $cloudflare_global_api_key" \
@@ -69,6 +77,7 @@ create_dns_record(){
 }
 
 get_cloudflare_ip_assigned(){
+    log_with_timestamp "Getting Cloudflare IP assigned"
     cloudflare_ip=$(curl -s -X GET \
     --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=A&name=$domain" \
     --header "X-Auth-Key: $cloudflare_global_api_key" \
@@ -78,6 +87,7 @@ get_cloudflare_ip_assigned(){
 }
 
 update_ip(){
+    log_with_timestamp "Updating DNS record IP"
     curl -s -X PUT "$cloudflare_base/zones/$cloudflare_zone_id/dns_records/$cloudflare_dns_record_id" \
     --header "X-Auth-Key: $cloudflare_global_api_key" \
     --header "X-Auth-Email: $cloudflare_email"\
@@ -95,6 +105,7 @@ update_ip(){
 add_cname(){
     local cname=$1  # Accept cname as the first parameter
     local fqdn="${cname}.${domain}"  # Fully Qualified Domain Name
+    log_with_timestamp "Adding CNAME for $cname"
     # Query Cloudflare for the CNAME record and output the result for debugging
     response=$(curl -s -X GET \
         --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=CNAME&name=$fqdn" \
@@ -138,6 +149,8 @@ add_cname(){
 }
 #####################################################################################################################
 
+
+echo "################# $(date '+%Y-%m-%d') #################"
 get_cloudflare_zone_id
 get_cloudflare_dns_record_id
 cloudflare_ip=$(get_cloudflare_ip_assigned)
@@ -146,16 +159,19 @@ cloudflare_ip=$(get_cloudflare_ip_assigned)
 if [[ "$new_dns_record_created" != true ]]; then
     # Update domain IPs if not the same
     if [[ "$public_ip" != "$cloudflare_ip" ]]; then
-        echo "Updating DNS record."
+        log_with_timestamp "Updating DNS record."
         update_ip
     else
-        echo "No DNS update needed."
+        log_with_timestamp "No DNS update needed."
     fi
 else
-    echo "Skipping IP update as a new DNS record was created."
+    log_with_timestamp "Skipping IP update as a new DNS record was created."
 fi
 
 # Update CNAMEs
 for cname in "${cnames[@]}"; do
     add_cname "$cname"
 done
+
+echo ""
+
