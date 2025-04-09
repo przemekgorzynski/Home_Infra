@@ -13,9 +13,19 @@
 
 - name: Checkout monitoring repository
   ansible.builtin.git:
+    force: true
     repo: "{{ tools.monitoring.repository }}"
     dest: "{{ tools.monitoring.repo_path }}/{{ repo_name }}"
-    version: "{{ tools.monitoring.branch }}"   # optional, forces clone if dest exists but isn't a git repo
+    version: "{{ tools.monitoring.branch }}"
+
+- name: Deploy config from template
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/docker-compose.j2"
+    dest: "{{ tools.monitoring.repo_path }}/{{ repo_name }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+  when: tools.monitoring.expose
 
 - name: Start monitoring stack
   ansible.builtin.command:

@@ -65,3 +65,13 @@
       ansible.builtin.set_fact:
         nextcloud_mysql_password: "{{ lookup('bitwarden.secrets.lookup', 'e07cdcf4-b567-4f2c-a673-b218010fc836') }}"
       no_log: true
+
+    - name: Get Grafana username
+      ansible.builtin.set_fact:
+        grafana_username: "{{ lookup('bitwarden.secrets.lookup', 'f07e7087-206c-4405-a837-b2ba0089b915') }}"
+      no_log: true
+
+    - name: Get Grafana password
+      ansible.builtin.set_fact:
+        grafana_password: "{{ lookup('bitwarden.secrets.lookup', '4656ac8f-0897-48d7-bac2-b2ba0089dad0') }}"
+      no_log: true
