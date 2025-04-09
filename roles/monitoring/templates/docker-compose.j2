@@ -1,0 +1,90 @@
+---
+networks: 
+  tooling:
+    external: true
+    driver: bridge
+
+services:
+  metrics_exporter:
+    container_name: metrics_exporter
+    image: metrics_exporter
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        - PING_TARGETS=1.1.1.1,www.google.com
+        - DISK_TYPES_TO_MONITOR=sd,nvme
+    volumes:
+      - '/:/hostfs:ro'
+    ports:
+      - 8000:8000
+    labels:
+      - "tool=metrics_exporter"
+    restart: unless-stopped
+    networks:
+      tooling:
+        ipv4_address: {{ tools.docker.network.containers.monitoring.metric_exporter }}
+
+  prometheus:
+    image: prom/prometheus:v3.2.1@sha256:6927e0919a144aa7616fd0137d4816816d42f6b816de3af269ab065250859a62
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prom_data:/prometheus
+    labels:
+      - "tool=prometheus"
+    healthcheck:
+      test: wget -q http://localhost:9090 -O index_check.html || exit 1
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      tooling: 
+        ipv4_address: {{ tools.docker.network.containers.monitoring.prometheus }}
+    depends_on:
+      - metrics_exporter
+
+  grafana:
+    image: grafana/grafana:11.6.0@sha256:62d2b9d20a19714ebfe48d1bb405086081bc602aa053e28cf6d73c7537640dfb
+    container_name: grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - graf_data:/var/lib/grafana
+      - ./grafana/data_sources.yml:/etc/grafana/provisioning/datasources/DataSources.yaml
+      - ./grafana/dashboard_sources.yml:/etc/grafana/provisioning/dashboards/DashboardSources.yaml
+      - ./grafana/dashboard.json:/etc/grafana/initialDashboards/dashboard.json
+    environment:
+      - "GF_LOG_LEVEL=info"
+      - "GF_SERVER_ROOT_URL=https://grafana.{{ domain }}/"
+      - "GF_SECURITY_ADMIN_PASSWORD={{ grafana_password }}"
+      - "GF_SECURITY_ADMIN_USER={{ grafana_username }}"
+    labels:
+      - "tool=grafana"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      - "traefik.http.routers.grafana.tls.certresolver=production"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.gorillabay.click`)"
+      - "traefik.enable=true"
+    healthcheck:
+      test: curl http://localhost:3000/api/health || exit 1
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      tooling:
+        ipv4_address: {{ tools.docker.network.containers.monitoring.grafana }}
+    depends_on:
+      - prometheus
+
+volumes:
+  prom_data:
+    name: custom_metrics_prom_data
+  graf_data:
+    name: custom_metrics_grafana_data

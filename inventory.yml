@@ -87,7 +87,13 @@ all:
                 db: 172.18.0.6
               qbittorrent: 172.18.0.7
               uptime_kuma: 172.18.0.8
+              monitoring:
+                metric_exporter: 172.18.0.9
+                prometheus: 172.18.0.10
+                grafana: 172.18.0.11
         monitoring:
+          deploy: true
+          expose: true
           repository: https://github.com/przemekgorzynski/CustomMetricsMonitoring.git
           repo_path: repos
           branch: main
