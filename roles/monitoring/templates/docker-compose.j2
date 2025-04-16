@@ -26,8 +26,8 @@ services:
         ipv4_address: {{ tools.docker.network.containers.monitoring.metric_exporter }}
 
   prometheus:
-    image: prom/prometheus:v3.2.1@sha256:6927e0919a144aa7616fd0137d4816816d42f6b816de3af269ab065250859a62
-    container_name: prometheus
+    image: {{ tools.monitoring.prometheus.docker_image }}:{{ tools.monitoring.prometheus.docker_image_tag }}
+    container_name: {{ tools.monitoring.prometheus.container_name }}
     ports:
       - 9090:9090
     volumes:
@@ -49,8 +49,8 @@ services:
       - metrics_exporter
 
   grafana:
-    image: grafana/grafana:11.6.0@sha256:62d2b9d20a19714ebfe48d1bb405086081bc602aa053e28cf6d73c7537640dfb
-    container_name: grafana
+    image: {{ tools.monitoring.grafana.docker_image }}:{{ tools.monitoring.grafana.docker_image_tag }}
+    container_name: {{ tools.monitoring.grafana.container_name }}
     ports:
       - 3000:3000
     volumes:
