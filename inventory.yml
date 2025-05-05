@@ -103,7 +103,7 @@ all:
             container_name: prometheus
           grafana:
             docker_image: grafana/grafana
-            docker_image_tag: 11.6.1
+            docker_image_tag: 12.0.0
             container_name: grafana
         traefik:
           docker_image: traefik
