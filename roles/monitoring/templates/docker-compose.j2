@@ -25,6 +25,17 @@ services:
       tooling:
         ipv4_address: {{ tools.docker.network.containers.monitoring.metric_exporter }}
 
+  smartctl_exporter:
+    image: {{ tools.monitoring.smartctl_exporter.docker_image }}:{{ tools.monitoring.smartctl_exporter.docker_image_tag }}
+    container_name: {{ tools.monitoring.smartctl_exporter.container_name }}
+    privileged: true
+    user: root
+    ports:
+      - "9633:9633"
+    networks:
+      tooling:
+        ipv4_address: {{ tools.docker.network.containers.monitoring.smartctl_exporter }}
+
   prometheus:
     image: {{ tools.monitoring.prometheus.docker_image }}:{{ tools.monitoring.prometheus.docker_image_tag }}
     container_name: {{ tools.monitoring.prometheus.container_name }}
