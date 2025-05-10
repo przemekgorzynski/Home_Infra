@@ -89,6 +89,7 @@ all:
               uptime_kuma: 172.18.0.8
               monitoring:
                 metric_exporter: 172.18.0.9
+                smartctl_exporter: 172.18.0.12
                 prometheus: 172.18.0.10
                 grafana: 172.18.0.11
         monitoring:
@@ -105,6 +106,10 @@ all:
             docker_image: grafana/grafana
             docker_image_tag: 12.0.0
             container_name: grafana
+          smartctl_exporter:
+            docker_image: prometheuscommunity/smartctl-exporter
+            docker_image_tag: v0.14.0
+            container_name: smartctl_exporter
         traefik:
           docker_image: traefik
           docker_image_tag: v3.4.0
