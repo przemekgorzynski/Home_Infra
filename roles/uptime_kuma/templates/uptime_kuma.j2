@@ -6,7 +6,7 @@ networks:
     driver: bridge
 
 services:
-  uptime-kuma:
+  uptime_kuma:
     image: {{ tools.uptime_kuma.docker_image }}:{{ tools.uptime_kuma.docker_image_tag }}
     container_name: {{ tools.uptime_kuma.container_name }}
     restart: unless-stopped
