@@ -84,6 +84,10 @@
           ansible.builtin.import_role:
             name: uptime_kuma
           tags: uptime_kuma
+        - name: Deploy Home Assistant
+          ansible.builtin.import_role:
+            name: home_assistant
+          tags: home_assistant
         - name: Import Monitoring role
           ansible.builtin.import_role:
             name: monitoring

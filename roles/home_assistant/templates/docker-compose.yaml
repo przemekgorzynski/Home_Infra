@@ -1,0 +1,35 @@
+version: '3.8'
+
+# networks: 
+#   {{ tools.docker.network.name }}:
+#     external: true
+#     driver: bridge
+
+services:
+  home_assistant:
+    container_name: {{ tools.home_assistant.container_name }}
+    image: {{ tools.home_assistant.docker_image }}:{{ tools.home_assistant.docker_image_tag }}
+    # networks:
+    #   {{ tools.docker.network.name }}: 
+    #     ipv4_address: {{ tools.docker.network.containers.home_assistant }}
+    ports:
+      - {{ tools.home_assistant.port }}:{{ tools.home_assistant.port }}
+    volumes:
+      - homeassistant_volume:/config
+    devices:
+      - {{ tools.home_assistant.device }}:{{ tools.home_assistant.device }}
+    environment:
+      - TZ={{ tools.home_assistant.timezone }}
+    restart: unless-stopped
+    network_mode: host
+    privileged: true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8123 > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  homeassistant_volume:
+    name: {{ tools.home_assistant.docker_volume_name }}

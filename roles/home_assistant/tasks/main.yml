@@ -1,0 +1,32 @@
+---
+- name: Create dirs - {{ tools.home_assistant.container_name | upper }}
+  ansible.builtin.file:
+    state: directory
+    path: "{{ tooling_dirs[0].path }}/home_assistant"
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
+    mode: '0770'
+
+- name: Copy compose - {{ tools.home_assistant.container_name | upper }}
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/{{ item }}"
+    dest: "{{ tooling_dirs[0].path }}/home_assistant/{{ item }}"
+    owner: "{{ os_username }}"
+    group: "{{ admin_group[0].name }}"
+    mode: '0750'
+  loop:
+    - docker-compose.yaml
+  register: compose
+
+- name: Start {{ tools.home_assistant.container_name | upper }}
+  ansible.builtin.command:
+    cmd: docker-compose up -d
+    chdir: "{{ tooling_dirs[0].path }}/home_assistant"
+  changed_when: false
+
+- name: Display container info - {{ tools.home_assistant.container_name | upper }}
+  ansible.builtin.include_tasks: "../tests/container_info.yml"
+  with_items:
+    - name: "{{ tools.home_assistant.container_name }}"
+      http_endpoint: http://localhost:8123
+  when: not ansible_check_mode
