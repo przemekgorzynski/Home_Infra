@@ -64,7 +64,7 @@ all:
         nfs_share: /samba_shares/nfs
         nfs_share_chmod: 777
         nfs_network: 10.0.0.0/24
-        nfs_params: rw,sync,no_subtree_check,insecure
+        nfs_params: rw,sync,no_subtree_check,insecure,no_root_squash
       tooling_dirs:
         - path: /samba_shares/config_files
           chmod: '0770'
