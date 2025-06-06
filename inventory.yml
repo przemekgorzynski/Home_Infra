@@ -174,7 +174,7 @@ all:
           docker_volume_name: uptime_kuma
           ports:
             - 3001:3001
-    # dell-sandbox:
-    #   hostname: dell-sandbox
-    #   type: notebook
-    #   ansible_host: 10.0.0.30
+    dell-sandbox:
+      hostname: dell-sandbox
+      type: notebook
+      ansible_host: 10.0.0.9
