@@ -10,10 +10,11 @@
         - pre
         - always
     - name: Install Ansible Galaxy collections
-      ansible.builtin.command: ansible-galaxy collection install ./requirements.yml --upgrade
+      ansible.builtin.command: ansible-galaxy collection install -r requirments.yml --upgrade
       tags:
         - pre
         - always
+      delegate_to: localhost
     - name: Import Bitwarden secrets
       ansible.builtin.import_tasks: import_vault_data.yml
       tags:
