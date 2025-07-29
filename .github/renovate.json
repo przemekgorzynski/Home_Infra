@@ -7,9 +7,15 @@
   "prHourlyLimit": 10,
   "prConcurrentLimit": 3,
   "prCreation": "immediate",
-  "assignees": ["przemekgorzynski"],
-  "baseBranches": ["main"],
-  "labels": ["renovate"],
+  "assignees": [
+    "przemekgorzynski"
+  ],
+  "baseBranchPatterns": [
+    "main"
+  ],
+  "labels": [
+    "renovate"
+  ],
   "automerge": false,
   "separateMajorMinor": true,
   "separateMinorPatch": true,
@@ -27,7 +33,9 @@
     {
       "customType": "regex",
       "description": "update _IMAGE versions in Ansible inventory",
-      "fileMatch": ["^inventory.yml$"],
+      "managerFilePatterns": [
+        "/^inventory.yml$/"
+      ],
       "matchStrings": [
         ".*_image: (?<depName>\\S+)\\n\\s+.*_image_tag: (?<currentValue>\\S+)"
       ],
