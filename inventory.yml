@@ -10,7 +10,7 @@ all:
         shell: '/bin/bash'
         state: present
         uid: 1000
-        private_key_path: '~/.ssh/ssh-ed25519'
+        private_key_path: '~/.ssh/ssh_ed25519'
     timezone: Europe/Warsaw
     standard_packages:
       - docker.io
