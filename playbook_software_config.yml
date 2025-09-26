@@ -50,14 +50,14 @@
       tags:
         - tools
       block:
-        - name: Create docker network - "{{ tools.docker.network.name }}"
-          community.docker.docker_network:
-            name: "{{ tools.docker.network.name }}"
-            ipam_config:
-              - subnet: "{{ tools.docker.network.subnet }}"
-                gateway: "{{ tools.docker.network.gateway }}"
-          tags:
-            - docker_network
+        # - name: Create docker network - "{{ tools.docker.network.name }}"
+        #   community.docker.docker_network:
+        #     name: "{{ tools.docker.network.name }}"
+        #     ipam_config:
+        #       - subnet: "{{ tools.docker.network.subnet }}"
+        #         gateway: "{{ tools.docker.network.gateway }}"
+        #   tags:
+        #     - docker_network
         - name: Create tool dirs
           ansible.builtin.file:
             state: directory
