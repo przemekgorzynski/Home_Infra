@@ -59,7 +59,7 @@ all:
           filesystem_properties:
             compression: lz4
           vdevs:
-            - type: stripe
+            - type: stripe #zraid2
               disks:
                 - /dev/sda
             - role: cache
@@ -68,7 +68,7 @@ all:
       encryption:
         encryption: aes-128-ccm
         keyformat: raw
-        keylocation: file:///root/zfs.key
+        keylocation: /root/zfs.key
       datasets:
         - dataset_name: tank/ds1
           compression: lz4

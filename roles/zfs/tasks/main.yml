@@ -1,3 +1,9 @@
+- name: Store ZFS encryption key
+  ansible.builtin.copy:
+    content: "{{ zfs_encryption_key | b64decode }}"
+    dest: "{{ encryption.keylocation }}"
+    mode: '0600'
+
 - name: Create ZFS pools
   community.general.zpool:
     name: "{{ item.pool_name }}"
@@ -16,7 +22,7 @@
     extra_zfs_properties:
       encryption: "{{ encryption.encryption }}"
       keyformat: "{{ encryption.keyformat }}"
-      keylocation: "{{ encryption.keylocation }}"
+      keylocation: "file://{{ encryption.keylocation }}"
       compression: "{{ item.compression }}"
       setuid: "{{ item.setuid }}"
       mountpoint: "{{ item.mountpoint }}"

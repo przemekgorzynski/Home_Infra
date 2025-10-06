@@ -1,42 +1,42 @@
 ---
 - name: Get BW secrets
   block:
-    - name: Get OS username
+    - name: Get ZFS encryption key
       ansible.builtin.set_fact:
-        os_username: "{{ lookup('bitwarden.secrets.lookup', '35859409-7f42-4c07-9c83-c034c88bdd4f') }}"
+        zfs_encryption_key: "{{ lookup('bitwarden.secrets.lookup', '5fd02736-b366-4905-9106-b36e0110428f') }}"
       no_log: true
 
-    - name: Get Cloudflare user
-      ansible.builtin.set_fact:
-        cloudflare_user: "{{ lookup('bitwarden.secrets.lookup', '72de0bcd-17b6-4101-a037-e37bb98d35b2') }}"
-      no_log: true
+    # - name: Get Cloudflare user
+    #   ansible.builtin.set_fact:
+    #     cloudflare_user: "{{ lookup('bitwarden.secrets.lookup', '72de0bcd-17b6-4101-a037-e37bb98d35b2') }}"
+    #   no_log: true
 
-    - name: Get Cloudflare API Key
-      ansible.builtin.set_fact:
-        cloudflare_global_api_key: "{{ lookup('bitwarden.secrets.lookup', '99d46d9e-b5d1-44a1-9bf0-6d932f967b6a') }}"
-      no_log: true
+    # - name: Get Cloudflare API Key
+    #   ansible.builtin.set_fact:
+    #     cloudflare_global_api_key: "{{ lookup('bitwarden.secrets.lookup', '99d46d9e-b5d1-44a1-9bf0-6d932f967b6a') }}"
+    #   no_log: true
 
-    - name: Get Nextcloud admin user
-      ansible.builtin.set_fact:
-        nextcloud_admin_user: "{{ lookup('bitwarden.secrets.lookup', '68a9a900-dde8-4e14-bb45-4401bcb5ddc6') }}"
-      no_log: true
+    # - name: Get Nextcloud admin user
+    #   ansible.builtin.set_fact:
+    #     nextcloud_admin_user: "{{ lookup('bitwarden.secrets.lookup', '68a9a900-dde8-4e14-bb45-4401bcb5ddc6') }}"
+    #   no_log: true
 
-    - name: Get Nextcloud admin password
-      ansible.builtin.set_fact:
-        nextcloud_admin_password: "{{ lookup('bitwarden.secrets.lookup', 'ef9a5f5a-7b90-4209-b3e2-ad914abfcc53') }}"
-      no_log: true
+    # - name: Get Nextcloud admin password
+    #   ansible.builtin.set_fact:
+    #     nextcloud_admin_password: "{{ lookup('bitwarden.secrets.lookup', 'ef9a5f5a-7b90-4209-b3e2-ad914abfcc53') }}"
+    #   no_log: true
 
-    - name: Get Nextcloud Mysql root password
-      ansible.builtin.set_fact:
-        nextcloud_mysql_root_password: "{{ lookup('bitwarden.secrets.lookup', '1e82ae21-9db1-43a5-b930-5befaa1c9c6d') }}"
-      no_log: true
+    # - name: Get Nextcloud Mysql root password
+    #   ansible.builtin.set_fact:
+    #     nextcloud_mysql_root_password: "{{ lookup('bitwarden.secrets.lookup', '1e82ae21-9db1-43a5-b930-5befaa1c9c6d') }}"
+    #   no_log: true
 
-    - name: Get Nextcloud Mysql user
-      ansible.builtin.set_fact:
-        nextcloud_mysql_user: "{{ lookup('bitwarden.secrets.lookup', '6546511f-9b39-4366-af1c-705fe56d783a') }}"
-      no_log: true
+    # - name: Get Nextcloud Mysql user
+    #   ansible.builtin.set_fact:
+    #     nextcloud_mysql_user: "{{ lookup('bitwarden.secrets.lookup', '6546511f-9b39-4366-af1c-705fe56d783a') }}"
+    #   no_log: true
 
-    - name: Get Nextcloud Mysql user password
-      ansible.builtin.set_fact:
-        nextcloud_mysql_password: "{{ lookup('bitwarden.secrets.lookup', 'ac04ebec-b9a4-4e26-9221-d2c76689deee') }}"
-      no_log: true
+    # - name: Get Nextcloud Mysql user password
+    #   ansible.builtin.set_fact:
+    #     nextcloud_mysql_password: "{{ lookup('bitwarden.secrets.lookup', 'ac04ebec-b9a4-4e26-9221-d2c76689deee') }}"
+    #   no_log: true
