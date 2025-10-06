@@ -17,18 +17,23 @@
         - always
 
   tasks:
-    - name: Import user_mgmnt role
-      ansible.builtin.import_role:
-        name: user_mgmnt
-      tags:
-        - user_mgmnt
-    - name: Import os_mgmnt role
-      ansible.builtin.import_role:
-        name: os_mgmnt
-      tags:
-        - os_mgmnt
-    # - name: Import reboot role
+    # - name: Import user_mgmnt role
     #   ansible.builtin.import_role:
-    #     name: reboot
+    #     name: user_mgmnt
     #   tags:
-    #     - reboot
+    #     - user_mgmnt
+    # - name: Import os_mgmnt role
+    #   ansible.builtin.import_role:
+    #     name: os_mgmnt
+    #   tags:
+    #     - os_mgmnt
+    - name: Import zfs_setup role
+      ansible.builtin.import_role:
+        name: zfs
+      tags:
+        - zfs
+    - name: Import reboot role
+      ansible.builtin.import_role:
+        name: reboot
+      tags:
+        - reboot

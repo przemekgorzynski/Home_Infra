@@ -54,13 +54,31 @@ all:
       ansible_user: przemek
       hostname: wtr
       type: pc
-      zfs_cfg:
-        pool_name: base_pool
-        type: stripe # mirror raidz1 raidz2
-        disks:
-          - /dev/sda
-        cache:
-          - /dev/nvme0n1
+      zfs_pools:
+        - pool_name: tank
+          filesystem_properties:
+            compression: lz4
+          vdevs:
+            - type: stripe
+              disks:
+                - /dev/sda
+            - role: cache
+              disks:
+                - /dev/nvme0n1
+      encryption:
+        encryption: aes-128-ccm
+        keyformat: raw
+        keylocation: file:///root/zfs.key
+      datasets:
+        - dataset_name: tank/ds1
+          compression: lz4
+          setuid: 'off'
+          mountpoint: /data/ds1
+        - dataset_name: tank/ds2
+          compression: lz4
+          setuid: 'off'
+          mountpoint: /data/ds2
+      
     localhost:
       ansible_connection: local
     # mikrus_c343:        # wordpress
