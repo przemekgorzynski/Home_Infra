@@ -6,11 +6,6 @@
         os_username: "{{ lookup('bitwarden.secrets.lookup', '35859409-7f42-4c07-9c83-c034c88bdd4f') }}"
       no_log: true
 
-    - name: Get Samba password
-      ansible.builtin.set_fact:
-        samba_password: "{{ lookup('bitwarden.secrets.lookup', 'f17fe982-9ba7-4f76-83d9-aa8b22db2d87') }}"
-      no_log: true
-
     - name: Get Cloudflare user
       ansible.builtin.set_fact:
         cloudflare_user: "{{ lookup('bitwarden.secrets.lookup', '72de0bcd-17b6-4101-a037-e37bb98d35b2') }}"
@@ -19,26 +14,6 @@
     - name: Get Cloudflare API Key
       ansible.builtin.set_fact:
         cloudflare_global_api_key: "{{ lookup('bitwarden.secrets.lookup', '99d46d9e-b5d1-44a1-9bf0-6d932f967b6a') }}"
-      no_log: true
-
-    - name: Get Dynu user
-      ansible.builtin.set_fact:
-        dynu_username: "{{ lookup('bitwarden.secrets.lookup', '38549d6d-5912-4b20-a5cd-86bc355937be') }}"
-      no_log: true
-
-    - name: Get Dynu password
-      ansible.builtin.set_fact:
-        dynu_password: "{{ lookup('bitwarden.secrets.lookup', '04c5adbf-bf2e-444c-b489-af367903bc30') }}"
-      no_log: true
-
-    - name: Get Dynu email
-      ansible.builtin.set_fact:
-        dynu_email: "{{ lookup('bitwarden.secrets.lookup', 'a55efa8c-d3bf-4c26-b33c-4a956955a5ab') }}"
-      no_log: true
-
-    - name: Get Dynu API KEY
-      ansible.builtin.set_fact:
-        dynu_api_key: "{{ lookup('bitwarden.secrets.lookup', '8d1f0faa-c636-4669-be69-7419edda3710') }}"
       no_log: true
 
     - name: Get Nextcloud admin user
@@ -64,14 +39,4 @@
     - name: Get Nextcloud Mysql user password
       ansible.builtin.set_fact:
         nextcloud_mysql_password: "{{ lookup('bitwarden.secrets.lookup', 'ac04ebec-b9a4-4e26-9221-d2c76689deee') }}"
-      no_log: true
-
-    - name: Get Grafana username
-      ansible.builtin.set_fact:
-        grafana_username: "{{ lookup('bitwarden.secrets.lookup', '9536fd0c-af6f-4fb4-b67b-716fb1701190') }}"
-      no_log: true
-
-    - name: Get Grafana password
-      ansible.builtin.set_fact:
-        grafana_password: "{{ lookup('bitwarden.secrets.lookup', 'b2c04390-bc87-48ac-bf74-716d373dd158') }}"
       no_log: true

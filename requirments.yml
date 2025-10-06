@@ -6,3 +6,5 @@ collections:
     src: https://galaxy.ansible.com
   - name: ansible.posix
     src: https://galaxy.ansible.com
+  - name: bitwarden.secrets
+    src: https://galaxy.ansible.com

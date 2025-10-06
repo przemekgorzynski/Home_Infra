@@ -1,16 +1,37 @@
 ---
 all:
   vars:
+    admin_user:
+      - name: przemek
+        uid: 1000
+        public_key_path: '{{ playbook_dir }}/roles/user_mgmnt/public_keys/przemek'
     admin_group:
       - name: admins
         gid: 1100
     users:
-      - name: "{{ os_username }}"
-        groups: 'users,sudo,adm,www-data,{{ admin_group[0].name }}'
+      - name: '{{ admin_user[0].name }}'
+        additional_groups: 'users,sudo,adm,www-data,{{ admin_group[0].name }}'
         shell: '/bin/bash'
         state: present
-        uid: 1000
-        private_key_path: '~/.ssh/ssh-ed25519'
+        uid: '{{ admin_user[0].uid }}'
+        public_key_path: '{{ admin_user[0].public_key_path }}'
+    app_accounts:
+      - name: "jellyfin"
+        uid: 1200
+        additional_groups: ""
+        shell: "/usr/sbin/nologin"
+        state: present
+        create_home: true
+      - name: "nextcloud"
+        uid: 1300
+        additional_groups: "www-data"
+        shell: "/usr/sbin/nologin"
+        state: present
+        create_home: true
+      # - name: "samba"
+      #   groups: "smb,{{ admin_group[0].name }}"
+      #   shell: "/usr/sbin/nologin"
+      #   state: present
     timezone: Europe/Warsaw
     standard_packages:
       - docker.io
@@ -24,157 +45,164 @@ all:
       - ufw
       - fail2ban
       - python3-pip
+      - zfsutils-linux
+      - zfs-initramfs
 
   hosts:
+    wtr:
+      ansible_host: 10.0.0.100
+      ansible_user: przemek
+      hostname: wtr
+      type: pc
     localhost:
       ansible_connection: local
-    mikrus_c343:        # wordpress
-      ansible_host: srv29.mikr.us
-      ansible_port: 10343
-      ansible_user: root
-      hostname: c343
-      type: pc
-    mikrus_l263:      # mine
-      ansible_host: srv15.mikr.us
-      ansible_port: 10263
-      ansible_user: root
-      hostname: l263
-      type: pc
-    nas:
-      domain: gorillabay.click
-      domain2: pszemazzz.com
-      domain3: gorillabay.org
-      hostname: nas
-      type: pc
-      ansible_host: 10.0.0.10
-      samba_shares_partition:
-        - uuid: 1c5dcb51-59e7-4013-95e2-b2662611ccba   # 2TB
-          path: /samba_shares
-          chmod: '0777'
-          fstype: ext4
-          opts: defaults,nofail
-      samba_backup_partition:
-        - uuid: 6e88906f-dafc-476c-8a49-e345710f016f   # 4TB
-          path: /samba_backup
-          chmod: '0777'
-          fstype: ext4
-          opts: defaults,nofail
-      nfs_config:
-        config_file: /etc/exports
-        nfs_share: /samba_shares/nfs
-        nfs_share_chmod: 777
-        nfs_network: 10.0.0.0/24
-        nfs_params: rw,sync,no_subtree_check,insecure,no_root_squash
-      tooling_dirs:
-        - path: /samba_shares/config_files
-          chmod: '0770'
-          group: "{{ admin_group[0].name }}"
-        - path: /samba_backup/samba_shares_backup
-          chmod: '0777'
-          group: "{{ admin_group[0].name }}"
-      tools:
-        docker:
-          network:
-            name: tooling
-            subnet: 172.18.0.0/16
-            gateway: 172.18.0.1
-            containers:
-              traefik: 172.18.0.2
-              home_assistant: 172.18.0.3
-              jellyfin: 172.18.0.4
-              nextcloud:
-                app: 172.18.0.5
-                db: 172.18.0.6
-              qbittorrent: 172.18.0.7
-              uptime_kuma: 172.18.0.8
-              monitoring:
-                metric_exporter: 172.18.0.9
-                smartctl_exporter: 172.18.0.12
-                prometheus: 172.18.0.10
-                grafana: 172.18.0.11
-        monitoring:
-          deploy: true
-          expose: true
-          repository: https://github.com/przemekgorzynski/CustomMetricsMonitoring.git
-          repo_path: repos
-          branch: main
-          prometheus:
-            docker_image: prom/prometheus
-            docker_image_tag: v3.6.0
-            container_name: prometheus
-          grafana:
-            docker_image: grafana/grafana
-            docker_image_tag: 12.2.0
-            container_name: grafana
-          smartctl_exporter:
-            docker_image: prometheuscommunity/smartctl-exporter
-            docker_image_tag: v0.14.0
-            container_name: smartctl_exporter
-        traefik:
-          docker_image: traefik
-          docker_image_tag: v3.5.3
-          platform: amd64
-          container_name: traefik
-          log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
-          # provider: cloudflare
-          provider: dynu
-          cloudflare_email: "{{ cloudflare_user }}"
-          cloudflare_api_key: "{{ cloudflare_global_api_key }}"
-          dynu_email: "{{ dynu_username }}"
-          dynu_api_key: "{{ dynu_api_key }}"
-        ddns:
-          dns_entries_to_update:
-            - nextcloud
-            - kuma
-        jellyfin:
-          docker_image: linuxserver/jellyfin
-          docker_image_tag: 10.10.7
-          container_name: jellyfin
-          docker_volume_name: jellyfin_volume
-          ports:
-            - 8096:8096
-          media_dirs:
-            - /samba_shares/shares/filmy
-            - /samba_shares/shares/inne
-            - /samba_backup/new
-          admin_group:
-            - name: admins
-        nextcloud:
-          app:
-            docker_image: nextcloud
-            docker_image_tag: 32.0.0
-            container_name: nextcloud
-            docker_volume_name: nextcloud_app_volume
-            host_port: 4000
-            container_port: 80
-            admin_user: "{{ nextcloud_admin_user}}"
-            admin_password: "{{ nextcloud_admin_password }}"
-            trusted_domains: "nextcloud.{{ domain }}"
-          db:
-            docker_image: mariadb
-            docker_image_tag: 12.0.2
-            container_name: nextcloud_db
-            docker_volume_name: nextcloud_db_volume
-            mysql_root_password: "{{ nextcloud_mysql_root_password }}"
-            mysql_user: "{{ nextcloud_mysql_user }}"
-            mysql_password: "{{ nextcloud_mysql_password }}"
-            mysql_database: nextclouddb
-        qbittorrent:
-          docker_image: linuxserver/qbittorrent
-          docker_image_tag: 5.0.3-r0-ls380
-          container_name: qbittorrent
-          docker_volume_name: qbittorrent
-          web_ui_port: 8090
-          torrenting_port: 6881
-          downloading_path: /samba_backup/new/Toreview/In_progress
-        uptime_kuma:
-          docker_image: louislam/uptime-kuma
-          docker_image_tag: 1.23.16
-          container_name: uptime_kuma
-          docker_volume_name: uptime_kuma
-          ports:
-            - 3001:3001
-    dell-sandbox:
-      hostname: dell-sandbox
-      type: notebook
-      ansible_host: 10.0.0.9
+    # mikrus_c343:        # wordpress
+    #   ansible_host: srv29.mikr.us
+    #   ansible_port: 10343
+    #   ansible_user: root
+    #   hostname: c343
+    #   type: pc
+    # mikrus_l263:      # mine
+    #   ansible_host: srv15.mikr.us
+    #   ansible_port: 10263
+    #   ansible_user: root
+    #   hostname: l263
+    #   type: pc
+    # nas:
+    #   domain: gorillabay.click
+    #   domain2: pszemazzz.com
+    #   domain3: gorillabay.org
+    #   hostname: nas
+    #   type: pc
+    #   ansible_host: 10.0.0.10
+    #   samba_shares_partition:
+    #     - uuid: 1c5dcb51-59e7-4013-95e2-b2662611ccba   # 2TB
+    #       path: /samba_shares
+    #       chmod: '0777'
+    #       fstype: ext4
+    #       opts: defaults,nofail
+    #   samba_backup_partition:
+    #     - uuid: 6e88906f-dafc-476c-8a49-e345710f016f   # 4TB
+    #       path: /samba_backup
+    #       chmod: '0777'
+    #       fstype: ext4
+    #       opts: defaults,nofail
+    #   nfs_config:
+    #     config_file: /etc/exports
+    #     nfs_share: /samba_shares/nfs
+    #     nfs_share_chmod: 777
+    #     nfs_network: 10.0.0.0/24
+    #     nfs_params: rw,sync,no_subtree_check,insecure,no_root_squash
+    #   tooling_dirs:
+    #     - path: /samba_shares/config_files
+    #       chmod: '0770'
+    #       group: "{{ admin_group[0].name }}"
+    #     - path: /samba_backup/samba_shares_backup
+    #       chmod: '0777'
+    #       group: "{{ admin_group[0].name }}"
+    #   tools:
+    #     docker:
+    #       network:
+    #         name: tooling
+    #         subnet: 172.18.0.0/16
+    #         gateway: 172.18.0.1
+    #         containers:
+    #           traefik: 172.18.0.2
+    #           home_assistant: 172.18.0.3
+    #           jellyfin: 172.18.0.4
+    #           nextcloud:
+    #             app: 172.18.0.5
+    #             db: 172.18.0.6
+    #           qbittorrent: 172.18.0.7
+    #           uptime_kuma: 172.18.0.8
+    #           monitoring:
+    #             metric_exporter: 172.18.0.9
+    #             smartctl_exporter: 172.18.0.12
+    #             prometheus: 172.18.0.10
+    #             grafana: 172.18.0.11
+    #     monitoring:
+    #       deploy: true
+    #       expose: true
+    #       repository: https://github.com/przemekgorzynski/CustomMetricsMonitoring.git
+    #       repo_path: repos
+    #       branch: main
+    #       prometheus:
+    #         docker_image: prom/prometheus
+    #         docker_image_tag: v3.6.0
+    #         container_name: prometheus
+    #       grafana:
+    #         docker_image: grafana/grafana
+    #         docker_image_tag: 12.2.0
+    #         container_name: grafana
+    #       smartctl_exporter:
+    #         docker_image: prometheuscommunity/smartctl-exporter
+    #         docker_image_tag: v0.14.0
+    #         container_name: smartctl_exporter
+    #     traefik:
+    #       docker_image: traefik
+    #       docker_image_tag: v3.5.3
+    #       platform: amd64
+    #       container_name: traefik
+    #       log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
+    #       # provider: cloudflare
+    #       provider: dynu
+    #       cloudflare_email: "{{ cloudflare_user }}"
+    #       cloudflare_api_key: "{{ cloudflare_global_api_key }}"
+    #       dynu_email: "{{ dynu_username }}"
+    #       dynu_api_key: "{{ dynu_api_key }}"
+    #     ddns:
+    #       dns_entries_to_update:
+    #         - nextcloud
+    #         - kuma
+    #     jellyfin:
+    #       docker_image: linuxserver/jellyfin
+    #       docker_image_tag: 10.10.7
+    #       container_name: jellyfin
+    #       docker_volume_name: jellyfin_volume
+    #       ports:
+    #         - 8096:8096
+    #       media_dirs:
+    #         - /samba_shares/shares/filmy
+    #         - /samba_shares/shares/inne
+    #         - /samba_backup/new
+    #       admin_group:
+    #         - name: admins
+    #     nextcloud:
+    #       app:
+    #         docker_image: nextcloud
+    #         docker_image_tag: 32.0.0
+    #         container_name: nextcloud
+    #         docker_volume_name: nextcloud_app_volume
+    #         host_port: 4000
+    #         container_port: 80
+    #         admin_user: "{{ nextcloud_admin_user}}"
+    #         admin_password: "{{ nextcloud_admin_password }}"
+    #         trusted_domains: "nextcloud.{{ domain }}"
+    #       db:
+    #         docker_image: mariadb
+    #         docker_image_tag: 12.0.2
+    #         container_name: nextcloud_db
+    #         docker_volume_name: nextcloud_db_volume
+    #         mysql_root_password: "{{ nextcloud_mysql_root_password }}"
+    #         mysql_user: "{{ nextcloud_mysql_user }}"
+    #         mysql_password: "{{ nextcloud_mysql_password }}"
+    #         mysql_database: nextclouddb
+    #     qbittorrent:
+    #       docker_image: linuxserver/qbittorrent
+    #       docker_image_tag: 5.0.3-r0-ls380
+    #       container_name: qbittorrent
+    #       docker_volume_name: qbittorrent
+    #       web_ui_port: 8090
+    #       torrenting_port: 6881
+    #       downloading_path: /samba_backup/new/Toreview/In_progress
+    #     uptime_kuma:
+    #       docker_image: louislam/uptime-kuma
+    #       docker_image_tag: 1.23.16
+    #       container_name: uptime_kuma
+    #       docker_volume_name: uptime_kuma
+    #       ports:
+    #         - 3001:3001
+    # dell-sandbox:
+    #   hostname: dell-sandbox
+    #   type: notebook
+    #   ansible_host: 10.0.0.9

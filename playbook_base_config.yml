@@ -2,13 +2,14 @@
 - name: Base config
   hosts: all:!localhost
   gather_facts: false
+  become: true
 
   pre_tasks:
-    - name: Import Bitwarden secrets
-      ansible.builtin.import_tasks: import_vault_data.yml
-      tags:
-        - pre
-        - always
+    # - name: Import Bitwarden secrets
+    #   ansible.builtin.import_tasks: import_vault_data.yml
+    #   tags:
+    #     - pre
+    #     - always
     - name: Check connectivity
       action: ansible.builtin.ping
       tags:
@@ -16,18 +17,18 @@
         - always
 
   tasks:
-    - name: Import os_mgmnt role
-      ansible.builtin.import_role:
-        name: os_mgmnt
-      tags:
-        - os_mgmnt
     - name: Import user_mgmnt role
       ansible.builtin.import_role:
         name: user_mgmnt
       tags:
         - user_mgmnt
-    - name: Import reboot role
+    - name: Import os_mgmnt role
       ansible.builtin.import_role:
-        name: reboot
+        name: os_mgmnt
       tags:
-        - reboot
+        - os_mgmnt
+    # - name: Import reboot role
+    #   ansible.builtin.import_role:
+    #     name: reboot
+    #   tags:
+    #     - reboot

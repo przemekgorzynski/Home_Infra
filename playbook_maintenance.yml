@@ -1,7 +1,8 @@
 ---
 - name: Maintenance
-  hosts: "{{ variable_host | default('all') }}"
+  hosts: all:!localhost
   gather_facts: false
+  become: true
 
   pre_tasks:
     - name: Check connectivity

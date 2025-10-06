@@ -5,16 +5,24 @@
     uid: "{{ item.uid }}"
     state: "{{ item.state }}"
     shell: "{{ item.shell }}"
-    groups: "{{ item.groups }}"
+    groups: "{{ item.additional_groups }}"
     create_home: true
 
 - name: Update authorized keys - "{{ item.name }}"
   ansible.posix.authorized_key:
     user: "{{ item.name }}"
     state: present
-    key: "{{ inner_item }}"
+    key: "{{ lookup('file', item.public_key_path) }}"
     exclusive: true
-  loop:
-    - "{{ lookup('bitwarden.secrets.lookup', 'ba69e620-bddf-4dae-b0a8-b21801125498') }}"
+
+- name: Create users - app accounts
+  ansible.builtin.user:
+    name: "{{ account.name }}"
+    uid: "{{ account.uid }}"
+    state: "{{ account.state }}"
+    shell: "{{ account.shell }}"
+    groups: "{{ account.additional_groups }}"
+    create_home: "{{ account.create_home }}"
+  loop: "{{ app_accounts }}"
   loop_control:
-    loop_var: inner_item
+    loop_var: account
