@@ -54,6 +54,13 @@ all:
       ansible_user: przemek
       hostname: wtr
       type: pc
+      zfs_cfg:
+        pool_name: base_pool
+        type: stripe # mirror raidz1 raidz2
+        disks:
+          - /dev/sda
+        cache:
+          - /dev/nvme0n1
     localhost:
       ansible_connection: local
     # mikrus_c343:        # wordpress
