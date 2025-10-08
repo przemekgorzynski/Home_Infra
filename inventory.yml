@@ -54,6 +54,12 @@ all:
       ansible_user: przemek
       hostname: wtr
       type: pc
+      doppler_vault:
+        project_name: wtr_pro
+        config: prd
+        secrets:
+          - secret_name: ZFS_ENCRYPTION_KEY
+            variable_name: zfs_encryption_key
       zfs:
         encryption:
           encryption: aes-128-ccm

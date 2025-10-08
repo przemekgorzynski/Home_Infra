@@ -34,10 +34,11 @@ ansible-galaxy collection install -r requirements.yml
 
 echo ""
 echo "##################### STEP 4 ##############################"
-if [ -z "${BWS_ACCESS_TOKEN}" ]; then
-    echo "BWS_ACCESS_TOKEN is not set."
-    echo "export BWS_ACCESS_TOKEN=<< REDACTED >>"
+
+if [ -z "${DOPPLER_SERVICE_TOKEN}" ]; then
+    echo "DOPPLER_SERVICE_TOKEN is not set."
+    echo "export DOPPLER_SERVICE_TOKEN=<< REDACTED >>"
 else
-    echo "BWS_ACCESS_TOKEN is set. Running Ansible playbook..."
+    echo "DOPPLER_SERVICE_TOKEN is set. Running Ansible playbook..."
     ansible-playbook -i inventory.yml playbook_base_config.yml --ask-become-pass
 fi
