@@ -54,31 +54,32 @@ all:
       ansible_user: przemek
       hostname: wtr
       type: pc
-      zfs_pools:
-        - pool_name: tank
-          filesystem_properties:
-            compression: lz4
-          vdevs:
-            - type: stripe #zraid2
-              disks:
-                - /dev/sda
-            - role: cache
-              disks:
-                - /dev/nvme0n1
-      encryption:
-        encryption: aes-128-ccm
-        keyformat: raw
-        keylocation: /root/zfs.key
-      mount_directory: /data
-      datasets:
-        - dataset_name: tank/ds1
-          compression: lz4
-          setuid: 'off'
-          mountpoint: '{{ mount_directory }}/ds1'
-        - dataset_name: tank/ds2
-          compression: lz4
-          setuid: 'off'
-          mountpoint: '{{ mount_directory }}/ds2'
+      zfs:
+        encryption:
+          encryption: aes-128-ccm
+          keyformat: raw
+          keylocation: /root/zfs.key
+        zfs_pools:
+          - pool_name: tank
+            mount_directory: /data
+            filesystem_properties:
+              compression: lz4
+            vdevs:
+              - type: stripe #zraid2
+                disks:
+                  - /dev/sda
+              - role: cache
+                disks:
+                  - /dev/nvme0n1
+            datasets:
+              - dataset_name: tank/ds1
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/ds1'
+              - dataset_name: tank/ds2
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/ds2'
       
     localhost:
       ansible_connection: local

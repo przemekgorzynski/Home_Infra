@@ -1,19 +1,36 @@
 #!/bin/bash
+set -e
 
 echo ""
 echo "##################### STEP 1 ##############################"
-echo "Install ansible and python"
-sudo apt install ansible-core python3-pip
+echo "Detect Python interpreter"
+
+# Prefer Python 3.11 if available
+if [ -x "/opt/homebrew/bin/python3.11" ]; then
+    PYTHON_BIN="/opt/homebrew/bin/python3.11"
+elif [ -x "/usr/bin/python3.11" ]; then
+    PYTHON_BIN="/usr/bin/python3.11"
+elif [ -x "/usr/bin/python3" ]; then
+    PYTHON_BIN="/usr/bin/python3"
+else
+    echo "ERROR: No suitable Python found!"
+    exit 1
+fi
+
+echo "Using Python: $PYTHON_BIN"
+"$PYTHON_BIN" --version
 
 echo ""
 echo "##################### STEP 2 ##############################"
-echo "Install ansible collectons"
-ansible-galaxy collection install -r requirments.yml
+echo "Upgrade pip and install Ansible + Bitwarden SDK globally"
+
+sudo "$PYTHON_BIN" -m pip install --upgrade pip
+sudo "$PYTHON_BIN" -m pip install ansible-core bitwarden-sdk
 
 echo ""
 echo "##################### STEP 3 ##############################"
-echo "Install Bitwarden sdk"
-pip install bitwarden-sdk --break-system-packages
+echo "Install Ansible collections"
+ansible-galaxy collection install -r requirements.yml
 
 echo ""
 echo "##################### STEP 4 ##############################"

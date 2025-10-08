@@ -32,6 +32,7 @@
         name: zfs
       tags:
         - zfs
+        - storage
     - name: Import reboot role
       ansible.builtin.import_role:
         name: reboot

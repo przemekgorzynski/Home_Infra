@@ -1,8 +1,19 @@
 - name: Store ZFS encryption key
   ansible.builtin.copy:
     content: "{{ zfs_encryption_key | b64decode }}"
-    dest: "{{ encryption.keylocation }}"
+    dest: "{{ zfs.encryption.keylocation }}"
     mode: '0600'
+
+- name: Ensure ZFS pool mount directories exist
+  ansible.builtin.file:
+    path: "{{ item.mount_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop: "{{ zfs.zfs_pools }}"
+  loop_control:
+    label: "{{ item.pool_name }}"
 
 - name: Create ZFS pools
   community.general.zpool:
@@ -11,24 +22,27 @@
     force: true
     vdevs: "{{ item.vdevs }}"
     filesystem_properties: "{{ item.filesystem_properties | default({}) }}"
-  loop: "{{ zfs_pools }}"
+  loop: "{{ zfs.zfs_pools }}"
   loop_control:
     label: "{{ item.pool_name }}"
 
 - name: Create ZFS datasets
   community.general.zfs:
-    name: "{{ item.dataset_name }}"
+    name: "{{ dataset.dataset_name }}"
     state: present
     extra_zfs_properties:
-      encryption: "{{ encryption.encryption }}"
-      keyformat: "{{ encryption.keyformat }}"
-      keylocation: "file://{{ encryption.keylocation }}"
-      compression: "{{ item.compression }}"
-      setuid: "{{ item.setuid }}"
-      mountpoint: "{{ item.mountpoint }}"
-  loop: "{{ datasets }}"
+      encryption: "{{ zfs.encryption.encryption }}"
+      keyformat: "{{ zfs.encryption.keyformat }}"
+      keylocation: "file://{{ zfs.encryption.keylocation }}"
+      compression: "{{ dataset.compression }}"
+      setuid: "{{ dataset.setuid }}"
+      mountpoint: "{{ dataset.mountpoint }}"
+  loop: "{{ zfs.zfs_pools | subelements('datasets') }}"
   loop_control:
-    label: "{{ item.dataset_name }}"
+    label: "{{ dataset.dataset_name }}"
+  vars:
+    dataset: "{{ item.1 }}"
+
 
 - name: Ensure ZFS encrypted datasets mount at boot via cron
   ansible.builtin.cron:

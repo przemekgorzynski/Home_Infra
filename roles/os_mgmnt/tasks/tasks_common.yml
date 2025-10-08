@@ -46,3 +46,13 @@
         delete: true
         owner: false
         group: false
+
+- name: Copy Docker configuration file
+  tags:
+    - docker
+  ansible.builtin.copy:
+    src: files/docker_cfg/daemon.json
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
