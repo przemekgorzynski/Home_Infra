@@ -5,10 +5,9 @@ cloudflare_base="https://api.cloudflare.com/client/v4"
 public_ip=$(curl -s ipinfo.io/ip)
 
 # Dynamically updated vars
-cloudflare_email={{ cloudflare_user }}
-cloudflare_global_api_key={{ cloudflare_global_api_key }}
-domain={{ domain3 }}
-cnames=( {{ tools.ddns.dns_entries_to_update | join(' ') }} )
+cloudflare_email={{ domain.cloudflare_user }}
+cloudflare_global_api_key={{ cf_global_api_key }}
+domain={{ domain.name }}
 
 # Define functions
 log_with_timestamp() {
@@ -102,51 +101,6 @@ update_ip(){
     }'  > /dev/null
 }
 
-add_cname(){
-    local cname=$1  # Accept cname as the first parameter
-    local fqdn="${cname}.${domain}"  # Fully Qualified Domain Name
-    log_with_timestamp "Adding CNAME for $cname"
-    # Query Cloudflare for the CNAME record and output the result for debugging
-    response=$(curl -s -X GET \
-        --url "$cloudflare_base/zones/$cloudflare_zone_id/dns_records?type=CNAME&name=$fqdn" \
-        --header "X-Auth-Key: $cloudflare_global_api_key" \
-        --header "X-Auth-Email: $cloudflare_email" \
-        --header "Content-Type: application/json")
-
-    cname_exists=$(echo "$response" | jq -r '.result_info.count')
-
-    if [[ "$cname_exists" -gt 0 ]]; then
-        cname_record_id=$(echo "$response" | jq -r '.result[0].id')
-        echo "CNAME record found for $fqdn. Updating record with id: $cname_record_id."
-        curl -s -X PUT "$cloudflare_base/zones/$cloudflare_zone_id/dns_records/$cname_record_id" \
-            --header "X-Auth-Key: $cloudflare_global_api_key" \
-            --header "X-Auth-Email: $cloudflare_email" \
-            --header "Content-Type: application/json" \
-            --data '{
-                "content": "'${domain}'",
-                "name": "'${fqdn}'",
-                "proxied": true,
-                "type": "CNAME",
-                "comment": "'${fqdn}' verification record",
-                "ttl": 3600
-            }' > /dev/null
-    else
-        echo "CNAME record not found for $fqdn. Creating a new record."
-        curl -s -X POST "$cloudflare_base/zones/$cloudflare_zone_id/dns_records" \
-            --header "X-Auth-Key: $cloudflare_global_api_key" \
-            --header "X-Auth-Email: $cloudflare_email" \
-            --header "Content-Type: application/json" \
-            --data '{
-                "content": "'${domain}'",
-                "name": "'${fqdn}'",
-                "proxied": true,
-                "type": "CNAME",
-                "comment": "'${fqdn}' verification record",
-                "ttl": 3600
-            }' > /dev/null
-    fi
-
-}
 #####################################################################################################################
 
 
@@ -167,11 +121,3 @@ if [[ "$new_dns_record_created" != true ]]; then
 else
     log_with_timestamp "Skipping IP update as a new DNS record was created."
 fi
-
-# Update CNAMEs
-for cname in "${cnames[@]}"; do
-    add_cname "$cname"
-done
-
-echo ""
-

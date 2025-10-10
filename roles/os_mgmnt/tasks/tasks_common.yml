@@ -11,13 +11,13 @@
     name: "{{ standard_packages }}"
     state: present
 
-- name: Append users to docker group
-  ansible.builtin.user:
-    name: "{{ item.name }}"
-    groups: docker
-    append: true
-  with_items:
-    - "{{ users }}"
+# - name: Append users to docker group
+#   ansible.builtin.user:
+#     name: "{{ item.name }}"
+#     groups: docker
+#     append: true
+#   with_items:
+#     - "{{ users }}"
 
 - name: Set hostname
   ansible.builtin.hostname:
@@ -46,13 +46,3 @@
         delete: true
         owner: false
         group: false
-
-- name: Copy Docker configuration file
-  tags:
-    - docker
-  ansible.builtin.copy:
-    src: files/docker_cfg/daemon.json
-    dest: /etc/docker/daemon.json
-    owner: root
-    group: root
-    mode: '0644'

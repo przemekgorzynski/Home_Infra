@@ -29,13 +29,12 @@ all:
         state: present
         create_home: true
       # - name: "samba"
-      #   groups: "smb,{{ admin_group[0].name }}"
+      #   uid: 1400
+      #   additional_groups: "smb,{{ admin_group[0].name }}"
       #   shell: "/usr/sbin/nologin"
       #   state: present
     timezone: Europe/Warsaw
     standard_packages:
-      - docker.io
-      - docker-compose
       - curl
       - network-manager
       - git
@@ -54,12 +53,19 @@ all:
       ansible_user: przemek
       hostname: wtr
       type: pc
+      domain:
+        name: pszemazzz.com
+        cloudflare_user: przemyslaw.gorzynski@proton.me
       doppler_vault:
         project_name: wtr_pro
         config: prd
         secrets:
           - secret_name: ZFS_ENCRYPTION_KEY
             variable_name: zfs_encryption_key
+          - secret_name: CF_API_TOKEN
+            variable_name: cf_api_token
+          - secret_name: CF_GLOBAL_API_KEY
+            variable_name: cf_global_api_key
       zfs:
         encryption:
           encryption: aes-128-ccm
@@ -78,14 +84,14 @@ all:
                 disks:
                   - /dev/nvme0n1
             datasets:
-              - dataset_name: tank/ds1
-                compression: lz4
-                setuid: 'off'
-                mountpoint: '/data/ds1'
-              - dataset_name: tank/ds2
-                compression: lz4
-                setuid: 'off'
-                mountpoint: '/data/ds2'
+              # - dataset_name: tank/ds1
+              #   compression: lz4
+              #   setuid: 'off'
+              #   mountpoint: '/data/ds1'
+              # - dataset_name: tank/ds2
+              #   compression: lz4
+              #   setuid: 'off'
+              #   mountpoint: '/data/ds2'
       
     localhost:
       ansible_connection: local

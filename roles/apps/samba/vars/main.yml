@@ -1,4 +1,0 @@
----
-samba_packages:
-  - samba
-  - smartmontools

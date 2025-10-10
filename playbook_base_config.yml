@@ -5,7 +5,7 @@
   become: true
 
   pre_tasks:
-    - name: Import Bitwarden secrets
+    - name: Import Vault secrets
       ansible.builtin.import_tasks: import_vault_data.yml
       tags:
         - pre
@@ -27,14 +27,19 @@
         name: os_mgmnt
       tags:
         - os_mgmnt
+    - name: Import ddns_update role
+      ansible.builtin.import_role:
+        name: ddns
+      tags:
+        - ddns
     - name: Import zfs_setup role
       ansible.builtin.import_role:
         name: zfs
       tags:
         - zfs
         - storage
-    - name: Import reboot role
-      ansible.builtin.import_role:
-        name: reboot
-      tags:
-        - reboot
+    # - name: Import reboot role
+    #   ansible.builtin.import_role:
+    #     name: reboot
+    #   tags:
+    #     - reboot

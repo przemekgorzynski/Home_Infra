@@ -1,18 +1,13 @@
 ---
-- name: Find DDNS configuration files
-  ansible.builtin.find:
-    paths: "{{ playbook_dir }}/roles/ddns/templates/"
-  register: config_files
-  delegate_to: localhost
-
 - name: Copy DDNS update script
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: "/{{ item | basename | regex_replace('\\.j2$', '.sh') }}"
+    dest: "/update_cloudflare_ddns.sh"
     owner: root
     group: "{{ admin_group[0].name }}"
-    mode: '0770'
-  loop: "{{ config_files.files | map(attribute='path') | list }}"
+    mode: '0740'
+  loop: 
+    - ../templates/update_cloudflare_ddns.j2
 
 - name: Set crontab DDNS update
   ansible.builtin.cron:
@@ -28,10 +23,4 @@
       hour: "*"
       user: root
       job: "/bin/bash /update_cloudflare_ddns.sh >> /var/log/cloudflare_ddns.log 2>&1"
-      state: present
-    - name: "DDNS Dynu update"
-      minute: "*/10"
-      hour: "*"
-      user: root
-      job: "/bin/bash /update_dynu_ddns.sh >> /var/log/dynu_ddns.log 2>&1"
       state: present
