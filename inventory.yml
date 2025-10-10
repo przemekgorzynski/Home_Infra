@@ -62,8 +62,6 @@ all:
         secrets:
           - secret_name: ZFS_ENCRYPTION_KEY
             variable_name: zfs_encryption_key
-          - secret_name: CF_API_TOKEN
-            variable_name: cf_api_token
           - secret_name: CF_GLOBAL_API_KEY
             variable_name: cf_global_api_key
       zfs:
