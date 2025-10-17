@@ -5,27 +5,27 @@ echo ""
 echo "##################### STEP 1 ##############################"
 echo "Detect Python interpreter"
 
-# Prefer Python 3.11 if available
-if [ -x "/opt/homebrew/bin/python3.11" ]; then
-    PYTHON_BIN="/opt/homebrew/bin/python3.11"
-elif [ -x "/usr/bin/python3.11" ]; then
-    PYTHON_BIN="/usr/bin/python3.11"
-elif [ -x "/usr/bin/python3" ]; then
-    PYTHON_BIN="/usr/bin/python3"
-else
-    echo "ERROR: No suitable Python found!"
-    exit 1
-fi
+# # Prefer Python 3.11 if available
+# if [ -x "/opt/homebrew/bin/python3.11" ]; then
+#     PYTHON_BIN="/opt/homebrew/bin/python3.11"
+# elif [ -x "/usr/bin/python3.11" ]; then
+#     PYTHON_BIN="/usr/bin/python3.11"
+# elif [ -x "/usr/bin/python3" ]; then
+#     PYTHON_BIN="/usr/bin/python3"
+# else
+#     echo "ERROR: No suitable Python found!"
+#     exit 1
+# fi
 
-echo "Using Python: $PYTHON_BIN"
-"$PYTHON_BIN" --version
+# echo "Using Python: $PYTHON_BIN"
+# "$PYTHON_BIN" --version
 
-echo ""
-echo "##################### STEP 2 ##############################"
-echo "Upgrade pip and install Ansible + Bitwarden SDK globally"
+# echo ""
+# echo "##################### STEP 2 ##############################"
+# echo "Upgrade pip and install Ansible + Bitwarden SDK globally"
 
-sudo "$PYTHON_BIN" -m pip install --upgrade pip
-sudo "$PYTHON_BIN" -m pip install ansible-core bitwarden-sdk
+# sudo "$PYTHON_BIN" -m pip install --upgrade pip
+# sudo "$PYTHON_BIN" -m pip install ansible-core bitwarden-sdk
 
 echo ""
 echo "##################### STEP 3 ##############################"

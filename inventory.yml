@@ -15,24 +15,6 @@ all:
         state: present
         uid: '{{ admin_user[0].uid }}'
         public_key_path: '{{ admin_user[0].public_key_path }}'
-    app_accounts:
-      - name: "jellyfin"
-        uid: 1200
-        additional_groups: ""
-        shell: "/usr/sbin/nologin"
-        state: present
-        create_home: true
-      - name: "nextcloud"
-        uid: 1300
-        additional_groups: "www-data"
-        shell: "/usr/sbin/nologin"
-        state: present
-        create_home: true
-      # - name: "samba"
-      #   uid: 1400
-      #   additional_groups: "smb,{{ admin_group[0].name }}"
-      #   shell: "/usr/sbin/nologin"
-      #   state: present
     timezone: Europe/Warsaw
     standard_packages:
       - curl
@@ -46,6 +28,10 @@ all:
       - python3-pip
       - zfsutils-linux
       - zfs-initramfs
+      - containerd
+      - ca-certificates 
+      - gnupg
+      - lsb-release
 
   hosts:
     wtr:
@@ -61,9 +47,13 @@ all:
         config: prd
         secrets:
           - secret_name: ZFS_ENCRYPTION_KEY
-            variable_name: zfs_encryption_key
+            variable_name: ZFS_ENCRYPTION_KEY
           - secret_name: CF_GLOBAL_API_KEY
-            variable_name: cf_global_api_key
+            variable_name: CF_GLOBAL_API_KEY
+          - secret_name: K3S_TOKEN
+            variable_name: K3S_TOKEN
+          - secret_name: ARGO_CD_ADMIN_PASS
+            variable_name: ARGO_CD_ADMIN_PASS
       zfs:
         encryption:
           encryption: aes-128-ccm
@@ -82,14 +72,14 @@ all:
                 disks:
                   - /dev/nvme0n1
             datasets:
-              # - dataset_name: tank/ds1
-              #   compression: lz4
-              #   setuid: 'off'
-              #   mountpoint: '/data/ds1'
-              # - dataset_name: tank/ds2
-              #   compression: lz4
-              #   setuid: 'off'
-              #   mountpoint: '/data/ds2'
+              - dataset_name: tank/movies
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/movies'
+              - dataset_name: tank/photos
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/photos'
       
     localhost:
       ansible_connection: local

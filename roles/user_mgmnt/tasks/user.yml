@@ -14,15 +14,3 @@
     state: present
     key: "{{ lookup('file', item.public_key_path) }}"
     exclusive: true
-
-- name: Create users - app accounts
-  ansible.builtin.user:
-    name: "{{ account.name }}"
-    uid: "{{ account.uid }}"
-    state: "{{ account.state }}"
-    shell: "{{ account.shell }}"
-    groups: "{{ account.additional_groups }}"
-    create_home: "{{ account.create_home }}"
-  loop: "{{ app_accounts }}"
-  loop_control:
-    loop_var: account

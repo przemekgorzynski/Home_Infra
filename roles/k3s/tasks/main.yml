@@ -1,0 +1,34 @@
+- name: Download K3s install script
+  get_url:
+    url: https://get.k3s.io
+    dest: /tmp/k3s_install.sh
+    mode: '0755'
+
+- name: Ensure K3s config directory exists
+  file:
+    path: /etc/rancher/k3s
+    state: directory
+    mode: '0755'
+
+- name: Copy K3s config
+  copy:
+    src: files/k3s-config.yml
+    dest: /etc/rancher/k3s/config.yaml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install K3s Server
+  shell: |
+    K3S_CONFIG_FILE="/etc/rancher/k3s/config.yaml" \
+    K3S_TOKEN="{{ K3S_TOKEN }}" \
+    sh /tmp/k3s_install.sh
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: Wait for K3s API to be ready
+  shell: kubectl get nodes
+  register: k3s_status
+  retries: 10
+  delay: 5
+  until: k3s_status.rc == 0

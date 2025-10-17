@@ -38,6 +38,11 @@
       tags:
         - zfs
         - storage
+    - name: Import K3s role
+      ansible.builtin.import_role:
+        name: k3s
+      tags:
+        - k3s
     # - name: Import reboot role
     #   ansible.builtin.import_role:
     #     name: reboot

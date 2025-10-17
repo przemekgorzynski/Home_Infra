@@ -1,4 +1,4 @@
-- name: Get Doppler secrets
+- name: Get Doppler OS secrets
   ansible.builtin.set_fact:
     "{{ item.variable_name }}": "{{ lookup(
       'dcostakos.doppler.doppler_secrets',

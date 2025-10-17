@@ -11,14 +11,6 @@
     name: "{{ standard_packages }}"
     state: present
 
-# - name: Append users to docker group
-#   ansible.builtin.user:
-#     name: "{{ item.name }}"
-#     groups: docker
-#     append: true
-#   with_items:
-#     - "{{ users }}"
-
 - name: Set hostname
   ansible.builtin.hostname:
     name: "{{ hostname }}"
