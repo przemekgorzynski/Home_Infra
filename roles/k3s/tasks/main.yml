@@ -10,13 +10,13 @@
     state: directory
     mode: '0755'
 
-- name: Copy K3s config
-  copy:
+- name: Deploy K3s config
+  ansible.builtin.template:
     src: files/k3s-config.yml
     dest: /etc/rancher/k3s/config.yaml
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
 
 - name: Install K3s Server
   shell: |

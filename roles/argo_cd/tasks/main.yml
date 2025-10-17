@@ -1,0 +1,15 @@
+- name: Template ArgoCD install script
+  ansible.builtin.template:
+    src: files/argo_cd_install.sh
+    dest: /root/argo_cd_install.sh
+    mode: "0700"
+  when: k3s.argocd.deploy
+
+- name: Execute ArgoCD install script securely
+  ansible.builtin.shell: /root/argo_cd_install.sh
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+    ARGO_SSH_PRIVATE_KEY: "{{ ARGO_CD_PRIVATE_KEY }}"
+    ARGO_ADMIN_PASS: "{{ ARGO_CD_ADMIN_PASS }}"
+  no_log: false
+  when: k3s.argocd.deploy

@@ -40,5 +40,5 @@ if [ -z "${DOPPLER_SERVICE_TOKEN}" ]; then
     echo "export DOPPLER_SERVICE_TOKEN=<< REDACTED >>"
 else
     echo "DOPPLER_SERVICE_TOKEN is set. Running Ansible playbook..."
-    ansible-playbook -i inventory.yml playbook_base_config.yml --ask-become-pass
+    ansible-playbook -i inventory.yml playbook_base_config.yml --ask-become-pass --tags argo
 fi

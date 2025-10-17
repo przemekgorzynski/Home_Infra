@@ -43,6 +43,13 @@
         name: k3s
       tags:
         - k3s
+    - name: Import ARGOCD role
+      ansible.builtin.import_role:
+        name: argo_cd
+      when: k3s.argocd.deploy
+      tags:
+        - argo
+        - argocd
     # - name: Import reboot role
     #   ansible.builtin.import_role:
     #     name: reboot

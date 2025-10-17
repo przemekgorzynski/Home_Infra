@@ -32,6 +32,7 @@ all:
       - ca-certificates 
       - gnupg
       - lsb-release
+      - apache2-utils
 
   hosts:
     wtr:
@@ -55,6 +56,10 @@ all:
             variable_name: K3S_TOKEN
           - secret_name: ARGO_CD_ADMIN_PASS
             variable_name: ARGO_CD_ADMIN_PASS
+          - secret_name: ARGO_CD_PRIVATE_KEY
+            variable_name: ARGO_CD_PRIVATE_KEY
+          - secret_name: ARGO_CD_PUBLIC_KEY
+            variable_name: ARGO_CD_PUBLIC_KEY
       zfs:
         encryption:
           encryption: aes-128-ccm
@@ -81,6 +86,14 @@ all:
                 compression: lz4
                 setuid: 'off'
                 mountpoint: '/data/photos'
+      k3s:
+        argocd:
+          deploy: true
+          namespace: argocd
+          http_node_port: 30000
+          https_node_port: 30433
+          connected_repo: "git@github.com:przemekgorzynski/ArgoCDApps.git"
+
       
     localhost:
       ansible_connection: local

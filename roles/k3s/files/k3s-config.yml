@@ -1,10 +1,33 @@
+# /etc/rancher/k3s/config.yaml
+
 write-kubeconfig-mode: "0644"
+
+# TLS certificates
 tls-san:
   - "k3s.local"
   - "k3s.internal"
+
+# Node labels
 node-label:
   - "env=prod"
+
+# Disable default K3s services
 disable:
+  - traefik
   - servicelb
   - local-storage
+
+# Cluster initialization
 cluster-init: true
+
+# Use this interface/IP for K3s cluster API and communication
+node-ip: "{{ ansible_host }}"     # enp3s0 IP
+
+# Advertise this address to other nodes (if multi-node cluster later)
+advertise-address: "{{ ansible_host }}"
+
+# Optional: bind K3s API only to this interface
+bind-address: "{{ ansible_host }}"
+
+
+# helm install traefik traefik/traefik   --namespace kube-system   --set service.type=NodePort   --set deployment.kind=DaemonSet   --set ports.web.nodePort=31080   --set ports.websecure.nodePort=31443   --set ports.web.expose.enabled=true   --set ports.websecure.expose.enabled=true   --set additionalArguments="{--api.insecure=true,--api.dashboard=true, --log.level=DEBUG}"

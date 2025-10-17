@@ -6,5 +6,9 @@ collections:
     src: https://galaxy.ansible.com
   - name: ansible.posix
     src: https://galaxy.ansible.com
+  - name: kubernetes.core
+    src: https://galaxy.ansible.com
+  - name: community.kubernetes
+    src: https://galaxy.ansible.com
   - name: dcostakos.doppler
     src: git+https://github.com/dcostakos/doppler.git,stable-1.0.1
