@@ -4,4 +4,7 @@ tls-san:
   - "k3s.internal"
 node-label:
   - "env=prod"
+disable:
+  - servicelb
+  - local-storage
 cluster-init: true

@@ -39,6 +39,7 @@ all:
       ansible_user: przemek
       hostname: wtr
       type: pc
+      configure_second_eth: true
       domain:
         name: pszemazzz.com
         cloudflare_user: przemyslaw.gorzynski@proton.me
