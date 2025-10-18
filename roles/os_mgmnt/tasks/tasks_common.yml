@@ -11,6 +11,12 @@
     name: "{{ standard_packages }}"
     state: present
 
+- name: Ensure Python Kubernetes client is installed on K3s host
+  ansible.builtin.pip:
+    name: "{{ python_packages }}"
+    state: present
+    extra_args: "--break-system-packages"
+
 - name: Set hostname
   ansible.builtin.hostname:
     name: "{{ hostname }}"

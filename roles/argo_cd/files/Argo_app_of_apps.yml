@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infrastructure-project
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: projects
+    app.kubernetes.io/app: infrastructure-project
+spec:
+  project: infrastructure
+  source:
+    repoURL: git@github.com:przemekgorzynski/ArgoCDApps.git
+    targetRevision: HEAD
+    path: .
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

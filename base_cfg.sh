@@ -22,10 +22,9 @@ echo "Detect Python interpreter"
 
 # echo ""
 # echo "##################### STEP 2 ##############################"
-# echo "Upgrade pip and install Ansible + Bitwarden SDK globally"
-
+# echo "Upgrade pip and install Ansible"
 # sudo "$PYTHON_BIN" -m pip install --upgrade pip
-# sudo "$PYTHON_BIN" -m pip install ansible-core bitwarden-sdk
+
 
 echo ""
 echo "##################### STEP 3 ##############################"
@@ -40,5 +39,5 @@ if [ -z "${DOPPLER_SERVICE_TOKEN}" ]; then
     echo "export DOPPLER_SERVICE_TOKEN=<< REDACTED >>"
 else
     echo "DOPPLER_SERVICE_TOKEN is set. Running Ansible playbook..."
-    ansible-playbook -i inventory.yml playbook_base_config.yml --ask-become-pass --tags argo
+    ansible-playbook -i inventory.yml playbook_base_config.yml --ask-become-pass
 fi

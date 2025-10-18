@@ -33,6 +33,8 @@ all:
       - gnupg
       - lsb-release
       - apache2-utils
+    python_packages:
+      - kubernetes
 
   hosts:
     wtr:
@@ -87,6 +89,7 @@ all:
                 setuid: 'off'
                 mountpoint: '/data/photos'
       k3s:
+        kubeconfig_file: /etc/rancher/k3s/k3s.yaml
         argocd:
           deploy: true
           namespace: argocd
@@ -97,6 +100,7 @@ all:
       
     localhost:
       ansible_connection: local
+      become: false
     # mikrus_c343:        # wordpress
     #   ansible_host: srv29.mikr.us
     #   ansible_port: 10343

@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infrastructure
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: infrastructure
+    app.kubernetes.io/app: argo-app-project
+spec:
+  description: "Infra-level applications (cert-manager, external-secrets, storage, etc.)"
+
+  # 🔓 Allow all Git/Helm repositories
+  sourceRepos:
+    - '*'
+
+  # 🌍 Allow deploying to any namespace on the current cluster
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+
+  # ALLOW these cluster-scoped resources:
+  clusterResourceWhitelist:
+      - group: '*'
+        kind: '*'
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: applications
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: applications
+    app.kubernetes.io/app: argo-app-project
+spec:
+  description: "Application Project"
+
+  # 🔓 Allow all Git/Helm repositories
+  sourceRepos:
+    - '*'
+
+  # 🌍 Allow deploying to any namespace on the current cluster
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+
+  # ALLOW these cluster-scoped resources:
+  clusterResourceWhitelist:
+      - group: '*'
+        kind: '*'

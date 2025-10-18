@@ -32,3 +32,10 @@
   retries: 10
   delay: 5
   until: k3s_status.rc == 0
+
+- name: Fetch kubeconfig from master node
+  fetch:
+    src: "{{ k3s.kubeconfig_file }}"
+    dest: "~/.kube/config"
+    flat: yes
+    mode: 0644
