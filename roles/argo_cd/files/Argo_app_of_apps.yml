@@ -10,7 +10,7 @@ spec:
   project: infrastructure
   source:
     repoURL: git@github.com:przemekgorzynski/ArgoCDApps.git
-    targetRevision: HEAD
+    targetRevision: apps
     path: .
 
   destination:
