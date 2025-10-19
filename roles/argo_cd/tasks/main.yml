@@ -49,3 +49,20 @@
       loop:
         - "/tmp/argo_projects.yml"
         - "/tmp/argo_app_of_apps.yml"
+
+    - name: Encode local DOPPLER_SERVICE_TOKEN to base64
+      set_fact:
+        doppler_token_b64: "{{ lookup('env', 'DOPPLER_SERVICE_TOKEN') | b64encode }}"
+
+    - name: Ensure doppler secret env exists
+      ansible.builtin.lineinfile:
+        path: /etc/profile.d/doppler.sh
+        create: yes
+        line: 'export DOPPLER_SERVICE_TOKEN="{{ doppler_token_b64 }}"'
+        state: present
+        mode: '0644'
+
+    - name: Reload environment
+      ansible.builtin.shell: source /etc/profile.d/doppler.sh
+      args:
+        executable: /bin/bash
