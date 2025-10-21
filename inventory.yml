@@ -15,6 +15,11 @@ all:
         state: present
         uid: '{{ admin_user[0].uid }}'
         public_key_path: '{{ admin_user[0].public_key_path }}'
+      - name: 'appsvc'
+        additional_groups: 'users,www-data'
+        shell: '/bin/bash'
+        state: present
+        uid: '2000'
     timezone: Europe/Warsaw
     standard_packages:
       - curl
@@ -33,6 +38,8 @@ all:
       - gnupg
       - lsb-release
       - apache2-utils
+      - nfs-kernel-server
+
     python_packages:
       - kubernetes
 
@@ -80,14 +87,35 @@ all:
                 disks:
                   - /dev/nvme0n1
             datasets:
-              - dataset_name: tank/movies
-                compression: lz4
-                setuid: 'off'
-                mountpoint: '/data/movies'
               - dataset_name: tank/photos
                 compression: lz4
                 setuid: 'off'
                 mountpoint: '/data/photos'
+              - dataset_name: tank/media
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/media'
+              - dataset_name: tank/media/movies
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/media/movies'
+              - dataset_name: tank/media/tv-series
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/media/tv-series'
+              - dataset_name: tank/files
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/files'
+              - dataset_name: tank/priv
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/priv'
+              - dataset_name: tank/apps-cfg
+                recordsize: 16K
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/apps-cfg'
       k3s:
         kubeconfig_file: /etc/rancher/k3s/k3s.yaml
         argocd:

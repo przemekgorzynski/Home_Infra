@@ -14,3 +14,4 @@
     state: present
     key: "{{ lookup('file', item.public_key_path) }}"
     exclusive: true
+  when: item.public_key_path is defined

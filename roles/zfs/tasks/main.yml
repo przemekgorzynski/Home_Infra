@@ -27,6 +27,7 @@
     label: "{{ item.pool_name }}"
 
 - name: Create ZFS datasets
+  when: zfs.zfs_pools is defined and zfs.zfs_pools | length > 0
   community.general.zfs:
     name: "{{ dataset.dataset_name }}"
     state: present
@@ -37,12 +38,27 @@
       compression: "{{ dataset.compression }}"
       setuid: "{{ dataset.setuid }}"
       mountpoint: "{{ dataset.mountpoint }}"
+      recordsize: "{{ dataset.recordsize | default(omit) }}"
+      dedup: off
+      exec: off
+      atime: off
   loop: "{{ zfs.zfs_pools | subelements('datasets') }}"
   loop_control:
     label: "{{ dataset.dataset_name }}"
   vars:
     dataset: "{{ item.1 }}"
 
+- name: Set ownership to appsvc (UID 2000) for ZFS datasets
+  file:
+    path: "{{ dataset.mountpoint }}"
+    owner: 2000
+    group: 2000
+    recurse: yes
+  loop: "{{ zfs.zfs_pools | subelements('datasets') }}"
+  loop_control:
+    label: "{{ dataset.dataset_name }}"
+  vars:
+    dataset: "{{ item.1 }}"
 
 - name: Ensure ZFS encrypted datasets mount at boot via cron
   ansible.builtin.cron:
