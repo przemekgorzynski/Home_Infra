@@ -50,15 +50,28 @@
         - "/tmp/argo_projects.yml"
         - "/tmp/argo_app_of_apps.yml"
 
-    - name: Set doppler secret env cleanly
-      ansible.builtin.copy:
-        dest: /etc/profile.d/doppler.sh
-        content: 'export DOPPLER_SERVICE_TOKEN="{{ lookup("env", "DOPPLER_SERVICE_TOKEN") }}"'
-        owner: root
-        group: root
-        mode: '0644'
+    - name: Ensure external-secrets namespace exists
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: external-secrets
+      environment:
+        KUBECONFIG: "{{ k3s.kubeconfig_file }}"
 
-    - name: Reload environment
-      ansible.builtin.shell: source /etc/profile.d/doppler.sh
-      args:
-        executable: /bin/bash
+    - name: Ensure Doppler token secret exists
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: doppler-token-auth-api
+            namespace: external-secrets
+          type: Opaque
+          stringData:
+            dopplerToken: "{{ lookup('env', 'DOPPLER_SERVICE_TOKEN') }}"
+      environment:
+        KUBECONFIG: "{{ k3s.kubeconfig_file }}"
