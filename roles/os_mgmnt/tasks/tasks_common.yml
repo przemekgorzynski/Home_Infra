@@ -25,14 +25,6 @@
   community.general.timezone:
     name: "{{ timezone }}"
 
-- name: Copy global aliases to /etc/profile.d
-  copy:
-    src: files/global_aliases.sh
-    dest: /etc/profile.d/global_aliases.sh
-    owner: root
-    group: root
-    mode: '0755'
-
 - name: SSH configure
   tags:
     - ssh

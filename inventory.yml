@@ -39,6 +39,8 @@ all:
       - lsb-release
       - apache2-utils
       - linux-generic-hwe-24.04
+      - docker.io
+      - docker-compose
 
     python_packages:
       - kubernetes
@@ -117,9 +119,10 @@ all:
                 setuid: 'off'
                 mountpoint: '/data/apps-cfg'
       k3s:
+        deploy: false
         kubeconfig_file: /etc/rancher/k3s/k3s.yaml
         argocd:
-          deploy: true
+          deploy: false
           namespace: argocd
           http_node_port: 30000
           https_node_port: 30433
