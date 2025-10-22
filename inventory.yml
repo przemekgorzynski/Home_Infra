@@ -38,7 +38,7 @@ all:
       - gnupg
       - lsb-release
       - apache2-utils
-      - nfs-kernel-server
+      - linux-generic-hwe-24.04
 
     python_packages:
       - kubernetes
