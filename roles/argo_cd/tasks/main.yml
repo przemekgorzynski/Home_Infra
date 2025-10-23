@@ -32,7 +32,6 @@
         dest: "/tmp/{{ item | basename }}"
         mode: '0644'
       loop:
-        - "{{ role_path }}/files/argo_projects.yml"
         - "{{ role_path }}/files/argo_app_of_apps.yml"
     - name: Apply Argo manifest
       kubernetes.core.k8s:
@@ -40,14 +39,12 @@
         state: present
         src: "{{ item }}"
       loop:
-        - "/tmp/argo_projects.yml"
         - "/tmp/argo_app_of_apps.yml"
     - name: Remove temporary Argo manifest
       ansible.builtin.file:
         path: "{{ item }}"
         state: absent
       loop:
-        - "/tmp/argo_projects.yml"
         - "/tmp/argo_app_of_apps.yml"
 
     - name: Ensure external-secrets namespace exists

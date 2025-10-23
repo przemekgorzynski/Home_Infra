@@ -6,6 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/app: app-of-apps
 spec:
+  project: default
   source:
     repoURL: git@github.com:przemekgorzynski/ArgoCDApps.git
     targetRevision: cfg

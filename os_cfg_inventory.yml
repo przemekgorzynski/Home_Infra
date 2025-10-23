@@ -1,0 +1,138 @@
+---
+all:
+  vars:
+    admin_user:
+      - name: przemek
+        uid: 1000
+        public_key_path: '{{ playbook_dir }}/roles/user_mgmnt/public_keys/przemek'
+    admin_group:
+      - name: admins
+        gid: 1100
+    users:
+      - name: '{{ admin_user[0].name }}'
+        additional_groups: 'users,sudo,adm,www-data,{{ admin_group[0].name }}'
+        shell: '/bin/bash'
+        state: present
+        uid: '{{ admin_user[0].uid }}'
+        public_key_path: '{{ admin_user[0].public_key_path }}'
+      - name: 'appsvc'
+        additional_groups: 'users,www-data'
+        shell: '/bin/bash'
+        state: present
+        uid: '2000'
+    timezone: Europe/Warsaw
+    standard_packages:
+      - curl
+      - network-manager
+      - git
+      - net-tools
+      - vim
+      - wget
+      - ufw
+      - fail2ban
+      - python3-pip
+      - zfsutils-linux
+      - zfs-initramfs
+      - containerd
+      - ca-certificates 
+      - gnupg
+      - lsb-release
+      - apache2-utils
+      - linux-generic-hwe-24.04
+      - docker.io
+      - docker-compose
+
+    python_packages:
+      - kubernetes
+
+  hosts:
+    wtr:
+      ansible_host: 10.0.0.100
+      ansible_user: przemek
+      hostname: wtr
+      type: pc
+      configure_second_eth: true
+      domain:
+        name: pszemazzz.com
+        cloudflare_user: przemyslaw.gorzynski@proton.me
+      doppler_vault:
+        project_name: wtr_pro
+        config: os
+        secrets:
+          - secret_name: ZFS_ENCRYPTION_KEY
+            variable_name: ZFS_ENCRYPTION_KEY
+          - secret_name: CF_GLOBAL_API_KEY
+            variable_name: CF_GLOBAL_API_KEY
+          - secret_name: K3S_TOKEN
+            variable_name: K3S_TOKEN
+          - secret_name: ARGO_CD_ADMIN_PASS
+            variable_name: ARGO_CD_ADMIN_PASS
+          - secret_name: ARGO_CD_PRIVATE_KEY
+            variable_name: ARGO_CD_PRIVATE_KEY
+          - secret_name: ARGO_CD_PUBLIC_KEY
+            variable_name: ARGO_CD_PUBLIC_KEY
+      zfs:
+        encryption:
+          encryption: aes-128-ccm
+          keyformat: raw
+          keylocation: /root/zfs.key
+        zfs_pools:
+          - pool_name: tank
+            mount_directory: /data
+            filesystem_properties:
+              compression: lz4
+            vdevs:
+              - type: stripe #zraid2
+                disks:
+                  - /dev/sda
+              - role: cache
+                disks:
+                  - /dev/nvme0n1
+            datasets:
+              - dataset_name: tank/photos
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/photos'
+              - dataset_name: tank/media
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/media'
+              - dataset_name: tank/media/movies
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/media/movies'
+              - dataset_name: tank/media/tv-series
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/media/tv-series'
+              - dataset_name: tank/media/other
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/media/other'
+              - dataset_name: tank/files
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/files'
+              - dataset_name: tank/priv
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/priv'
+              - dataset_name: tank/apps-cfg
+                recordsize: 16K
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/apps-cfg'
+      k3s:
+        deploy: false
+        kubeconfig_file: /etc/rancher/k3s/k3s.yaml
+        argocd:
+          deploy: false
+          namespace: argocd
+          http_node_port: 30000
+          https_node_port: 30433
+          connected_repo: "git@github.com:przemekgorzynski/ArgoCDApps.git"
+
+      
+    localhost:
+      ansible_connection: local
+      become: false
