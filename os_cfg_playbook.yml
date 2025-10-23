@@ -63,8 +63,8 @@
         accept_hostkey: yes
         key_file: "/.ssh/id_rsa"
         update: yes
-    # - name: Import reboot role
-    #   ansible.builtin.import_role:
-    #     name: reboot
-    #   tags:
-    #     - reboot
+    - name: Import reboot role
+      ansible.builtin.import_role:
+        name: reboot
+      tags:
+        - reboot
