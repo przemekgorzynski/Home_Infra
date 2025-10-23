@@ -11,7 +11,7 @@
     name: "{{ standard_packages }}"
     state: present
 
-- name: Ensure Python Kubernetes client is installed on K3s host
+- name: Ensure Python packages installed on host
   ansible.builtin.pip:
     name: "{{ python_packages }}"
     state: present

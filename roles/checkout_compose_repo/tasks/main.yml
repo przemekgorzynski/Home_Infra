@@ -1,0 +1,27 @@
+- name: Clone DockerComposeStack repository
+  become_user: "root"
+  git:
+    repo: "git@github.com:przemekgorzynski/DockerComposeStack.git"
+    dest: "/DockerComposeStack"
+    version: main
+    accept_hostkey: yes
+    key_file: "/.ssh/id_rsa"
+    update: yes
+
+- name: Ensure sync script exists
+  copy:
+    dest: /usr/local/bin/sync_docker_stack.sh
+    content: |
+      #!/bin/bash
+      cd /DockerComposeStack || exit 1
+      /usr/bin/git pull origin main
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Add cron job to periodically sync DockerComposeStack repo
+  cron:
+    name: "Sync DockerComposeStack repository"
+    user: root
+    job: "/usr/local/bin/sync_docker_stack.sh > /var/log/docker_stack_sync.log 2>&1"
+    minute: "*/30"
