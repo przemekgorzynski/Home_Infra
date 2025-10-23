@@ -16,7 +16,7 @@ all:
         uid: '{{ admin_user[0].uid }}'
         public_key_path: '{{ admin_user[0].public_key_path }}'
       - name: 'appsvc'
-        additional_groups: 'users,www-data'
+        additional_groups: 'users,www-data,{{ admin_group[0].name }}'
         shell: '/bin/bash'
         state: present
         uid: '2000'
@@ -63,14 +63,10 @@ all:
             variable_name: ZFS_ENCRYPTION_KEY
           - secret_name: CF_GLOBAL_API_KEY
             variable_name: CF_GLOBAL_API_KEY
-          - secret_name: K3S_TOKEN
-            variable_name: K3S_TOKEN
-          - secret_name: ARGO_CD_ADMIN_PASS
-            variable_name: ARGO_CD_ADMIN_PASS
-          - secret_name: ARGO_CD_PRIVATE_KEY
-            variable_name: ARGO_CD_PRIVATE_KEY
-          - secret_name: ARGO_CD_PUBLIC_KEY
-            variable_name: ARGO_CD_PUBLIC_KEY
+          - secret_name: SRV_GH_PRIVATE_KEY
+            variable_name: SRV_GH_PRIVATE_KEY
+          - secret_name: SRV_GH_PUBLIC_KEY
+            variable_name: SRV_GH_PUBLIC_KEY
       zfs:
         encryption:
           encryption: aes-128-ccm

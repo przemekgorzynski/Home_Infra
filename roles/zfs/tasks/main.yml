@@ -48,11 +48,11 @@
   vars:
     dataset: "{{ item.1 }}"
 
-- name: Set ownership to appsvc (UID 2000) for ZFS datasets
+- name: Set ownership to admin group
   file:
     path: "{{ dataset.mountpoint }}"
     owner: 2000
-    group: 2000
+    group: "{{ admin_group[0].name }}"
     recurse: yes
   loop: "{{ zfs.zfs_pools | subelements('datasets') }}"
   loop_control:

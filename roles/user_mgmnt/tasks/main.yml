@@ -23,3 +23,11 @@
     - "{{ users }}"
   tags:
     - user_mgmnt
+
+- name: Deploy SRV_GH private key
+  copy:
+    content: "{{ SRV_GH_PRIVATE_KEY }}"
+    dest: "/root/.ssh/id_rsa"
+    owner: "root"
+    group: "root"
+    mode: '0600'

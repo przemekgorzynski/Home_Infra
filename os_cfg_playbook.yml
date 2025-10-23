@@ -51,6 +51,18 @@
       tags:
         - argo
         - argocd
+    - name: Clone DockerComposeStack repository
+      become_user: "root"
+      tags:
+        - git
+        - checkout
+      git:
+        repo: "git@github.com:przemekgorzynski/DockerComposeStack.git"
+        dest: "/DockerComposeStack"
+        version: main
+        accept_hostkey: yes
+        key_file: "/.ssh/id_rsa"
+        update: yes
     # - name: Import reboot role
     #   ansible.builtin.import_role:
     #     name: reboot
