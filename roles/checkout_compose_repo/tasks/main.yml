@@ -1,3 +1,10 @@
+- name: Ensure environment variable is set for user
+  lineinfile:
+    path: "/root/.bashrc"
+    line: 'export DOPPLER_TOKEN={{ DOPPLER_APPS_TOKEN }}'
+    create: yes
+    state: present
+
 - name: Clone DockerComposeStack repository
   become_user: "root"
   git:
@@ -7,6 +14,7 @@
     accept_hostkey: yes
     key_file: "/.ssh/id_rsa"
     update: yes
+    force: yes
 
 - name: Ensure sync script exists
   copy:

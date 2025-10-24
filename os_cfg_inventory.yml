@@ -67,6 +67,8 @@ all:
             variable_name: SRV_GH_PRIVATE_KEY
           - secret_name: SRV_GH_PUBLIC_KEY
             variable_name: SRV_GH_PUBLIC_KEY
+          - secret_name: DOPPLER_APPS_TOKEN
+            variable_name: DOPPLER_APPS_TOKEN
       zfs:
         encryption:
           encryption: aes-128-ccm
@@ -113,6 +115,10 @@ all:
                 compression: lz4
                 setuid: 'off'
                 mountpoint: '/data/priv'
+              - dataset_name: tank/public
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/public'
               - dataset_name: tank/apps-cfg
                 recordsize: 16K
                 compression: lz4
