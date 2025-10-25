@@ -33,14 +33,14 @@
   cron:
     name: "Fetch Doppler secrets every 5 minutes"
     minute: "*/5"
-    job: "/bin/bash /root/vault_fetch.sh >> /var/log/doppler_cron.log 2>&1"
+    job: "/bin/bash export DOPPLER_TOKEN={{ DOPPLER_APPS_TOKEN }} && /root/vault_fetch.sh >> /var/log/doppler_cron.log 2>&1"
     user: root
 
 - name: Ensure cronjob runs Doppler fetch script at reboot
   cron:
     name: "Fetch Doppler secrets at reboot"
     special_time: reboot
-    job: "/bin/bash /root/vault_fetch.sh >> /var/log/doppler_cron.log 2>&1"
+    job: "/bin/bash export DOPPLER_TOKEN={{ DOPPLER_APPS_TOKEN }} && /root/vault_fetch.sh >> /var/log/doppler_cron.log 2>&1"
     user: root
 
 - name: Ensure root shell sources Doppler fetch script
