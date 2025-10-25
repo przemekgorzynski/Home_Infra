@@ -1,7 +1,52 @@
-- name: Ensure environment variable is set for user
+- name: Install Doppler CLI
+  become: yes
+  shell: |
+    set -euo pipefail
+    apt-get update && \
+    apt-get install -y --no-install-recommends apt-transport-https ca-certificates curl gnupg bash jq && \
+    curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' \
+      | gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" \
+      > /etc/apt/sources.list.d/doppler-cli.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends doppler && \
+    rm -rf /var/lib/apt/lists/*
+  args:
+    executable: /bin/bash
+
+- name: Ensure Doppler token environment variable is set
   lineinfile:
     path: "/root/.bashrc"
     line: 'export DOPPLER_TOKEN={{ DOPPLER_APPS_TOKEN }}'
+    create: yes
+    state: present
+
+- name: Copy Doppler Vault fetching script
+  copy:
+    src: files/vault_fetch.sh
+    dest: /root/vault_fetch.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ensure cronjob runs Doppler fetch script every 5 minutes
+  cron:
+    name: "Fetch Doppler secrets every 5 minutes"
+    minute: "*/5"
+    job: "/bin/bash /root/vault_fetch.sh >> /var/log/doppler_cron.log 2>&1"
+    user: root
+
+- name: Ensure cronjob runs Doppler fetch script at reboot
+  cron:
+    name: "Fetch Doppler secrets at reboot"
+    special_time: reboot
+    job: "/bin/bash /root/vault_fetch.sh >> /var/log/doppler_cron.log 2>&1"
+    user: root
+
+- name: Ensure root shell sources Doppler fetch script
+  lineinfile:
+    path: /root/.bashrc
+    line: 'if [ -f /root/vault_fetch.sh ]; then source /root/vault_fetch.sh; fi'
     create: yes
     state: present
 
@@ -15,21 +60,3 @@
     key_file: "/.ssh/id_rsa"
     update: yes
     force: yes
-
-- name: Ensure sync script exists
-  copy:
-    dest: /usr/local/bin/sync_docker_stack.sh
-    content: |
-      #!/bin/bash
-      cd /DockerComposeStack || exit 1
-      /usr/bin/git pull origin main
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Add cron job to periodically sync DockerComposeStack repo
-  cron:
-    name: "Sync DockerComposeStack repository"
-    user: root
-    job: "/usr/local/bin/sync_docker_stack.sh > /var/log/docker_stack_sync.log 2>&1"
-    minute: "*/30"
