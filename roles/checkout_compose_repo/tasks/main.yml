@@ -46,7 +46,7 @@
 - name: Ensure root shell sources Doppler fetch script
   lineinfile:
     path: /root/.bashrc
-    line: 'if [ -f /root/vault_fetch.sh ]; then source /root/vault_fetch.sh; fi'
+    line: 'if [ -f /secrets/.env ]; then source /secrets/.env; fi'
     create: yes
     state: present
 
