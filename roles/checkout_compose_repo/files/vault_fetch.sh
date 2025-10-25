@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SECRETS_FILE="/secrets/.env"
-mkdir -p ./secrets
+mkdir -p /secrets
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Fetching secrets from Doppler"
 
