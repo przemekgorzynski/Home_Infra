@@ -17,7 +17,7 @@
 - name: Ensure Doppler token environment variable is set
   lineinfile:
     path: "/root/.bashrc"
-    line: 'export DOPPLER_TOKEN={{ DOPPLER_APPS_TOKEN }}'
+    line: 'export DOPPLER_APPS_TOKEN={{ DOPPLER_APPS_TOKEN }}'
     create: yes
     state: present
 
@@ -33,14 +33,14 @@
   cron:
     name: "Fetch Doppler secrets every 5 minutes"
     minute: "*/5"
-    job: "/bin/bash export DOPPLER_TOKEN={{ DOPPLER_APPS_TOKEN }} && /root/vault_fetch.sh >> /var/log/doppler_cron.log 2>&1"
+    job: "DOPPLER_TOKEN={{ DOPPLER_APPS_TOKEN }} /root/vault_fetch.sh >> /var/log/doppler_cron.log 2>&1"
     user: root
 
 - name: Ensure cronjob runs Doppler fetch script at reboot
   cron:
     name: "Fetch Doppler secrets at reboot"
     special_time: reboot
-    job: "/bin/bash export DOPPLER_TOKEN={{ DOPPLER_APPS_TOKEN }} && /root/vault_fetch.sh >> /var/log/doppler_cron.log 2>&1"
+    job: "DOPPLER_TOKEN={{ DOPPLER_APPS_TOKEN }} /root/vault_fetch.sh >> /var/log/doppler_cron.log 2>&1"
     user: root
 
 - name: Ensure root shell sources Doppler fetch script
