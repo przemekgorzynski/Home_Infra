@@ -27,11 +27,6 @@
         name: os_mgmnt
       tags:
         - os_mgmnt
-    - name: Import ddns_update role
-      ansible.builtin.import_role:
-        name: ddns
-      tags:
-        - ddns
     - name: Import zfs_setup role
       ansible.builtin.import_role:
         name: zfs
