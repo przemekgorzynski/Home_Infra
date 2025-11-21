@@ -39,8 +39,6 @@ all:
       - lsb-release
       - apache2-utils
       - linux-generic-hwe-24.04
-      - docker.io
-      - docker-compose
 
     python_packages:
       - kubernetes
