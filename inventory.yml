@@ -169,7 +169,7 @@ all:
           downloading_path: /samba_backup/new/Toreview/In_progress
         uptime_kuma:
           docker_image: louislam/uptime-kuma
-          docker_image_tag: 1.23.16
+          docker_image_tag: 1.23.17
           container_name: uptime_kuma
           docker_volume_name: uptime_kuma
           ports:
