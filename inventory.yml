@@ -104,7 +104,7 @@ all:
             container_name: prometheus
           grafana:
             docker_image: grafana/grafana
-            docker_image_tag: 12.2.2
+            docker_image_tag: 12.3.1
             container_name: grafana
           smartctl_exporter:
             docker_image: prometheuscommunity/smartctl-exporter
