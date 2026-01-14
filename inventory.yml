@@ -112,7 +112,7 @@ all:
             container_name: smartctl_exporter
         traefik:
           docker_image: traefik
-          docker_image_tag: v3.5.6
+          docker_image_tag: v3.6.7
           platform: amd64
           container_name: traefik
           log_dir: /var/log/traefik   # Host path, log file mounted into cintainer
