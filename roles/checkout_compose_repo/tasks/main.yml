@@ -60,3 +60,10 @@
     key_file: "/.ssh/id_rsa"
     update: yes
     force: yes
+
+- name: Ensure cronjob runs home lab stack updater every 5 minutes
+  cron:
+    name: "Update Home Lab Docker stack"
+    minute: "*/5"
+    job: "/DockerComposeStack/up.sh >> /var/log/home_lab_up.log 2>&1"
+    user: root
