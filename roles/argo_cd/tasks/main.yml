@@ -7,44 +7,87 @@
         url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
         dest: /tmp/get_helm.sh
         mode: '0700'
-        force: no  # do not re-download if it already exists
+        force: no
     - name: Execute Helm install script
       command: /tmp/get_helm.sh
       args:
-        creates: /usr/local/bin/helm  # Skip if helm is already installed here
+        creates: /usr/local/bin/helm
 
-- name: Execute ArgoCD installation script
-  ansible.builtin.shell: |
-    helm repo add argo https://argoproj.github.io/argo-helm
-    helm repo update
+# -----------------------------------------
+# ArgoCD Namespace and Secrets Setup
+# -----------------------------------------
 
-    HASHED_ADMIN_PASS=$(htpasswd -nbBC 10 "" "$ARGOCD_ADMIN_PASS" | tr -d ':\n')
-    helm list -A
-    helm upgrade --install argocd argo/argo-cd \
-      --namespace "{{ k3s.argocd.namespace }}" \
-      --create-namespace \
-      --set server.service.type=NodePort \
-      --set server.service.nodePortHttps="{{ k3s.argocd.https_node_port }}" \
-      --set server.service.nodePortHttp="{{ k3s.argocd.http_node_port }}" \
-      --set-string "configs.repositories.repo1.url={{ k3s.argocd.connected_repo }}" \
-      --set-string "configs.repositories.repo1.type=git" \
-      --set-string "configs.repositories.repo1.name=connected-repo" \
-      --set-string "configs.repositories.repo1.sshPrivateKey=$ARGOCD_PRIVATE_KEY" \
-      --set-string "configs.secret.argocdServerAdminPassword=$HASHED_ADMIN_PASS"
+- name: Create ArgoCD namespace
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ k3s.argocd.namespace }}"
   environment:
     KUBECONFIG: "{{ k3s.kubeconfig_file }}"
-    ARGO_SSH_PRIVATE_KEY: "{{ ARGOCD_PRIVATE_KEY }}"
-    ARGOCD_ADMIN_PASS: "{{ ARGOCD_ADMIN_PASS }}"
-  args:
-    executable: /bin/bash
-  become: false
+
+- name: Create ArgoCD SSH repo credentials secret
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k3s.argocd.namespace }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: argocd-apps-ssh-private-key
+        namespace: "{{ k3s.argocd.namespace }}"
+        labels:
+          argocd.argoproj.io/secret-type: repo-creds
+      stringData:
+        type: git
+        url: git@github.com:przemekgorzynski/ArgoCDApps.git
+        sshPrivateKey: |
+          {{ ARGOCD_PRIVATE_KEY }}
+  environment:
+    KUBECONFIG: "{{ k3s.kubeconfig_file }}"
+  no_log: true
+
+- name: Install ArgoCD with Helm
+  block:
+    - name: Ensure temporary directory for ArgoCD values
+      ansible.builtin.file:
+        path: /argocd_values
+        state: directory
+        mode: '0755'
+
+    - name: Copy ArgoCD values files to /tmp
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "/argocd_values/{{ item | basename }}"
+        mode: '0644'
+      loop: "{{ k3s.argocd.values_files }}"
+
+    - name: Install/upgrade ArgoCD using Helm
+      ansible.builtin.shell: |
+        helm repo add argo https://argoproj.github.io/argo-helm
+        helm repo update
+
+        helm upgrade --install argocd argo/argo-cd \
+          --namespace "{{ k3s.argocd.namespace }}" \
+          {% for f in k3s.argocd.values_files %}-f /argocd_values/{{ f | basename }} {% endfor %}
+      environment:
+        KUBECONFIG: "{{ k3s.kubeconfig_file }}"
+      args:
+        executable: /bin/bash
+      become: false
+
+# -----------------------------------------
+# ArgoCD App of apps
+# -----------------------------------------
 
 - name: Deploy Argo config
   block:
     - name: Copy Argo manifest to temp location
       ansible.builtin.copy:
         src: "{{ item }}"
-        dest: "/tmp/{{ item | basename }}"
+        dest: "/argocd_values/{{ item | basename }}"
         mode: '0644'
       loop:
         - "{{ role_path }}/files/argo_app_of_apps.yml"
@@ -54,13 +97,11 @@
         state: present
         src: "{{ item }}"
       loop:
-        - "/tmp/argo_app_of_apps.yml"
-    - name: Remove temporary Argo manifest
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: absent
-      loop:
-        - "/tmp/argo_app_of_apps.yml"
+        - "/argocd_values/argo_app_of_apps.yml"
+
+# -----------------------------------------
+# ArgoCD External secrets
+# -----------------------------------------
 
     - name: Ensure external-secrets namespace exists
       kubernetes.core.k8s:

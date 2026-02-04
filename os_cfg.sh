@@ -38,5 +38,13 @@ if [ -z "${DOPPLER_SERVICE_TOKEN}" ]; then
     echo "export DOPPLER_SERVICE_TOKEN=<< REDACTED >>"
 else
     echo "DOPPLER_SERVICE_TOKEN is set. Running Ansible playbook..."
-    ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass
+
+    # Check if a tag argument was passed to the script
+    if [ -n "$1" ]; then
+        echo "Running with tag: $1"
+        ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass --tags "$1"
+    else
+        echo "Running all tasks (no tags specified)"
+        ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass
+    fi
 fi

@@ -123,9 +123,8 @@ all:
         argocd:
           deploy: true
           namespace: argocd
-          http_node_port: 30000
-          https_node_port: 30433
-          connected_repo: "git@github.com:przemekgorzynski/ArgoCDApps.git"
+          values_files: 
+            - ArgoCD_config.yml
       composestack:
         deploy: false
       

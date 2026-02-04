@@ -53,8 +53,8 @@
       tags:
         - argo
         - argocd
-    - name: Import reboot role
-      ansible.builtin.import_role:
-        name: reboot
-      tags:
-        - reboot
+    # - name: Import reboot role
+    #   ansible.builtin.import_role:
+    #     name: reboot
+    #   tags:
+    #     - reboot
