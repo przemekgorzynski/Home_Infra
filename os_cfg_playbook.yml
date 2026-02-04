@@ -36,15 +36,16 @@
     - name: Import Git Checkout role
       ansible.builtin.import_role:
         name: checkout_compose_repo
+      when: composestack.deploy
       tags:
         - git
         - compose_repo
     - name: Import K3s role
       ansible.builtin.import_role:
         name: k3s
+      when: k3s.deploy
       tags:
         - k3s
-      when: k3s.deploy
     - name: Import ARGOCD role
       ansible.builtin.import_role:
         name: argo_cd
@@ -52,8 +53,8 @@
       tags:
         - argo
         - argocd
-    # - name: Import reboot role
-    #   ansible.builtin.import_role:
-    #     name: reboot
-    #   tags:
-    #     - reboot
+    - name: Import reboot role
+      ansible.builtin.import_role:
+        name: reboot
+      tags:
+        - reboot

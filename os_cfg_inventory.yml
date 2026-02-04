@@ -15,11 +15,6 @@ all:
         state: present
         uid: '{{ admin_user[0].uid }}'
         public_key_path: '{{ admin_user[0].public_key_path }}'
-      - name: 'appsvc'
-        additional_groups: 'users,www-data,{{ admin_group[0].name }}'
-        shell: '/bin/bash'
-        state: present
-        uid: '2000'
     timezone: Europe/Warsaw
     standard_packages:
       - curl
@@ -59,12 +54,14 @@ all:
         secrets:
           - secret_name: ZFS_ENCRYPTION_KEY
             variable_name: ZFS_ENCRYPTION_KEY
-          - secret_name: SRV_GH_PRIVATE_KEY
-            variable_name: SRV_GH_PRIVATE_KEY
-          - secret_name: SRV_GH_PUBLIC_KEY
-            variable_name: SRV_GH_PUBLIC_KEY
           - secret_name: DOPPLER_APPS_TOKEN
             variable_name: DOPPLER_APPS_TOKEN
+          - secret_name: ARGOCD_PRIVATE_KEY
+            variable_name: ARGOCD_PRIVATE_KEY
+          - secret_name: ARGOCD_PUBLIC_KEY
+            variable_name: ARGOCD_PUBLIC_KEY
+          - secret_name: ARGOCD_ADMIN_PASS
+            variable_name: ARGOCD_ADMIN_PASS
       zfs:
         encryption:
           encryption: aes-128-ccm
@@ -121,15 +118,16 @@ all:
                 setuid: 'off'
                 mountpoint: '/data/apps-cfg'
       k3s:
-        deploy: false
+        deploy: true
         kubeconfig_file: /etc/rancher/k3s/k3s.yaml
         argocd:
-          deploy: false
+          deploy: true
           namespace: argocd
           http_node_port: 30000
           https_node_port: 30433
           connected_repo: "git@github.com:przemekgorzynski/ArgoCDApps.git"
-
+      composestack:
+        deploy: false
       
     localhost:
       ansible_connection: local

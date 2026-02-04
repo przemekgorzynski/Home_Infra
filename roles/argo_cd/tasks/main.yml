@@ -1,9 +1,24 @@
+- name: Install Helm via get_helm.sh script
+  tags:
+    - helm
+  block:
+    - name: Download Helm install script
+      get_url:
+        url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        dest: /tmp/get_helm.sh
+        mode: '0700'
+        force: no  # do not re-download if it already exists
+    - name: Execute Helm install script
+      command: /tmp/get_helm.sh
+      args:
+        creates: /usr/local/bin/helm  # Skip if helm is already installed here
+
 - name: Execute ArgoCD installation script
   ansible.builtin.shell: |
     helm repo add argo https://argoproj.github.io/argo-helm
     helm repo update
 
-    HASHED_ADMIN_PASS=$(htpasswd -nbBC 10 "" "$ARGO_ADMIN_PASS" | tr -d ':\n')
+    HASHED_ADMIN_PASS=$(htpasswd -nbBC 10 "" "$ARGOCD_ADMIN_PASS" | tr -d ':\n')
     helm list -A
     helm upgrade --install argocd argo/argo-cd \
       --namespace "{{ k3s.argocd.namespace }}" \
@@ -14,12 +29,12 @@
       --set-string "configs.repositories.repo1.url={{ k3s.argocd.connected_repo }}" \
       --set-string "configs.repositories.repo1.type=git" \
       --set-string "configs.repositories.repo1.name=connected-repo" \
-      --set-string "configs.repositories.repo1.sshPrivateKey=$ARGO_SSH_PRIVATE_KEY" \
+      --set-string "configs.repositories.repo1.sshPrivateKey=$ARGOCD_PRIVATE_KEY" \
       --set-string "configs.secret.argocdServerAdminPassword=$HASHED_ADMIN_PASS"
   environment:
     KUBECONFIG: "{{ k3s.kubeconfig_file }}"
-    ARGO_SSH_PRIVATE_KEY: "{{ ARGO_CD_PRIVATE_KEY }}"
-    ARGO_ADMIN_PASS: "{{ ARGO_CD_ADMIN_PASS }}"
+    ARGO_SSH_PRIVATE_KEY: "{{ ARGOCD_PRIVATE_KEY }}"
+    ARGOCD_ADMIN_PASS: "{{ ARGOCD_ADMIN_PASS }}"
   args:
     executable: /bin/bash
   become: false
@@ -69,6 +84,6 @@
             namespace: external-secrets
           type: Opaque
           stringData:
-            dopplerToken: "{{ lookup('env', 'DOPPLER_SERVICE_TOKEN') }}"
+            dopplerToken: "{{ DOPPLER_APPS_TOKEN }}"
       environment:
         KUBECONFIG: "{{ k3s.kubeconfig_file }}"
