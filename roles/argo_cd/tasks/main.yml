@@ -121,7 +121,7 @@
           apiVersion: v1
           kind: Secret
           metadata:
-            name: doppler-token-auth-api
+            name: doppler-apps-token
             namespace: external-secrets
           type: Opaque
           stringData:
