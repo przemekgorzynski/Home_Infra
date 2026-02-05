@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: git@github.com:przemekgorzynski/ArgoCDApps.git
-    targetRevision: cfg
+    targetRevision: develop
     path: .
 
   destination:
