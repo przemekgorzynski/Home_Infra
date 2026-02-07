@@ -55,10 +55,10 @@ all:
             variable_name: ZFS_ENCRYPTION_KEY
           - secret_name: DOPPLER_APPS_TOKEN
             variable_name: DOPPLER_APPS_TOKEN
-          # - secret_name: ARGOCD_PRIVATE_KEY
-          #   variable_name: ARGOCD_PRIVATE_KEY
-          # - secret_name: ARGOCD_PUBLIC_KEY
-          #   variable_name: ARGOCD_PUBLIC_KEY
+          - secret_name: SRV_PRIVATE_KEY
+            variable_name: SRV_PRIVATE_KEY
+          - secret_name: SRV_PUBLIC_KEY
+            variable_name: SRV_PUBLIC_KEY
           # - secret_name: ARGOCD_ADMIN_PASS
           #   variable_name: ARGOCD_ADMIN_PASS
       zfs:
@@ -125,7 +125,7 @@ all:
           values_files: 
             - ArgoCD_config.yml
       composestack:
-        deploy: false
+        deploy: true
       
     localhost:
       ansible_connection: local

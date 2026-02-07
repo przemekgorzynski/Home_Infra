@@ -50,6 +50,15 @@
     create: yes
     state: present
 
+- name: Install SSH private key for root
+  copy:
+    content: "{{ SRV_PRIVATE_KEY | b64decode }}"
+    dest: /root/.ssh/id_rsa
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+
 - name: Clone DockerComposeStack repository
   become_user: "root"
   git:
@@ -57,7 +66,7 @@
     dest: "/DockerComposeStack"
     version: main
     accept_hostkey: yes
-    key_file: "/.ssh/id_rsa"
+    key_file: "/root/.ssh/id_rsa"
     update: yes
     force: yes
 
