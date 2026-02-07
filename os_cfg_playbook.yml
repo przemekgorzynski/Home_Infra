@@ -33,7 +33,7 @@
       tags:
         - zfs
         - storage
-    - name: Import Git Checkout role
+    - name: Import Docker Compose role
       ansible.builtin.import_role:
         name: checkout_compose_repo
       when: composestack.deploy

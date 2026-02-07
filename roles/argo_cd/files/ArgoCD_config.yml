@@ -6,7 +6,7 @@ crds:
 
 
 global:
-  # domain: argocd.example.com
+  domain: argo.pszemazzz.com
   additionalLabels: {
     app: argo-cd
   }

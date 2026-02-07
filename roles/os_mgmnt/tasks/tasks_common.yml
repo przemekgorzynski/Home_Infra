@@ -45,31 +45,6 @@
         owner: false
         group: false
 
-- name: Configure 2nd ethernet port
-  tags:
-    - eth
-  when:  configure_second_eth
-  block:
-    - name: Ensure netplan directory exists
-      file:
-        path: /etc/netplan
-        state: directory
-        mode: '0755'
-    - name: Configure enp3s0 for DHCP
-      copy:
-        dest: /etc/netplan/01-enp3s0-dhcp.yaml
-        content: |
-          network:
-            version: 2
-            ethernets:
-              enp3s0:
-                dhcp4: yes
-        owner: root
-        group: root
-        mode: '0644'
-    - name: Apply netplan configuration
-      shell: netplan apply
-
 - name: Add Docker official GPG key
   ansible.builtin.apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
