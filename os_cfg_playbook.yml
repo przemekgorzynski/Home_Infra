@@ -5,16 +5,17 @@
   become: true
 
   pre_tasks:
-    - name: Import Vault secrets
-      ansible.builtin.import_tasks: import_vault_data.yml
-      tags:
-        - pre
-        - always
     - name: Check connectivity
       action: ansible.builtin.ping
       tags:
         - pre
         - always
+
+  vars:
+    ZFS_ENCRYPTION_KEY: "{{ lookup('bitwarden.secrets.lookup', '1b5bf94a-d9a4-4f6d-94ed-b3ee00ce2132') }}"
+    SRV_PRIVATE_KEY: "{{ lookup('bitwarden.secrets.lookup', 'f6519533-aa58-49be-b550-b3ee00ce5481') }}"
+    SRV_PUBLIC_KEY: "{{ lookup('bitwarden.secrets.lookup', '38f9b44f-c56e-49a1-b905-b3ee00ce6f75') }}"
+    BWS_ACCESS_TOKEN: "{{ lookup('bitwarden.secrets.lookup', 'cfbccbd3-a6dd-4ed0-8fe5-b3ee00d60aea') }}"
 
   tasks:
     - name: Import user_mgmnt role

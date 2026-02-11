@@ -51,8 +51,9 @@
 - name: Set ownership to admin group
   file:
     path: "{{ dataset.mountpoint }}"
-    owner: "{{ admin_user[0].name }}"
+    owner: root
     group: "{{ admin_group[0].name }}"
+    mode: "0775"
     recurse: yes
   loop: "{{ zfs.zfs_pools | subelements('datasets') }}"
   loop_control:
