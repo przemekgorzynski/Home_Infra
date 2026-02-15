@@ -41,7 +41,7 @@ log_info "Fetching secrets from Bitwarden"
 if /usr/bin/docker run --rm \
     -e BWS_ACCESS_TOKEN="${BWS_ACCESS_TOKEN}" \
     bitwarden/bws secret list \
-    | /usr/bin/jq -r '.[] | "\(.key)=\(.value)"' \
+    | /usr/bin/jq -r '.[] | "export \(.key)=\(.value)"' \
     > /secrets/.env
 then
     log_success "Secrets successfully written to /secrets/.env"
