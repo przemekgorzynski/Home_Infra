@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LOG_FILE="/var/log/fetch_bw.log"
+
+# Logging functions
+log_info() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1" | tee -a "$LOG_FILE"
+}
+
+log_success() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [SUCCESS] $1" | tee -a "$LOG_FILE"
+}
+
+log_error() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" | tee -a "$LOG_FILE" >&2
+}
+
+log_info "Starting Bitwarden secrets fetch"
+
+# Bitwarden access token injected by Ansible
+BWS_ACCESS_TOKEN='{{ BWS_ACCESS_TOKEN_APPS }}'
+
+# Ensure /secrets exists
+if mkdir -p /secrets; then
+    log_info "Ensured /secrets directory exists"
+else
+    log_error "Failed to create /secrets directory"
+    exit 1
+fi
+
+# Validate token
+if [[ -z "${BWS_ACCESS_TOKEN:-}" ]]; then
+    log_error "BWS_ACCESS_TOKEN is not set"
+    exit 1
+fi
+
+log_info "Fetching secrets from Bitwarden"
+
+# Fetch secrets
+if /usr/bin/docker run --rm \
+    -e BWS_ACCESS_TOKEN="${BWS_ACCESS_TOKEN}" \
+    bitwarden/bws secret list \
+    | /usr/bin/jq -r '.[] | "\(.key)=\(.value)"' \
+    > /secrets/.env
+then
+    log_success "Secrets successfully written to /secrets/.env"
+else
+    log_error "Failed to fetch or write Bitwarden secrets"
+    exit 1
+fi
+
+log_success "Bitwarden secrets fetch completed"
+exit 0

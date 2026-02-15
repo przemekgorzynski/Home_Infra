@@ -10,3 +10,8 @@
     - type == "notebook"
   tags:
     - os_mgmnt_notebook_tasks
+
+- name: Import Bitwarden tasks
+  ansible.builtin.import_tasks: bw_secrets.yml
+  tags:
+    - os_mgmnt_bw_secrets
