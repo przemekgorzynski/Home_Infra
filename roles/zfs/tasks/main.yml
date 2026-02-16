@@ -61,6 +61,19 @@
   vars:
     dataset: "{{ item.1 }}"
 
+- name: Recursively set owner and group for /data/priv
+  ansible.builtin.file:
+    path: /data/priv
+    owner: przemek
+    group: admins
+    recurse: yes
+  become: yes
+
+- name: Set permissions 777 only on /data/priv top-level folder
+  ansible.builtin.file:
+    path: /data/priv
+    mode: '0777'
+
 - name: Ensure ZFS encrypted datasets mount at boot via cron
   ansible.builtin.cron:
     name: "Load ZFS keys and mount datasets at boot"
