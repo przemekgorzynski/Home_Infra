@@ -94,7 +94,7 @@ all:
           branch: main
           prometheus:
             docker_image: prom/prometheus
-            docker_image_tag: v3.9.1
+            docker_image_tag: v3.10.0
             container_name: prometheus
           grafana:
             docker_image: grafana/grafana
