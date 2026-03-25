@@ -142,3 +142,16 @@ Without this line all VLAN config above has no effect
 ```routeros
 /interface bridge set bridge vlan-filtering=yes
 ```
+
+## Hardening
+```routeros
+/ip service
+set telnet disabled=yes
+set ftp disabled=yes
+set api disabled=yes
+set api-ssl disabled=yes
+set www address=192.168.88.0/24,192.168.10.0/24      # WebUI accessible from LAN only
+set www-ssl address=192.168.88.0/24,192.168.10.0/24  # HTTPS WebUI from LAN only
+set ssh address=192.168.88.0/24,192.168.10.0/24
+set winbox address=192.168.88.0/24,192.168.10.0/24
+```
