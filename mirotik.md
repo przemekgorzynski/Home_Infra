@@ -66,6 +66,7 @@ add name=vlan30 interface=bridge vlan-id=30 comment="IoT"
 
 ## Assign physical ports to VLANs
 `tagged=bridge` → CPU can send/receive VLAN traffic for routing
+
 `untagged=etherX` → access port, connected device doesn't need to know about VLANs
 Wi-Fi interfaces added as untagged so VLAN filtering allows their traffic through
 ```routeros
