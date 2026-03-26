@@ -227,11 +227,6 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.20 comment="W
 :if ([/ip firewall nat find comment="HTTP → NAS"] = "") do={
     /ip firewall nat add chain=dstnat in-interface=ether1 protocol=tcp dst-port=80 action=dst-nat to-addresses=192.168.10.10 to-ports=80 comment="HTTP → NAS"
 }
-
-# Hairpin NAT — allows devices inside VLAN 10 to reach NAS using its external domain
-:if ([/ip firewall nat find comment="Hairpin NAT → NAS"] = "") do={
-    /ip firewall nat add chain=srcnat src-address=192.168.10.0/24 dst-address=192.168.10.10 protocol=tcp dst-port=443 action=masquerade comment="Hairpin NAT → NAS"
-}
 ```
 
 ## Hardening
