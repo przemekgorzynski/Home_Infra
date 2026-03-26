@@ -143,6 +143,13 @@ Without this line all VLAN config above has no effect
 /interface bridge set bridge vlan-filtering=yes
 ```
 
+## Add DHCP reservation
+```routeros
+/ip dhcp-server lease
+add server=dhcp10 mac-address=10:E7:C6:07:0B:39 address=192.168.10.10 comment="NAS"
+add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.20 comment="WTR"
+```
+
 ## Hardening
 ```routeros
 /ip service
