@@ -227,6 +227,11 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.20 comment="W
 :if ([/ip firewall nat find comment="HTTP → NAS"] = "") do={
     /ip firewall nat add chain=dstnat in-interface=ether1 protocol=tcp dst-port=80 action=dst-nat to-addresses=192.168.10.10 to-ports=80 comment="HTTP → NAS"
 }
+
+# Add static DNS entry - allows reaching domain from internal network
+:if ([/ip dns static find comment="Traefik internal DNS" name="nextcloud.gorillabay.click"] = "") do={
+    /ip dns static add name=nextcloud.gorillabay.click address=192.168.10.10 comment="Traefik internal DNS"
+}
 ```
 
 ## Hardening
