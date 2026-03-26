@@ -143,6 +143,12 @@ Without this line all VLAN config above has no effect
 /interface bridge set bridge vlan-filtering=yes
 ```
 
+## Move UI to port 8080
+```routeros
+/ip service
+set www port=8080
+```
+
 ## Add DHCP reservation
 ```routeros
 /ip dhcp-server lease
