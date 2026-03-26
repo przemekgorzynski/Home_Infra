@@ -156,6 +156,84 @@ add server=dhcp10 mac-address=10:E7:C6:07:0B:39 address=192.168.10.10 comment="N
 add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.20 comment="WTR"
 ```
 
+## Firewall rules
+```routeros
+# Accept returning/established traffic so router can receive replies
+:if ([/ip firewall filter find comment="defconf: accept established,related,untracked" chain=input] = "") do={
+    /ip firewall filter add chain=input action=accept connection-state=established,related,untracked comment="defconf: accept established,related,untracked"
+}
+
+# Drop malformed or invalid packets
+:if ([/ip firewall filter find comment="defconf: drop invalid" chain=input] = "") do={
+    /ip firewall filter add chain=input action=drop connection-state=invalid comment="defconf: drop invalid"
+}
+
+# Accept ICMP (ping) so router is reachable
+:if ([/ip firewall filter find comment="defconf: accept ICMP"] = "") do={
+    /ip firewall filter add chain=input action=accept protocol=icmp comment="defconf: accept ICMP"
+}
+
+# Accept loopback traffic — required for CAPsMAN wireless management
+:if ([/ip firewall filter find comment="defconf: accept to local loopback (for CAPsMAN)"] = "") do={
+    /ip firewall filter add chain=input action=accept src-address=127.0.0.1 dst-address=127.0.0.1 in-interface=lo comment="defconf: accept to local loopback (for CAPsMAN)"
+}
+
+# Drop everything NOT coming from LAN — blocks all unsolicited WAN access to router
+:if ([/ip firewall filter find comment="defconf: drop all not coming from LAN"] = "") do={
+    /ip firewall filter add chain=input action=drop in-interface-list=!LAN comment="defconf: drop all not coming from LAN"
+}
+
+# Accept IPsec inbound encrypted traffic (VPN)
+:if ([/ip firewall filter find comment="defconf: accept in ipsec policy"] = "") do={
+    /ip firewall filter add chain=forward action=accept ipsec-policy=in,ipsec comment="defconf: accept in ipsec policy"
+}
+
+# Accept IPsec outbound encrypted traffic (VPN)
+:if ([/ip firewall filter find comment="defconf: accept out ipsec policy"] = "") do={
+    /ip firewall filter add chain=forward action=accept ipsec-policy=out,ipsec comment="defconf: accept out ipsec policy"
+}
+
+# FastTrack established connections — hardware accelerates traffic, bypasses further rules for speed
+:if ([/ip firewall filter find comment="defconf: fasttrack"] = "") do={
+    /ip firewall filter add chain=forward action=fasttrack-connection connection-state=established,related comment="defconf: fasttrack"
+}
+
+# Accept established/related forward traffic that wasn't FastTracked
+:if ([/ip firewall filter find comment="defconf: accept established,related,untracked" chain=forward] = "") do={
+    /ip firewall filter add chain=forward action=accept connection-state=established,related,untracked comment="defconf: accept established,related,untracked"
+}
+
+# Drop invalid forward traffic
+:if ([/ip firewall filter find comment="defconf: drop invalid" chain=forward] = "") do={
+    /ip firewall filter add chain=forward action=drop connection-state=invalid comment="defconf: drop invalid"
+}
+
+# Drop all inbound WAN traffic that wasn't explicitly port-forwarded (dst-natted)
+:if ([/ip firewall filter find comment="defconf: drop all from WAN not DST-NATed"] = "") do={
+    /ip firewall filter add chain=forward action=drop connection-nat-state=!dstnat in-interface-list=WAN comment="defconf: drop all from WAN not DST-NATed"
+}
+
+# Masquerade all outbound traffic on WAN — allows all LAN/VLAN clients to share single WAN IP
+:if ([/ip firewall nat find comment="defconf: masquerade"] = "") do={
+    /ip firewall nat add chain=srcnat action=masquerade out-interface-list=WAN ipsec-policy=out,none comment="defconf: masquerade"
+}
+
+# Port forward HTTPS (443) from WAN to NAS in VLAN 10
+:if ([/ip firewall nat find comment="HTTPS → NAS"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface=ether1 protocol=tcp dst-port=443 action=dst-nat to-addresses=192.168.10.10 to-ports=443 comment="HTTPS → NAS"
+}
+
+# Port forward HTTP (80) from WAN to NAS in VLAN 10
+:if ([/ip firewall nat find comment="HTTP → NAS"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface=ether1 protocol=tcp dst-port=80 action=dst-nat to-addresses=192.168.10.10 to-ports=80 comment="HTTP → NAS"
+}
+
+# Hairpin NAT — allows devices inside VLAN 10 to reach NAS using its external domain
+:if ([/ip firewall nat find comment="Hairpin NAT → NAS"] = "") do={
+    /ip firewall nat add chain=srcnat src-address=192.168.10.0/24 dst-address=192.168.10.10 protocol=tcp dst-port=443 action=masquerade comment="Hairpin NAT → NAS"
+}
+```
+
 ## Hardening
 ```routeros
 /ip service
