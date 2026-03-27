@@ -159,78 +159,114 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.20 comment="W
 
 ## Firewall rules
 ```routeros
-# Accept returning/established traffic so router can receive replies
+# ------------------------------------------------
+# Firewall Filter — INPUT CHAIN
+# ------------------------------------------------
+
+# Accept returning/established traffic
 :if ([/ip firewall filter find comment="defconf: accept established,related,untracked" chain=input] = "") do={
     /ip firewall filter add chain=input action=accept connection-state=established,related,untracked comment="defconf: accept established,related,untracked"
 }
 
-# Drop malformed or invalid packets
+# Drop invalid packets
 :if ([/ip firewall filter find comment="defconf: drop invalid" chain=input] = "") do={
     /ip firewall filter add chain=input action=drop connection-state=invalid comment="defconf: drop invalid"
 }
 
-# Accept ICMP (ping) so router is reachable
+# Accept ICMP from LAN only (not WAN)
 :if ([/ip firewall filter find comment="defconf: accept ICMP"] = "") do={
-    /ip firewall filter add chain=input action=accept protocol=icmp comment="defconf: accept ICMP"
+    /ip firewall filter add chain=input action=accept protocol=icmp in-interface-list=LAN comment="defconf: accept ICMP"
 }
 
-# Accept loopback traffic — required for CAPsMAN wireless management
+# Accept loopback
 :if ([/ip firewall filter find comment="defconf: accept to local loopback (for CAPsMAN)"] = "") do={
     /ip firewall filter add chain=input action=accept src-address=127.0.0.1 dst-address=127.0.0.1 in-interface=lo comment="defconf: accept to local loopback (for CAPsMAN)"
 }
 
-# Drop everything NOT coming from LAN — blocks all unsolicited WAN access to router
+# Block DNS from WAN
+:if ([/ip firewall filter find comment="block DNS from WAN udp"] = "") do={
+    /ip firewall filter add chain=input action=drop protocol=udp dst-port=53 in-interface=ether1 comment="block DNS from WAN udp"
+}
+:if ([/ip firewall filter find comment="block DNS from WAN tcp"] = "") do={
+    /ip firewall filter add chain=input action=drop protocol=tcp dst-port=53 in-interface=ether1 comment="block DNS from WAN tcp"
+}
+
+# Drop everything not from LAN
 :if ([/ip firewall filter find comment="defconf: drop all not coming from LAN"] = "") do={
     /ip firewall filter add chain=input action=drop in-interface-list=!LAN comment="defconf: drop all not coming from LAN"
 }
 
-# Accept IPsec inbound encrypted traffic (VPN)
+# ------------------------------------------------
+# Firewall Filter — FORWARD CHAIN
+# ------------------------------------------------
+
+# IPsec VPN
 :if ([/ip firewall filter find comment="defconf: accept in ipsec policy"] = "") do={
     /ip firewall filter add chain=forward action=accept ipsec-policy=in,ipsec comment="defconf: accept in ipsec policy"
 }
-
-# Accept IPsec outbound encrypted traffic (VPN)
 :if ([/ip firewall filter find comment="defconf: accept out ipsec policy"] = "") do={
     /ip firewall filter add chain=forward action=accept ipsec-policy=out,ipsec comment="defconf: accept out ipsec policy"
 }
 
-# FastTrack established connections — hardware accelerates traffic, bypasses further rules for speed
+# Fasttrack
 :if ([/ip firewall filter find comment="defconf: fasttrack"] = "") do={
     /ip firewall filter add chain=forward action=fasttrack-connection connection-state=established,related comment="defconf: fasttrack"
 }
 
-# Accept established/related forward traffic that wasn't FastTracked
+# Accept established forward
 :if ([/ip firewall filter find comment="defconf: accept established,related,untracked" chain=forward] = "") do={
     /ip firewall filter add chain=forward action=accept connection-state=established,related,untracked comment="defconf: accept established,related,untracked"
 }
 
-# Drop invalid forward traffic
+# Drop invalid forward
 :if ([/ip firewall filter find comment="defconf: drop invalid" chain=forward] = "") do={
     /ip firewall filter add chain=forward action=drop connection-state=invalid comment="defconf: drop invalid"
 }
 
-# Drop all inbound WAN traffic that wasn't explicitly port-forwarded (dst-natted)
+# Allow port forwarded traffic to NAS
+:if ([/ip firewall filter find comment="allow HTTP+HTTPS to NAS"] = "") do={
+    /ip firewall filter add chain=forward action=accept protocol=tcp dst-address=192.168.10.10 dst-port=80,443 in-interface=ether1 comment="allow HTTP+HTTPS to NAS"
+}
+
+# IoT isolation
+:if ([/ip firewall filter find comment="block IoT -> Home"] = "") do={
+    /ip firewall filter add chain=forward action=drop src-address=192.168.30.0/24 dst-address=192.168.10.0/24 comment="block IoT -> Home"
+}
+:if ([/ip firewall filter find comment="block IoT -> Monitoring"] = "") do={
+    /ip firewall filter add chain=forward action=drop src-address=192.168.30.0/24 dst-address=192.168.20.0/24 comment="block IoT -> Monitoring"
+}
+:if ([/ip firewall filter find comment="block IoT -> Management"] = "") do={
+    /ip firewall filter add chain=forward action=drop src-address=192.168.30.0/24 dst-address=192.168.88.0/24 comment="block IoT -> Management"
+}
+
+# Drop all WAN not dst-natted
 :if ([/ip firewall filter find comment="defconf: drop all from WAN not DST-NATed"] = "") do={
     /ip firewall filter add chain=forward action=drop connection-nat-state=!dstnat in-interface-list=WAN comment="defconf: drop all from WAN not DST-NATed"
 }
 
-# Masquerade all outbound traffic on WAN — allows all LAN/VLAN clients to share single WAN IP
+# ------------------------------------------------
+# NAT Rules
+# ------------------------------------------------
+
+# Masquerade
 :if ([/ip firewall nat find comment="defconf: masquerade"] = "") do={
     /ip firewall nat add chain=srcnat action=masquerade out-interface-list=WAN ipsec-policy=out,none comment="defconf: masquerade"
 }
 
-# Port forward HTTPS (443) from WAN to NAS in VLAN 10
-:if ([/ip firewall nat find comment="HTTPS → NAS"] = "") do={
-    /ip firewall nat add chain=dstnat in-interface=ether1 protocol=tcp dst-port=443 action=dst-nat to-addresses=192.168.10.10 to-ports=443 comment="HTTPS → NAS"
+# Port forward HTTPS to NAS
+:if ([/ip firewall nat find comment="HTTPS -> NAS"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface=ether1 protocol=tcp dst-port=443 action=dst-nat to-addresses=192.168.10.10 to-ports=443 comment="HTTPS -> NAS"
 }
 
-# Port forward HTTP (80) from WAN to NAS in VLAN 10
-:if ([/ip firewall nat find comment="HTTP → NAS"] = "") do={
-    /ip firewall nat add chain=dstnat in-interface=ether1 protocol=tcp dst-port=80 action=dst-nat to-addresses=192.168.10.10 to-ports=80 comment="HTTP → NAS"
+# Port forward HTTP to NAS
+:if ([/ip firewall nat find comment="HTTP -> NAS"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface=ether1 protocol=tcp dst-port=80 action=dst-nat to-addresses=192.168.10.10 to-ports=80 comment="HTTP -> NAS"
 }
 
-# Add static DNS entry - allows reaching domain from internal network
-:if ([/ip dns static find comment="Traefik internal DNS" name="nextcloud.gorillabay.click"] = "") do={
+# ------------------------------------------------
+# DNS
+# ------------------------------------------------
+:if ([/ip dns static find name="nextcloud.gorillabay.click"] = "") do={
     /ip dns static add name=nextcloud.gorillabay.click address=192.168.10.10 comment="Traefik internal DNS"
 }
 ```
