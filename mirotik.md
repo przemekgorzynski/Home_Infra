@@ -1,13 +1,49 @@
-# MikroTik Configuration
+# Network reference
 
- Interface | VLAN ID | Subnet | Gateway | DHCP Range | Role | Ports | Wi-Fi SSID |
-|-----------|---------|--------|---------|------------|------|-------|------------|
-| ether1 | — | dynamic (ISP) | ISP gateway | — | WAN uplink | ether1 | — |
-| bridge | — | 192.168.88.0/24 | 192.168.88.1 | — | Management | all (default) | — |
-| vlan10 | 10 | 192.168.10.0/24 | 192.168.10.1 | .10 – .200 | Home | ether2, ether3 | HomeNET |
-| vlan20 | 20 | 192.168.20.0/24 | 192.168.20.1 | .10 – .200 | Monitoring | — | — |
-| vlan30 | 30 | 192.168.30.0/24 | 192.168.30.1 | .10 – .200 | IoT | — | HomeIoT |
+## VLANs
+ 
+| VLAN | Name | Subnet | Gateway | DHCP range | Ports | Wi-Fi |
+|------|------|--------|---------|------------|-------|-------|
+| 10 | Home | 192.168.10.0/24 | 192.168.10.1 | .10 – .200 | ether2, ether3 | HomeNET |
+| 20 | Monitoring | 192.168.20.0/24 | 192.168.20.1 | .10 – .200 | ether4 | — |
+| 30 | IoT | 192.168.30.0/24 | 192.168.30.1 | .10 – .200 | — | HomeIoT |
+| — | Management | 192.168.88.0/24 | 192.168.88.1 | — | — | — |
+ 
+## Static DHCP leases
+ 
+| Device | MAC | IP | VLAN |
+|--------|-----|----|------|
+| NAS | 10:E7:C6:07:0B:39 | 192.168.10.10 | Home |
+| WTR | C8:FF:BF:05:AA:09 | 192.168.10.20 | Home |
+| HP T710 printer | 24:6A:0E:8A:31:C4 | 192.168.30.50 | IoT |
+ 
+## Port forwards (WAN → LAN)
+ 
+| Protocol | WAN port | Destination | Service |
+|----------|----------|-------------|---------|
+| TCP | 443 | 192.168.10.10:443 | NAS |
+ 
+## VLAN access matrix
+ 
+| From | Internet | Home | Monitoring | IoT |
+|------|----------|------|------------|-----|
+| Home | allow | self | initiate only | initiate only |
+| Monitoring | allow | block | self | block |
+| IoT | allow | block | block | self |
+ 
+## DNS
+ 
+| Hostname | Resolves to | Note |
+|----------|-------------|------|
+| *.gorillabay.click | 192.168.10.10 | Wildcard — all subdomains → NAS |
+| upstream | 45.90.28.197, 45.90.30.197 | NextDNS |
 
+
+<br/><br/>
+<br/><br/>
+
+
+# Configuration
 
 ## Connect to router
 ```routeros
@@ -22,6 +58,12 @@ ssh admin@192.168.88.1
 ## Install updates
 ```routeros
 /system package update install
+```
+
+## Enable scheduler feature on router - will ask to confirm by pressing the physical reset buttonsk 
+```routeros
+# Run this first and confirm with reset button on the device
+/system device-mode update scheduler=yes
 ```
 
 ## Set Wi-Fi regulatory country for both radios (legal frequencies/power)
@@ -158,110 +200,102 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.20 comment="W
 add server=dhcp30 mac-address=24:6A:0E:8A:31:C4 address=192.168.30.50 comment="PRINTER"
 ```
 
+## DNS entries
+```routeros
+# ================================================
+# DNS: internal static entry
+# ================================================
+:if ([/ip dns static find name="*.gorillabay.click"] = "") do={
+    /ip dns static add name="*.gorillabay.click" address=192.168.10.10 \
+        comment="INTERNAL DNS: *.gorillabay.click → NAS"
+}
+```
+
 ## Firewall rules
 ```routeros
-# ------------------------------------------------
-# Firewall Filter — INPUT CHAIN
-# ------------------------------------------------
-
-# Accept returning/established traffic
-:if ([/ip firewall filter find comment="defconf: accept established,related,untracked" chain=input] = "") do={
-    /ip firewall filter add chain=input action=accept connection-state=established,related,untracked comment="defconf: accept established,related,untracked"
+# ================================================
+# NAT
+# ================================================
+:if ([/ip firewall nat find comment="NAT: hairpin dstnat NAS"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface-list=LAN protocol=tcp \
+        dst-address=89.70.195.41 dst-port=80,443 \
+        action=dst-nat to-addresses=192.168.10.10 \
+        comment="NAT: hairpin dstnat NAS"
+}
+:if ([/ip firewall nat find comment="INTERNET HTTPS → NAS"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface-list=WAN protocol=tcp dst-port=443 action=dst-nat to-addresses=192.168.10.10 to-ports=443 comment="INTERNET HTTPS → NAS"
+}
+:if ([/ip firewall nat find comment="INTERNET HTTP → NAS"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface-list=WAN protocol=tcp dst-port=80 action=dst-nat to-addresses=192.168.10.10 to-ports=80 comment="INTERNET HTTP → NAS"
+}
+:if ([/ip firewall nat find comment="NAT: LAN → WAN"] = "") do={
+    /ip firewall nat add chain=srcnat out-interface-list=WAN action=masquerade comment="NAT: LAN → WAN"
+}
+:if ([/ip firewall nat find comment="NAT: hairpin NAS"] = "") do={
+    /ip firewall nat add chain=srcnat protocol=tcp \
+        dst-address=192.168.10.10 dst-port=80,443 \
+        out-interface=vlan10 action=masquerade \
+        comment="NAT: hairpin NAS"
 }
 
-# Drop invalid packets
-:if ([/ip firewall filter find comment="defconf: drop invalid" chain=input] = "") do={
-    /ip firewall filter add chain=input action=drop connection-state=invalid comment="defconf: drop invalid"
+# ================================================
+# INPUT chain
+# ================================================
+:if ([/ip firewall filter find comment="INPUT: established/related"] = "") do={
+    /ip firewall filter add chain=input connection-state=established,related action=accept comment="INPUT: established/related"
+}
+:if ([/ip firewall filter find comment="INPUT: drop invalid"] = "") do={
+    /ip firewall filter add chain=input connection-state=invalid action=drop comment="INPUT: drop invalid"
+}
+:if ([/ip firewall filter find comment="INPUT: drop from WAN"] = "") do={
+    /ip firewall filter add chain=input in-interface-list=WAN action=drop comment="INPUT: drop from WAN"
+}
+:if ([/ip firewall filter find comment="INPUT: ping from HOME"] = "") do={
+    /ip firewall filter add chain=input in-interface=vlan10 protocol=icmp action=accept comment="INPUT: ping from HOME"
+}
+:if ([/ip firewall filter find comment="INPUT: SSH/Winbox from HOME"] = "") do={
+    /ip firewall filter add chain=input in-interface=vlan10 protocol=tcp dst-port=22,8291 action=accept comment="INPUT: SSH/Winbox from HOME"
+}
+:if ([/ip firewall filter find comment="INPUT: DNS+DHCP from LAN"] = "") do={
+    /ip firewall filter add chain=input in-interface-list=LAN protocol=udp dst-port=53,67 action=accept comment="INPUT: DNS+DHCP from LAN"
 }
 
-# Accept ICMP from LAN only (not WAN)
-:if ([/ip firewall filter find comment="defconf: accept ICMP"] = "") do={
-    /ip firewall filter add chain=input action=accept protocol=icmp in-interface-list=LAN comment="defconf: accept ICMP"
+# ================================================
+# FORWARD chain
+# ================================================
+:if ([/ip firewall filter find comment="FORWARD: established/related"] = "") do={
+    /ip firewall filter add chain=forward connection-state=established,related action=accept comment="FORWARD: established/related"
+}
+:if ([/ip firewall filter find comment="FORWARD: drop invalid"] = "") do={
+    /ip firewall filter add chain=forward connection-state=invalid action=drop comment="FORWARD: drop invalid"
+}
+:if ([/ip firewall filter find comment="FORWARD: all VLANs → internet"] = "") do={
+    /ip firewall filter add chain=forward in-interface-list=LAN out-interface-list=WAN connection-state=new action=accept comment="FORWARD: all VLANs → internet"
+}
+:if ([/ip firewall filter find comment="FORWARD: HOME → MONITORING"] = "") do={
+    /ip firewall filter add chain=forward in-interface=vlan10 out-interface=vlan20 connection-state=new action=accept comment="FORWARD: HOME → MONITORING"
+}
+:if ([/ip firewall filter find comment="FORWARD: HOME → IOT"] = "") do={
+    /ip firewall filter add chain=forward in-interface=vlan10 out-interface=vlan30 connection-state=new action=accept comment="FORWARD: HOME → IOT"
+}
+:if ([/ip firewall filter find comment="FORWARD: BLOCK MONITORING → HOME"] = "") do={
+    /ip firewall filter add chain=forward in-interface=vlan20 out-interface=vlan10 action=drop comment="FORWARD: BLOCK MONITORING → HOME"
+}
+:if ([/ip firewall filter find comment="FORWARD: BLOCK IOT → HOME"] = "") do={
+    /ip firewall filter add chain=forward in-interface=vlan30 out-interface=vlan10 action=drop comment="FORWARD: BLOCK IOT → HOME"
+}
+```
+
+## Create script that updates Hairpin rules when WAN IP changes
+```routeros
+/system script add name=update-hairpin-nat source={
+    :local wanip [/ip address get [find interface=ether1] address]
+    :set wanip [:pick $wanip 0 [:find $wanip "/"]]
+    /ip firewall nat set [find comment="NAT: hairpin dstnat NAS"] dst-address=$wanip
 }
 
-# Accept loopback
-:if ([/ip firewall filter find comment="defconf: accept to local loopback (for CAPsMAN)"] = "") do={
-    /ip firewall filter add chain=input action=accept src-address=127.0.0.1 dst-address=127.0.0.1 in-interface=lo comment="defconf: accept to local loopback (for CAPsMAN)"
-}
-
-# Drop everything not from LAN
-:if ([/ip firewall filter find comment="defconf: drop all not coming from LAN"] = "") do={
-    /ip firewall filter add chain=input action=drop in-interface-list=!LAN comment="defconf: drop all not coming from LAN"
-}
-
-# ------------------------------------------------
-# Firewall Filter — FORWARD CHAIN
-# ------------------------------------------------
-
-# IPsec VPN
-:if ([/ip firewall filter find comment="defconf: accept in ipsec policy"] = "") do={
-    /ip firewall filter add chain=forward action=accept ipsec-policy=in,ipsec comment="defconf: accept in ipsec policy"
-}
-:if ([/ip firewall filter find comment="defconf: accept out ipsec policy"] = "") do={
-    /ip firewall filter add chain=forward action=accept ipsec-policy=out,ipsec comment="defconf: accept out ipsec policy"
-}
-
-# Fasttrack
-:if ([/ip firewall filter find comment="defconf: fasttrack"] = "") do={
-    /ip firewall filter add chain=forward action=fasttrack-connection connection-state=established,related comment="defconf: fasttrack"
-}
-
-# Accept established forward
-:if ([/ip firewall filter find comment="defconf: accept established,related,untracked" chain=forward] = "") do={
-    /ip firewall filter add chain=forward action=accept connection-state=established,related,untracked comment="defconf: accept established,related,untracked"
-}
-
-# Drop invalid forward
-:if ([/ip firewall filter find comment="defconf: drop invalid" chain=forward] = "") do={
-    /ip firewall filter add chain=forward action=drop connection-state=invalid comment="defconf: drop invalid"
-}
-
-# Allow port forwarded traffic to NAS
-:if ([/ip firewall filter find comment="allow HTTP+HTTPS to NAS"] = "") do={
-    /ip firewall filter add chain=forward action=accept protocol=tcp dst-address=192.168.10.10 dst-port=80,443 in-interface=ether1 comment="allow HTTP+HTTPS to NAS"
-}
-
-# IoT isolation
-:if ([/ip firewall filter find comment="block IoT -> Home"] = "") do={
-    /ip firewall filter add chain=forward action=drop src-address=192.168.30.0/24 dst-address=192.168.10.0/24 comment="block IoT -> Home"
-}
-:if ([/ip firewall filter find comment="block IoT -> Monitoring"] = "") do={
-    /ip firewall filter add chain=forward action=drop src-address=192.168.30.0/24 dst-address=192.168.20.0/24 comment="block IoT -> Monitoring"
-}
-:if ([/ip firewall filter find comment="block IoT -> Management"] = "") do={
-    /ip firewall filter add chain=forward action=drop src-address=192.168.30.0/24 dst-address=192.168.88.0/24 comment="block IoT -> Management"
-}
-
-# Drop all WAN not dst-natted
-:if ([/ip firewall filter find comment="defconf: drop all from WAN not DST-NATed"] = "") do={
-    /ip firewall filter add chain=forward action=drop connection-nat-state=!dstnat in-interface-list=WAN comment="defconf: drop all from WAN not DST-NATed"
-}
-
-# ------------------------------------------------
-# NAT Rules
-# ------------------------------------------------
-
-# Masquerade
-:if ([/ip firewall nat find comment="defconf: masquerade"] = "") do={
-    /ip firewall nat add chain=srcnat action=masquerade out-interface-list=WAN ipsec-policy=out,none comment="defconf: masquerade"
-}
-
-# Port forward HTTPS to NAS
-:if ([/ip firewall nat find comment="HTTPS -> NAS"] = "") do={
-    /ip firewall nat add chain=dstnat in-interface=ether1 protocol=tcp dst-port=443 action=dst-nat to-addresses=192.168.10.10 to-ports=443 comment="HTTPS -> NAS"
-}
-
-# Port forward HTTP to NAS
-:if ([/ip firewall nat find comment="HTTP -> NAS"] = "") do={
-    /ip firewall nat add chain=dstnat in-interface=ether1 protocol=tcp dst-port=80 action=dst-nat to-addresses=192.168.10.10 to-ports=80 comment="HTTP -> NAS"
-}
-
-# ------------------------------------------------
-# DNS
-# ------------------------------------------------
-:if ([/ip dns static find name="nextcloud.gorillabay.click"] = "") do={
-    /ip dns static add name=nextcloud.gorillabay.click address=192.168.10.10 comment="Traefik internal DNS"
-}
+/system scheduler add name=update-hairpin-nat interval=1m \
+    on-event=update-hairpin-nat comment="Update hairpin NAT with current WAN IP"
 ```
 
 ## Hardening
