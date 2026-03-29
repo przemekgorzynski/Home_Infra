@@ -184,14 +184,6 @@ add server=dhcp30 mac-address=24:6A:0E:8A:31:C4 address=192.168.30.50 comment="P
     /ip firewall filter add chain=input action=accept src-address=127.0.0.1 dst-address=127.0.0.1 in-interface=lo comment="defconf: accept to local loopback (for CAPsMAN)"
 }
 
-# Block DNS from WAN
-:if ([/ip firewall filter find comment="block DNS from WAN udp"] = "") do={
-    /ip firewall filter add chain=input action=drop protocol=udp dst-port=53 in-interface=ether1 comment="block DNS from WAN udp"
-}
-:if ([/ip firewall filter find comment="block DNS from WAN tcp"] = "") do={
-    /ip firewall filter add chain=input action=drop protocol=tcp dst-port=53 in-interface=ether1 comment="block DNS from WAN tcp"
-}
-
 # Drop everything not from LAN
 :if ([/ip firewall filter find comment="defconf: drop all not coming from LAN"] = "") do={
     /ip firewall filter add chain=input action=drop in-interface-list=!LAN comment="defconf: drop all not coming from LAN"
