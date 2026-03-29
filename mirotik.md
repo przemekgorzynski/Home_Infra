@@ -15,7 +15,6 @@
 |--------|-----|----|------|
 | NAS | 10:E7:C6:07:0B:39 | 192.168.10.10 | Home |
 | WTR | C8:FF:BF:05:AA:09 | 192.168.10.20 | Home |
-| HP T710 printer | 24:6A:0E:8A:31:C4 | 192.168.30.50 | IoT |
  
 ## Port forwards (WAN → LAN)
  
@@ -197,7 +196,6 @@ set www port=8080
 /ip dhcp-server lease
 add server=dhcp10 mac-address=10:E7:C6:07:0B:39 address=192.168.10.10 comment="NAS"
 add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.20 comment="WTR"
-add server=dhcp30 mac-address=24:6A:0E:8A:31:C4 address=192.168.30.50 comment="PRINTER"
 ```
 
 ## DNS entries
