@@ -41,16 +41,13 @@ all:
 
   hosts:
     wtr:
-      ansible_host: 10.0.0.100
+      ansible_host: 192.168.10.20
       ansible_user: przemek
       hostname: wtr
       type: pc
       domain:
         name: pszemazzz.com
         cloudflare_user: przemyslaw.gorzynski@proton.me
-      doppler_vault:
-        project_name: wtr_pro
-        config: os
       zfs:
         encryption:
           encryption: aes-128-ccm
