@@ -122,7 +122,7 @@ all:
             - kuma
         jellyfin:
           docker_image: linuxserver/jellyfin
-          docker_image_tag: 10.11.7
+          docker_image_tag: 10.11.8
           container_name: jellyfin
           docker_volume_name: jellyfin_volume
           ports:
