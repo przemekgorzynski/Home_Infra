@@ -36,6 +36,7 @@
 |----------|-------------|------|
 | *.gorillabay.click | 192.168.10.10 | Wildcard — all subdomains → NAS |
 | upstream | 45.90.28.197, 45.90.30.197 | NextDNS |
+| DOH | https://dns.nextdns.io/17695e | DNS-over-HTTPS |  
 
 
 <br/><br/>
@@ -167,6 +168,7 @@ Without `allow-remote-requests` clients cannot resolve domain names
 ```routeros
 /ip dns
 set servers=45.90.28.197,45.90.30.197 allow-remote-requests=yes
+set use-doh-server=https://dns.nextdns.io/17695e verify-doh-cert=yes
 ```
 
 ## Add VLAN interfaces to the trusted LAN list
