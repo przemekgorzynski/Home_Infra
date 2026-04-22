@@ -167,6 +167,7 @@ Without `allow-remote-requests` clients cannot resolve domain names
 ```routeros
 /ip dns
 set servers=45.90.28.197,45.90.30.197 allow-remote-requests=yes
+set use-doh-server=https://dns.nextdns.io/17695e verify-doh-cert=yes
 ```
 
 ## Add VLAN interfaces to the trusted LAN list
