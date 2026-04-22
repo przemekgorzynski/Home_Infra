@@ -36,6 +36,7 @@
 |----------|-------------|------|
 | *.gorillabay.click | 192.168.10.10 | Wildcard — all subdomains → NAS |
 | upstream | 45.90.28.197, 45.90.30.197 | NextDNS |
+| DOH | https://dns.nextdns.io/17695e | DNS-over-HTTPS |  
 
 
 <br/><br/>
