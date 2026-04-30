@@ -28,19 +28,13 @@ all:
   hosts:
     localhost:
       ansible_connection: local
-    mikrus_c343:        # wordpress
-      ansible_host: cezary343.mikrus.xyz
-      ansible_port: 10343
-      ansible_user: root
-      hostname: c343
-      type: pc
     nas:
       domain: gorillabay.click
       domain2: pszemazzz.com
       domain3: gorillabay.org
       hostname: nas
       type: pc
-      ansible_host: 10.0.0.10
+      ansible_host: 192.168.10.10
       samba_shares_partition:
         - uuid: 1c5dcb51-59e7-4013-95e2-b2662611ccba   # 2TB
           path: /samba_shares
@@ -168,7 +162,3 @@ all:
           docker_volume_name: uptime_kuma
           ports:
             - 3001:3001
-    dell-sandbox:
-      hostname: dell-sandbox
-      type: notebook
-      ansible_host: 10.0.0.9
