@@ -1,26 +1,26 @@
-| Room              | Wall Plug | Cable ID | Patch Panel Port | Switch Port | VLAN | Notes         |
-|-------------------|-----------|----------|------------------|-------------|------|---------------|
-| n/a               | n/a       | n/a      | 1                | n/a         | n/a  | not connected |
-| n/a               | n/a       | n/a      | 2                | n/a         | n/a  | not connected |
-| n/a               | n/a       | n/a      | 3                | n/a         | n/a  | not connected |
-| n/a               | n/a       | n/a      | 4                | n/a         | n/a  | not connected |
-| n/a               | n/a       | n/a      | 5                | n/a         | n/a  | not connected |
-| n/a               | n/a       | n/a      | 6                | n/a         | n/a  | not connected |
-| n/a               | n/a       | n/a      | 7                | n/a         | n/a  | not connected |
-| Petro Korytarz    | R         | n/a      | 8                | Gi1/0/24    | 99   | Access Point  |
-| Sypialnia         | L         | n/a      | 9                | Gi1/0/24    | 99   |               |
-| Sypialnia         | R         | n/a      | 10               | Gi1/0/24    | 99   |               |
-| Pokoj Goscinny    | L         | n/a      | 11               | Gi1/0/24    | 99   |               |
-| Pokoj Goscinny    | R         | n/a      | 12               | Gi1/0/24    | 99   |               |
-| Pokoj Ady         | L         | n/a      | 13               | Gi1/0/24    | 99   |               |
-| Pokoj Ady         | R         | n/a      | 14               | Gi1/0/24    | 99   |               |
-| Kotlownia         | L         | n/a      | 15               | Gi1/0/24    | 99   |               |
-| Kotlownia         | R         | n/a      | 16               | Gi1/0/24    | 99   |               |
-| Salon             | L1        | n/a      | 17               | Gi1/0/1     | 10   |               |
-| Salon             | L2        | n/a      | 18               | Gi1/0/2     | 10   |               |
-| Salon             | R1        | n/a      | 19               | Gi1/0/3     | 20   |               |
-| Salon             | R2        | n/a      | 20               | Gi1/0/4     | 20   |               |
-| Office            | Work-L    | n/a      | 21               | Gi1/0/24    | 99   |               |
-| Office            | Work-R    | n/a      | 22               | Gi1/0/24    | 99   |               |
-| Office            | TV-L      | n/a      | 23               | Gi1/0/24    | 99   |               |
-| Office            | TV-R      | n/a      | 24               | Gi1/0/24    | 99   |               |
+| Room              | Wall Plug | Store  | Patch Panel Port | Switch Port | VLAN | Notes         |
+|-------------------|-----------|--------|------------------|-------------|------|---------------|
+| -                 | -         | -      | 1                | -           | -    |               |
+| -                 | -         | -      | 2                | -           | -    |               |
+| -                 | -         | -      | 3                | -           | -    |               |
+| -                 | -         | -      | 4                | -           | -    |               |
+| -                 | -         | -      | 5                | -           | -    |               |
+| -                 | -         | -      | 6                | -           | -    |               |
+| -                 | -         | -      | 7                | -           | -    |               |
+| Pietro Korytarz   | R         | 1      | 8                | -           | 10   | Access Point  |
+| Sypialnia         | L         | 1      | 9                | -           | 10   |               |
+| Sypialnia         | R         | 1      | 10               | -           | 10   |               |
+| Pokoj Goscinny    | L         | 1      | 11               | -           | 10   |               |
+| Pokoj Goscinny    | R         | 1      | 12               | -           | 10   |               |
+| Pokoj Ady         | L         | 1      | 13               | -           | 10   |               |
+| Pokoj Ady         | R         | 1      | 14               | -           | 10   |               |
+| Kotlownia         | L         | 0      | 15               | -           | 10   |               |
+| Kotlownia         | R         | 0      | 16               | -           | 10   |               |
+| Salon             | L1        | 0      | 17               | -           | 10   |               |
+| Salon             | L2        | 0      | 18               | -           | 10   |               |
+| Salon             | R1        | 0      | 19               | -           | 10   |               |
+| Salon             | R2        | 0      | 20               | -           | 10   |               |
+| Office            | Work-L    | 0      | 21               | -           | 10   |               |
+| Office            | Work-R    | 0      | 22               | -           | 10   |               |
+| Office            | TV-L      | 0      | 23               | -           | 10   |               |
+| Office            | TV-R      | 0      | 24               | -           | 10   |               |
