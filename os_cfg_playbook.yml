@@ -1,8 +1,6 @@
 ---
 - name: Base config
   hosts: all:!localhost
-  gather_facts: true
-  become: true
 
   pre_tasks:
     - name: Check connectivity
@@ -30,19 +28,19 @@
       tags:
         - os_mgmnt
         - os
-    - name: Import zfs_setup role
-      ansible.builtin.import_role:
-        name: zfs
-      tags:
-        - zfs
-        - storage
-    - name: Import Docker Compose role
-      ansible.builtin.import_role:
-        name: checkout_compose_repo
-      when: composestack.deploy
-      tags:
-        - git
-        - compose_repo
+    # - name: Import zfs_setup role
+    #   ansible.builtin.import_role:
+    #     name: zfs
+    #   tags:
+    #     - zfs
+    #     - storage
+    # - name: Import Docker Compose role
+    #   ansible.builtin.import_role:
+    #     name: checkout_compose_repo
+    #   when: composestack.deploy
+    #   tags:
+    #     - git
+    #     - compose_repo
     - name: Import K3s role
       ansible.builtin.import_role:
         name: k3s

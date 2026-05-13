@@ -42,9 +42,9 @@ else
     # Check if a tag argument was passed to the script
     if [ -n "$1" ]; then
         echo "Running with tag: $1"
-        ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass --tags "$1"
+        ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --check --ask-become-pass --tags "$1"
     else
         echo "Running all tasks (no tags specified)"
-        ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass
+        ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --check --ask-become-pass
     fi
 fi

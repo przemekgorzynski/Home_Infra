@@ -14,14 +14,12 @@ node-label:
 # Disable default K3s services
 disable:
   - traefik
-  - servicelb
-  - local-storage
 
 # Cluster initialization
 cluster-init: true
 
 # Use this interface/IP for K3s cluster API and communication
-node-ip: "{{ ansible_host }}"     # enp3s0 IP
+node-ip: "{{ ansible_host }}"     # enp2s0 IP
 
 # Advertise this address to other nodes (if multi-node cluster later)
 advertise-address: "{{ ansible_host }}"

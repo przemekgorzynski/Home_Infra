@@ -43,6 +43,11 @@ all:
     wtr:
       ansible_host: 192.168.10.20
       ansible_user: przemek
+      ansible_gather_facts: true
+      ansible_become: true
+      ansible_become_user: root
+      ansible_become_method: sudo
+      ansible_ssh_private_key_file: ~/.ssh/id_ed25519
       hostname: wtr
       type: pc
       domain:
@@ -104,10 +109,10 @@ all:
                 setuid: 'off'
                 mountpoint: '/data/apps-cfg'
       k3s:
-        deploy: false
+        deploy: true
         kubeconfig_file: /etc/rancher/k3s/k3s.yaml
         argocd:
-          deploy: false
+          deploy: true
           namespace: argocd
           values_files: 
             - ArgoCD_config.yml
