@@ -1,17 +1,51 @@
 ---
-- name: Import Common tasks
-  ansible.builtin.import_tasks: tasks_common.yml
-  tags:
-    - os_mgmnt_common_tasks
+- name: Update system
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+    update_cache: true
+    autoremove: true
 
-- name: Import Notebook tasks
-  ansible.builtin.import_tasks: tasks_notebook.yml
-  when:
-    - type == "notebook"
-  tags:
-    - os_mgmnt_notebook_tasks
+- name: Install standard packages
+  ansible.builtin.apt:
+    name: "{{ standard_packages }}"
+    state: present
 
-- name: Import Bitwarden tasks
-  ansible.builtin.import_tasks: bw_secrets.yml
+- name: Ensure Python packages installed on host
+  ansible.builtin.pip:
+    name: "{{ python_packages }}"
+    state: present
+    extra_args: "--break-system-packages"
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ hostname }}"
+
+- name: Set timezone to Europe/Warsaw
+  community.general.timezone:
+    name: "{{ timezone }}"
+
+- name: SSH configure
   tags:
-    - os_mgmnt_bw_secrets
+    - ssh
+  block:
+    - name: Set ssh banner
+      ansible.builtin.copy:
+        src: files/ssh-banner.net
+        dest: /etc/issue.net
+        owner: root
+        group: root
+        mode: '0644'
+    - name: Set SSH config files
+      ansible.posix.synchronize:
+        src: files/sshd_config/
+        dest: /etc/ssh/sshd_config.d/
+        private_key: "{{ lookup('file', admin_user[0].public_key_path) }}"
+        delete: true
+        owner: false
+        group: false
+
+- name: Install Docker via official script
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://get.docker.com | sh
+    creates: /usr/bin/docker

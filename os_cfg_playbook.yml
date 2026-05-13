@@ -10,10 +10,7 @@
         - always
 
   vars:
-    ZFS_ENCRYPTION_KEY: "{{ lookup('bitwarden.secrets.lookup', '1b5bf94a-d9a4-4f6d-94ed-b3ee00ce2132') }}"
-    SRV_PRIVATE_KEY: "{{ lookup('bitwarden.secrets.lookup', 'f6519533-aa58-49be-b550-b3ee00ce5481') }}"
-    SRV_PUBLIC_KEY: "{{ lookup('bitwarden.secrets.lookup', '38f9b44f-c56e-49a1-b905-b3ee00ce6f75') }}"
-    BWS_ACCESS_TOKEN_APPS: "{{ lookup('bitwarden.secrets.lookup', 'cfbccbd3-a6dd-4ed0-8fe5-b3ee00d60aea') }}"
+    ARGOCD_SSH_PRIVATE_KEY: "{{ lookup('file', '~/.ssh/argocd-repo-key') }}"
 
   tasks:
     - name: Import user_mgmnt role
@@ -34,13 +31,6 @@
     #   tags:
     #     - zfs
     #     - storage
-    # - name: Import Docker Compose role
-    #   ansible.builtin.import_role:
-    #     name: checkout_compose_repo
-    #   when: composestack.deploy
-    #   tags:
-    #     - git
-    #     - compose_repo
     - name: Import K3s role
       ansible.builtin.import_role:
         name: k3s

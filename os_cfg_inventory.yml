@@ -28,7 +28,6 @@ all:
       - python3-pip
       - zfsutils-linux
       - zfs-initramfs
-      - containerd
       - ca-certificates 
       - gnupg
       - lsb-release
@@ -49,7 +48,6 @@ all:
       ansible_become_method: sudo
       ansible_ssh_private_key_file: ~/.ssh/id_ed25519
       hostname: wtr
-      type: pc
       domain:
         name: pszemazzz.com
         cloudflare_user: przemyslaw.gorzynski@proton.me

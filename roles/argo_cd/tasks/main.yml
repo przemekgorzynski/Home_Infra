@@ -43,8 +43,7 @@
       stringData:
         type: git
         url: git@github.com:przemekgorzynski/ArgoCDApps.git
-        sshPrivateKey: |
-          {{ ARGOCD_PRIVATE_KEY }}
+        sshPrivateKey: "{{ ARGOCD_SSH_PRIVATE_KEY }}"
   environment:
     KUBECONFIG: "{{ k3s.kubeconfig_file }}"
   no_log: true
@@ -57,12 +56,11 @@
         state: directory
         mode: '0755'
 
-    - name: Copy ArgoCD values files to /tmp
+    - name: Copy ArgoCD values file
       ansible.builtin.copy:
-        src: "{{ item }}"
-        dest: "/argocd_values/{{ item | basename }}"
+        src: ArgoCD_config.yml
+        dest: /argocd_values/values.yaml
         mode: '0644'
-      loop: "{{ k3s.argocd.values_files }}"
 
     - name: Install/upgrade ArgoCD using Helm
       ansible.builtin.shell: |
@@ -71,60 +69,31 @@
 
         helm upgrade --install argocd argo/argo-cd \
           --namespace "{{ k3s.argocd.namespace }}" \
-          {% for f in k3s.argocd.values_files %}-f /argocd_values/{{ f | basename }} {% endfor %}
+          --values /argocd_values/values.yaml
       environment:
         KUBECONFIG: "{{ k3s.kubeconfig_file }}"
       args:
         executable: /bin/bash
       become: false
 
-# -----------------------------------------
-# ArgoCD App of apps
-# -----------------------------------------
+# # -----------------------------------------
+# # ArgoCD App of apps
+# # -----------------------------------------
 
-- name: Deploy Argo config
-  block:
-    - name: Copy Argo manifest to temp location
-      ansible.builtin.copy:
-        src: "{{ item }}"
-        dest: "/argocd_values/{{ item | basename }}"
-        mode: '0644'
-      loop:
-        - "{{ role_path }}/files/argo_app_of_apps.yml"
-    - name: Apply Argo manifest
-      kubernetes.core.k8s:
-        kubeconfig: "{{ k3s.kubeconfig_file }}"
-        state: present
-        src: "{{ item }}"
-      loop:
-        - "/argocd_values/argo_app_of_apps.yml"
+# - name: Deploy Argo config
+#   block:
+#     - name: Copy Argo manifest to temp location
+#       ansible.builtin.copy:
+#         src: "{{ item }}"
+#         dest: "/argocd_values/{{ item | basename }}"
+#         mode: '0644'
+#       loop:
+#         - "{{ role_path }}/files/argo_app_of_apps.yml"
+#     - name: Apply Argo manifest
+#       kubernetes.core.k8s:
+#         kubeconfig: "{{ k3s.kubeconfig_file }}"
+#         state: present
+#         src: "{{ item }}"
+#       loop:
+#         - "/argocd_values/argo_app_of_apps.yml"
 
-# -----------------------------------------
-# ArgoCD External secrets
-# -----------------------------------------
-
-    - name: Ensure external-secrets namespace exists
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Namespace
-          metadata:
-            name: external-secrets
-      environment:
-        KUBECONFIG: "{{ k3s.kubeconfig_file }}"
-
-    - name: Ensure Doppler token secret exists
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Secret
-          metadata:
-            name: doppler-apps-token
-            namespace: external-secrets
-          type: Opaque
-          stringData:
-            dopplerToken: "{{ DOPPLER_APPS_TOKEN }}"
-      environment:
-        KUBECONFIG: "{{ k3s.kubeconfig_file }}"

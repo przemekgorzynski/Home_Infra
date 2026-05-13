@@ -33,18 +33,12 @@ ansible-galaxy collection install -r requirements.yml
 echo ""
 echo "##################### STEP 4 ##############################"
 
-if [ -z "${BWS_ACCESS_TOKEN}" ]; then
-    echo "BWS_ACCESS_TOKEN is not set."
-    echo "export BWS_ACCESS_TOKEN=<< REDACTED >>"
-else
-    echo "BWS_ACCESS_TOKEN is set. Running Ansible playbook..."
 
-    # Check if a tag argument was passed to the script
-    if [ -n "$1" ]; then
-        echo "Running with tag: $1"
-        ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --check --ask-become-pass --tags "$1"
-    else
-        echo "Running all tasks (no tags specified)"
-        ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --check --ask-become-pass
-    fi
+# Check if a tag argument was passed to the script
+if [ -n "$1" ]; then
+    echo "Running with tag: $1"
+    ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass --tags "$1"
+else
+    echo "Running all tasks (no tags specified)"
+    ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass
 fi
