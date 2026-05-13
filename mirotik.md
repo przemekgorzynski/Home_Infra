@@ -14,7 +14,8 @@
 | Device | MAC | IP | VLAN |
 |--------|-----|----|------|
 | NAS | 10:E7:C6:07:0B:39 | 192.168.10.10 | Home |
-| WTR | C8:FF:BF:05:AA:09 | 192.168.10.20 | Home |
+| WTR-ETH1 | C8:FF:BF:05:AA:08 | 192.168.10.20 | Home |
+| WTR-ETH2 | C8:FF:BF:05:AA:09 | 192.168.10.21 | Home |
  
 ## Port forwards (WAN → LAN)
  
@@ -197,7 +198,8 @@ set www port=8080
 ```routeros
 /ip dhcp-server lease
 add server=dhcp10 mac-address=10:E7:C6:07:0B:39 address=192.168.10.10 comment="NAS"
-add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.20 comment="WTR"
+add server=dhcp10 mac-address=C8:FF:BF:05:AA:08 address=192.168.10.20 comment="WTR-ETH1"
+add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="WTR-ETH2"
 ```
 
 ## DNS entries
