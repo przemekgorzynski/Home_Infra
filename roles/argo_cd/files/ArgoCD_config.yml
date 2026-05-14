@@ -31,6 +31,8 @@ configs:
       type: git
       name: ArgoCdDefinitions
       project: default
+  params:
+    server.insecure: true
   cm:
     create: true
     admin.enabled: true

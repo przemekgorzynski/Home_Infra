@@ -93,6 +93,10 @@
         labels:
           app.kubernetes.io/name: argocd-secret
           app.kubernetes.io/part-of: argocd
+          app.kubernetes.io/managed-by: Helm
+        annotations:
+          meta.helm.sh/release-name: argocd
+          meta.helm.sh/release-namespace: "{{ k3s.argocd.namespace }}"
       stringData:
         admin.password: "{{ ARGOCD_ADMIN_PASS }}"
         admin.passwordMtime: "{{ ansible_date_time.iso8601 }}"
@@ -104,33 +108,39 @@
 # Cloudflare Secret for cert-manager
 # -----------------------------------------
 
-- name: Create cert-manager namespace
+- name: Create namespaces for pre-provisioned secrets
   kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: cert-manager
+        name: "{{ item }}"
   environment:
     KUBECONFIG: "{{ k3s.kubeconfig_file }}"
+  loop:
+    - cert-manager
+    - cloudflare-ddns
 
-- name: Create Cloudflare API token secret for cert-manager
+- name: Create Cloudflare API token secret
   kubernetes.core.k8s:
     state: present
-    namespace: cert-manager
+    namespace: "{{ item }}"
     definition:
       apiVersion: v1
       kind: Secret
       metadata:
         name: cloudflare-api-token
-        namespace: cert-manager
+        namespace: "{{ item }}"
       type: Opaque
       stringData:
         api-token: "{{ CLOUDFLARE_API_TOKEN }}"
   environment:
     KUBECONFIG: "{{ k3s.kubeconfig_file }}"
   no_log: true
+  loop:
+    - cert-manager
+    - cloudflare-ddns
 
 # -----------------------------------------
 # ArgoCD App of apps
