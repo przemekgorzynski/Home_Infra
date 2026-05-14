@@ -76,24 +76,80 @@
         executable: /bin/bash
       become: false
 
-# # -----------------------------------------
-# # ArgoCD App of apps
-# # -----------------------------------------
+# -----------------------------------------
+# ArgoCD Admin Password Secret
+# -----------------------------------------
 
-# - name: Deploy Argo config
-#   block:
-#     - name: Copy Argo manifest to temp location
-#       ansible.builtin.copy:
-#         src: "{{ item }}"
-#         dest: "/argocd_values/{{ item | basename }}"
-#         mode: '0644'
-#       loop:
-#         - "{{ role_path }}/files/argo_app_of_apps.yml"
-#     - name: Apply Argo manifest
-#       kubernetes.core.k8s:
-#         kubeconfig: "{{ k3s.kubeconfig_file }}"
-#         state: present
-#         src: "{{ item }}"
-#       loop:
-#         - "/argocd_values/argo_app_of_apps.yml"
+- name: Set ArgoCD admin password secret
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k3s.argocd.namespace }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: argocd-secret
+        namespace: "{{ k3s.argocd.namespace }}"
+        labels:
+          app.kubernetes.io/name: argocd-secret
+          app.kubernetes.io/part-of: argocd
+      stringData:
+        admin.password: "{{ ARGOCD_ADMIN_PASS }}"
+        admin.passwordMtime: "{{ ansible_date_time.iso8601 }}"
+  environment:
+    KUBECONFIG: "{{ k3s.kubeconfig_file }}"
+  no_log: true
+
+# -----------------------------------------
+# Cloudflare Secret for cert-manager
+# -----------------------------------------
+
+- name: Create cert-manager namespace
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: cert-manager
+  environment:
+    KUBECONFIG: "{{ k3s.kubeconfig_file }}"
+
+- name: Create Cloudflare API token secret for cert-manager
+  kubernetes.core.k8s:
+    state: present
+    namespace: cert-manager
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: cloudflare-api-token
+        namespace: cert-manager
+      type: Opaque
+      stringData:
+        api-token: "{{ CLOUDFLARE_API_TOKEN }}"
+  environment:
+    KUBECONFIG: "{{ k3s.kubeconfig_file }}"
+  no_log: true
+
+# -----------------------------------------
+# ArgoCD App of apps
+# -----------------------------------------
+
+- name: Deploy Argo config
+  block:
+    - name: Copy Argo manifest to temp location
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "/argocd_values/{{ item | basename }}"
+        mode: '0644'
+      loop:
+        - "{{ role_path }}/files/App_of_apps.yml"
+    - name: Apply Argo manifest
+      kubernetes.core.k8s:
+        kubeconfig: "{{ k3s.kubeconfig_file }}"
+        state: present
+        src: "{{ item }}"
+      loop:
+        - "/argocd_values/App_of_apps.yml"
 

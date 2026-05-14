@@ -23,9 +23,7 @@ global:
 
 configs:
   secret:
-    createSecret: true
-    argocdServerAdminPassword: "$2b$10$V7/OqMQBIMoQbETRiuySF.B2yqeAosUm/0G5nWGYW5ESsJq4pRJ02"
-    argocdServerAdminPasswordMtime: ""
+    createSecret: false
     githubSecret: ""
   repositories:
     argo-stack:

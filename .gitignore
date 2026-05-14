@@ -1,2 +1,3 @@
 .ansible_facts_cache
 apps/
+.env

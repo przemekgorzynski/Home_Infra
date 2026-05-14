@@ -32,7 +32,20 @@ ansible-galaxy collection install -r requirements.yml
 
 echo ""
 echo "##################### STEP 4 ##############################"
+echo "Load secrets from .env"
 
+if [ -f ".env" ]; then
+    set -a
+    # shellcheck source=.env
+    source .env
+    set +a
+else
+    echo "ERROR: .env file not found!"
+    exit 1
+fi
+
+echo ""
+echo "##################### STEP 5 ##############################"
 
 # Check if a tag argument was passed to the script
 if [ -n "$1" ]; then

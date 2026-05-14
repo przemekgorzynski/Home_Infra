@@ -1,20 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: app-of-apps
+  name: app4apps
   namespace: argocd
   labels:
-    app.kubernetes.io/app: app-of-apps
+    app.kubernetes.io/app: app4apps
 spec:
   project: default
   source:
     repoURL: git@github.com:przemekgorzynski/ArgoCDApps.git
     targetRevision: develop
     path: .
-
+    directory:
+      recurse: true
+      include: "*/ArgoApp.yml"
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true

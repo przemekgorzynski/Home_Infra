@@ -11,6 +11,8 @@
 
   vars:
     ARGOCD_SSH_PRIVATE_KEY: "{{ lookup('file', '~/.ssh/argocd-repo-key') }}"
+    ARGOCD_ADMIN_PASS: "{{ lookup('env', 'ARGOCD_ADMIN_PASS') }}"
+    CLOUDFLARE_API_TOKEN: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
 
   tasks:
     - name: Import user_mgmnt role
