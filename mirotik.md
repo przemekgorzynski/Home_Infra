@@ -21,7 +21,9 @@
  
 | Protocol | WAN port | Destination | Service |
 |----------|----------|-------------|---------|
-| TCP | 443 | 192.168.10.10:443 | NAS |
+| TCP | 443 | 192.168.10.20:443 | k3s (Traefik) |
+| TCP | 30001 | 192.168.10.20:30001 | Matrix RTC (LiveKit TCP) |
+| UDP | 30002 | 192.168.10.20:30002 | Matrix RTC (LiveKit UDP) |
  
 ## VLAN access matrix
  
@@ -218,26 +220,35 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="W
 # ================================================
 # NAT
 # ================================================
-:if ([/ip firewall nat find comment="NAT: hairpin dstnat NAS"] = "") do={
-    /ip firewall nat add chain=dstnat in-interface-list=LAN protocol=tcp \
-        dst-address=89.70.195.41 dst-port=80,443 \
-        action=dst-nat to-addresses=192.168.10.10 \
-        comment="NAT: hairpin dstnat NAS"
-}
-:if ([/ip firewall nat find comment="INTERNET HTTPS → NAS"] = "") do={
-    /ip firewall nat add chain=dstnat in-interface-list=WAN protocol=tcp dst-port=443 action=dst-nat to-addresses=192.168.10.10 to-ports=443 comment="INTERNET HTTPS → NAS"
-}
-:if ([/ip firewall nat find comment="INTERNET HTTP → NAS"] = "") do={
-    /ip firewall nat add chain=dstnat in-interface-list=WAN protocol=tcp dst-port=80 action=dst-nat to-addresses=192.168.10.10 to-ports=80 comment="INTERNET HTTP → NAS"
-}
 :if ([/ip firewall nat find comment="NAT: LAN → WAN"] = "") do={
     /ip firewall nat add chain=srcnat out-interface-list=WAN action=masquerade comment="NAT: LAN → WAN"
 }
-:if ([/ip firewall nat find comment="NAT: hairpin NAS"] = "") do={
+:if ([/ip firewall nat find comment="INTERNET HTTPS → k3s"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface-list=WAN protocol=tcp \
+        dst-port=443 action=dst-nat to-addresses=192.168.10.20 to-ports=443 \
+        comment="INTERNET HTTPS → k3s"
+}
+:if ([/ip firewall nat find comment="NAT: hairpin dstnat k3s"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface-list=LAN protocol=tcp \
+        dst-address=89.70.195.41 dst-port=443 \
+        action=dst-nat to-addresses=192.168.10.20 to-ports=443 \
+        comment="NAT: hairpin dstnat k3s"
+}
+:if ([/ip firewall nat find comment="NAT: hairpin k3s"] = "") do={
     /ip firewall nat add chain=srcnat protocol=tcp \
-        dst-address=192.168.10.10 dst-port=80,443 \
+        dst-address=192.168.10.20 dst-port=443 \
         out-interface=vlan10 action=masquerade \
-        comment="NAT: hairpin NAS"
+        comment="NAT: hairpin k3s"
+}
+:if ([/ip firewall nat find comment="Matrix RTC TCP"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface-list=WAN protocol=tcp \
+        dst-port=30001 action=dst-nat to-addresses=192.168.10.20 to-ports=30001 \
+        comment="Matrix RTC TCP"
+}
+:if ([/ip firewall nat find comment="Matrix RTC UDP"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface-list=WAN protocol=udp \
+        dst-port=30002 action=dst-nat to-addresses=192.168.10.20 to-ports=30002 \
+        comment="Matrix RTC UDP"
 }
 
 # ================================================
@@ -293,7 +304,7 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="W
 /system script add name=update-hairpin-nat source={
     :local wanip [/ip address get [find interface=ether1] address]
     :set wanip [:pick $wanip 0 [:find $wanip "/"]]
-    /ip firewall nat set [find comment="NAT: hairpin dstnat NAS"] dst-address=$wanip
+    /ip firewall nat set [find comment="NAT: hairpin dstnat k3s"] dst-address=$wanip
 }
 
 /system scheduler add name=update-hairpin-nat interval=1m \
