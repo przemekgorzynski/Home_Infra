@@ -30,12 +30,12 @@
       tags:
         - os_mgmnt
         - os
-    # - name: Import zfs_setup role
-    #   ansible.builtin.import_role:
-    #     name: zfs
-    #   tags:
-    #     - zfs
-    #     - storage
+    - name: Import zfs_setup role
+      ansible.builtin.import_role:
+        name: zfs
+      tags:
+        - zfs
+        - storage
     - name: Import Samba role
       ansible.builtin.import_role:
         name: samba

@@ -34,6 +34,7 @@ all:
       - apache2-utils
       - linux-generic-hwe-24.04
       - jq
+      - tree
 
     python_packages:
       - kubernetes
