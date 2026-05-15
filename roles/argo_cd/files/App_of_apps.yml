@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: git@github.com:przemekgorzynski/ArgoCDApps.git
-    targetRevision: develop
+    targetRevision: main
     path: .
     directory:
       recurse: true
