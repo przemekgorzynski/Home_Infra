@@ -62,12 +62,8 @@ all:
             filesystem_properties:
               compression: lz4
             vdevs:
-              - type: stripe #zraid2
-                disks:
-                  - /dev/sda
-              - role: cache
-                disks:
-                  - /dev/nvme1n1
+              - "mirror /dev/sda /dev/sdb"
+              - "cache /dev/nvme1n1"
             datasets:
               - dataset_name: tank/photos
                 compression: lz4
@@ -101,11 +97,10 @@ all:
                 compression: lz4
                 setuid: 'off'
                 mountpoint: '/data/public'
-              - dataset_name: tank/apps-cfg
-                recordsize: 16K
+              - dataset_name: tank/torrent
                 compression: lz4
                 setuid: 'off'
-                mountpoint: '/data/apps-cfg'
+                mountpoint: '/data/torrent'
       k3s:
         deploy: true
         kubeconfig_file: /etc/rancher/k3s/k3s.yaml

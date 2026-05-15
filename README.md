@@ -96,6 +96,31 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 ---
 
+## ZFS Storage Layout
+
+```
+Pool: tank
+├── vdev: mirror (2x 8TB, 1 disk fault tolerance)
+│   ├── /dev/sda
+│   └── /dev/sdb
+└── vdev: cache (L2ARC read cache)
+    └── /dev/nvme1n1
+
+Datasets:
+tank                         → /data
+├── tank/photos              → /data/photos
+├── tank/media               → /data/media
+│   ├── tank/media/movies    → /data/media/movies
+│   ├── tank/media/tv-series → /data/media/tv-series
+│   └── tank/media/other     → /data/media/other
+├── tank/files               → /data/files
+├── tank/priv                → /data/priv
+├── tank/public              → /data/public
+└── tank/torrent             → /data/torrent
+```
+
+All datasets use `lz4` compression.
+
 ## Known issues
 
 ### Ubuntu 26 — sudo-rs incompatibility
