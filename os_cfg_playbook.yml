@@ -13,6 +13,7 @@
     ARGOCD_SSH_PRIVATE_KEY: "{{ lookup('file', '~/.ssh/argocd-repo-key') }}"
     ARGOCD_ADMIN_PASS: "{{ lookup('env', 'ARGOCD_ADMIN_PASS') }}"
     CLOUDFLARE_API_TOKEN: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
+    SAMBA_PASSWORD_PRZEMEK: "{{ lookup('env', 'SAMBA_PASSWORD_PRZEMEK') }}"
 
   tasks:
     - name: Import user_mgmnt role
@@ -33,6 +34,11 @@
     #   tags:
     #     - zfs
     #     - storage
+    - name: Import Samba role
+      ansible.builtin.import_role:
+        name: samba
+      tags:
+        - samba
     - name: Import K3s role
       ansible.builtin.import_role:
         name: k3s
