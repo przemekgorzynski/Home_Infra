@@ -213,6 +213,10 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="W
     /ip dns static add name="*.gorillabay.click" address=192.168.10.10 \
         comment="INTERNAL DNS: *.gorillabay.click → NAS"
 }
+:if ([/ip dns static find name="*.internal.homebay.dev"] = "") do={
+    /ip dns static add name="*.internal.homebay.dev" address=192.168.10.20 \
+        comment="INTERNAL DNS: *.internal.homebay.dev → k3s (LAN only)"
+}
 ```
 
 ## Firewall rules
