@@ -49,9 +49,6 @@ all:
       ansible_become_method: sudo
       ansible_ssh_private_key_file: ~/.ssh/id_ed25519
       hostname: wtr
-      domain:
-        name: pszemazzz.com
-        cloudflare_user: przemyslaw.gorzynski@proton.me
       zfs:
         encryption:
           encryption: aes-128-ccm
@@ -110,8 +107,6 @@ all:
           namespace: argocd
           values_files: 
             - ArgoCD_config.yml
-      composestack:
-        deploy: true
       
     localhost:
       ansible_connection: local
