@@ -26,9 +26,12 @@
       PASS: "{{ SAMBA_PASSWORD_PRZEMEK }}"
       PUID: "0"
       PGID: "0"
-    ports:
-      - 445:445
     volumes:
       - /data/public:/share/public
       - /data/priv:/share/priv
       - /etc/samba/smb.conf:/etc/samba/smb.conf
+    healthcheck:
+      test: ["CMD", "pgrep", "smbd"]
+      interval: 1m
+      timeout: 15s
+      retries: 3

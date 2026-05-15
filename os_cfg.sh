@@ -44,6 +44,27 @@ else
     exit 1
 fi
 
+REQUIRED_VARS=(
+    "ARGOCD_ADMIN_PASS"
+    "CLOUDFLARE_API_TOKEN"
+    "SAMBA_PASSWORD_PRZEMEK"
+)
+
+MISSING=()
+for var in "${REQUIRED_VARS[@]}"; do
+    if [ -z "${!var}" ]; then
+        MISSING+=("$var")
+    fi
+done
+
+if [ ${#MISSING[@]} -gt 0 ]; then
+    echo "ERROR: Missing required environment variables:"
+    for var in "${MISSING[@]}"; do
+        echo "  - $var"
+    done
+    exit 1
+fi
+
 echo ""
 echo "##################### STEP 5 ##############################"
 
