@@ -1,37 +1,29 @@
-- name: Create /etc/samba directory
+- name: Create samba stack directory
   ansible.builtin.file:
-    path: /etc/samba
+    path: /opt/stacks/samba
     state: directory
     mode: '0755'
 
 - name: Deploy smb.conf
   ansible.builtin.copy:
     src: smb.conf
-    dest: /etc/samba/smb.conf
+    dest: /opt/stacks/samba/smb.conf
     owner: root
     group: root
     mode: '0644'
 
-- name: Run Samba container
-  community.docker.docker_container:
-    name: samba
-    image: dockurr/samba:4.23.5
-    state: started
-    restart_policy: always
-    hostname: samba.local
-    network_mode: host
-    env:
-      TZ: Europe/Warsaw
-      USER: "przemek"
-      PASS: "{{ SAMBA_PASSWORD_PRZEMEK }}"
-      PUID: "0"
-      PGID: "0"
-    volumes:
-      - /data/public:/share/public
-      - /data/priv:/share/priv
-      - /etc/samba/smb.conf:/etc/samba/smb.conf
-    healthcheck:
-      test: ["CMD", "pgrep", "smbd"]
-      interval: 1m
-      timeout: 15s
-      retries: 3
+- name: Deploy compose file
+  ansible.builtin.copy:
+    src: compose.yml
+    dest: /opt/stacks/samba/compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Run Samba via Docker Compose
+  ansible.builtin.shell:
+    cmd: docker compose up -d --remove-orphans
+    chdir: /opt/stacks/samba
+  environment:
+    SAMBA_PASSWORD_PRZEMEK: "{{ SAMBA_PASSWORD_PRZEMEK }}"
+  no_log: true

@@ -37,6 +37,7 @@ all:
 
     python_packages:
       - kubernetes
+      - docker
 
   hosts:
     wtr:

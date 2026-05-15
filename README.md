@@ -34,26 +34,26 @@ Ubuntu 24 is not affected.
 
 ### Environment variables
 
-Loaded from a `.env` file in the repo root. Copy and fill in before first run:
+All secrets are fetched from Bitwarden Secrets Manager at runtime. Only one env var is required:
 
 ```bash
-cp .env.example .env
+export BWS_ACCESS_TOKEN=<token>
 ```
 
-| Variable | Description |
-|----------|-------------|
-| `ARGOCD_ADMIN_PASS` | ArgoCD admin password as a bcrypt hash |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API token for DNS management |
-| `SAMBA_PASSWORD_PRZEMEK` | Samba password for the `przemek` user |
-
-The script validates all variables are set before running the playbook.
+| Secret | Purpose |
+|--------|---------|
+| `ARGOCD_SSH_PRIVATE_KEY` | SSH private key for ArgoCD repo access |
+| `ARGOCD_SSH_PUBLIC_KEY` | SSH public key for ArgoCD repo access |
+| `ARGOCD_ADMIN_PASS` | ArgoCD admin password (bcrypt hash) |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API token for DNS |
+| `SAMBA_PASSWORD_PRZEMEK` | Samba password for `przemek` user |
+| `ZFS_ENCRYPTION_KEY` | ZFS dataset encryption key |
 
 ### Required SSH keys
 
 | Key | Purpose |
 |-----|---------|
 | `~/.ssh/id_ed25519` | Ansible SSH access to hosts |
-| `~/.ssh/argocd-repo-key` | ArgoCD SSH access to [ArgoCDApps](https://github.com/przemekgorzynski/ArgoCDApps) |
 
 ---
 
@@ -75,7 +75,7 @@ Available tags: `user_mgmnt`, `os_mgmnt`, `k3s`, `argo`, `argocd`, `samba`, `zfs
 
 ### Admin password
 
-Stored as a bcrypt hash in `roles/argo_cd/files/ArgoCD_config.yml`. Generate a new hash:
+Stored as a bcrypt hash in BWS (`ARGOCD_ADMIN_PASS`). Generate a new hash:
 
 ```bash
 python3 -c "import bcrypt; print(bcrypt.hashpw(b'<password>', bcrypt.gensalt(rounds=10)).decode())"
@@ -126,7 +126,3 @@ All datasets use `lz4` compression.
 ### Ubuntu 26 — sudo-rs incompatibility
 
 See [Prerequisites](#ubuntu-26--fix-sudo-before-first-run) above.
-
-### Samba healthcheck (dockurr/samba 4.23.5)
-
-The image's built-in healthcheck uses `-U %` (space before `%`) and doesn't redirect stdin, causing `smbclient` to hang waiting for input and timeout. Overridden in the role with `-U%` and `< /dev/null`.

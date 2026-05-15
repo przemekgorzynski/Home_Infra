@@ -1,0 +1,23 @@
+services:
+  samba:
+    image: dockurr/samba:4.23.5
+    container_name: samba
+    hostname: samba.local
+    environment:
+      TZ: Europe/Warsaw
+      PUID: 0
+      PGID: 0
+      USER: "przemek"
+      PASS: ${SAMBA_PASSWORD_PRZEMEK}
+    ports:
+      - 445:445
+    volumes:
+      - /data/public:/share/public
+      - /data/priv:/share/priv
+      - /opt/stacks/samba/smb.conf:/etc/samba/smb.conf
+    healthcheck:
+      test: ["CMD", "pgrep", "smbd"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+    restart: always

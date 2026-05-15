@@ -10,10 +10,12 @@
         - always
 
   vars:
-    ARGOCD_SSH_PRIVATE_KEY: "{{ lookup('file', '~/.ssh/argocd-repo-key') }}"
-    ARGOCD_ADMIN_PASS: "{{ lookup('env', 'ARGOCD_ADMIN_PASS') }}"
-    CLOUDFLARE_API_TOKEN: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
-    SAMBA_PASSWORD_PRZEMEK: "{{ lookup('env', 'SAMBA_PASSWORD_PRZEMEK') }}"
+    ARGOCD_SSH_PRIVATE_KEY: "{{ lookup('bitwarden.secrets.lookup', '724cbb4e-5819-4922-908a-b44b0146bbb4') }}"
+    ARGOCD_SSH_PUBLIC_KEY: "{{ lookup('bitwarden.secrets.lookup', 'c6d600a3-33e4-4be8-b05d-b44b0146d65d') }}"
+    ARGOCD_ADMIN_PASS: "{{ lookup('bitwarden.secrets.lookup', '3159c97d-b90b-462c-ad9d-b44b01460344') }}"
+    CLOUDFLARE_API_TOKEN: "{{ lookup('bitwarden.secrets.lookup', '1abe2ffd-03da-4703-b2c3-b44b0145e635') }}"
+    SAMBA_PASSWORD_PRZEMEK: "{{ lookup('bitwarden.secrets.lookup', '33468bae-8840-465b-a9a7-b44b01461568') }}"
+    ZFS_ENCRYPTION_KEY: "{{ lookup('bitwarden.secrets.lookup', '1b5bf94a-d9a4-4f6d-94ed-b3ee00ce2132') }}"
 
   tasks:
     - name: Import user_mgmnt role
