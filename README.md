@@ -94,6 +94,24 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 `https://argo.homebay.dev`
 
+### Metrics
+
+Prometheus metrics are enabled for all ArgoCD components and exposed as ClusterIP services:
+
+| Service | Port | Component |
+|---------|------|-----------|
+| `argocd-application-controller-metrics` | 8082 | App controller (sync status, health) |
+| `argocd-server-metrics` | 8083 | API server |
+| `argocd-repo-server-metrics` | 8084 | Repo server |
+| `argocd-redis-metrics` | 9121 | Redis |
+
+Port-forward to inspect metrics locally:
+
+```bash
+kubectl port-forward svc/argocd-server-metrics -n argocd 8083:8083
+curl http://localhost:8083/metrics
+```
+
 ---
 
 ## ZFS Storage Layout
