@@ -17,6 +17,7 @@ all:
         public_key_path: '{{ admin_user[0].public_key_path }}'
     timezone: Europe/Warsaw
     standard_packages:
+      - openssh-server
       - curl
       - network-manager
       - git
@@ -61,8 +62,13 @@ all:
             filesystem_properties:
               compression: lz4
             vdevs:
-              - "mirror /dev/sda /dev/sdb"
-              - "cache /dev/nvme1n1"
+              - type: mirror
+                disks:
+                  - /dev/sda
+                  - /dev/sdb
+              - role: cache
+                disks:
+                  - /dev/nvme1n1
             datasets:
               - dataset_name: tank/photos
                 compression: lz4

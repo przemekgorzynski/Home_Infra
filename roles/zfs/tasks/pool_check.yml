@@ -1,0 +1,24 @@
+- name: Check if ZFS pools are imported
+  ansible.builtin.command: "zpool list {{ item.pool_name }}"
+  register: zpool_imported
+  changed_when: false
+  failed_when: false
+  loop: "{{ zfs.zfs_pools }}"
+  loop_control:
+    label: "{{ item.pool_name }}"
+
+- name: Check if ZFS pools are importable
+  ansible.builtin.shell: "zpool import 2>/dev/null | grep -q 'pool: {{ item.pool_name }}'"
+  register: zpool_importable
+  changed_when: false
+  failed_when: false
+  loop: "{{ zfs.zfs_pools }}"
+  loop_control:
+    label: "{{ item.pool_name }}"
+
+- name: Build pool state
+  ansible.builtin.set_fact:
+    pool_states: "{{ pool_states | default([]) + [{'pool': item.0, 'imported': item.1.rc == 0, 'importable': item.2.rc == 0}] }}"
+  loop: "{{ zfs.zfs_pools | zip(zpool_imported.results, zpool_importable.results) | list }}"
+  loop_control:
+    label: "{{ item.0.pool_name }}"

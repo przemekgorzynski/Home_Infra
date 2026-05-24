@@ -1,0 +1,40 @@
+- name: Deploy ZFS encryption key loader systemd service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/zfs-load-encryption-keys.service
+    mode: '0644'
+    content: |
+      [Unit]
+      Description=Load ZFS encryption keys and mount datasets
+      After=zfs-import.target
+      Before=zfs-mount.service
+      Requires=zfs-import.target
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      ExecStart=/usr/sbin/zfs load-key -a
+      ExecStartPost=/usr/sbin/zfs mount -a
+
+      [Install]
+      WantedBy=zfs-import.target
+
+- name: Enable ZFS encryption key loader service
+  ansible.builtin.systemd:
+    name: zfs-load-encryption-keys
+    enabled: true
+    daemon_reload: true
+
+- name: Remove legacy ZFS boot cron job
+  ansible.builtin.cron:
+    name: "Load ZFS keys and mount datasets at boot"
+    state: absent
+    user: root
+
+- name: Schedule monthly ZFS scrub
+  ansible.builtin.cron:
+    name: "Monthly ZFS scrub"
+    user: root
+    minute: "0"
+    hour: "2"
+    day: "1"
+    job: "zpool list -H -o name | xargs -I{} zpool scrub {}"

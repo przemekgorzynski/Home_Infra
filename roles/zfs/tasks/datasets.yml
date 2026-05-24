@@ -1,0 +1,46 @@
+- name: Create ZFS datasets
+  when: zfs.zfs_pools is defined and zfs.zfs_pools | length > 0
+  community.general.zfs:
+    name: "{{ dataset.dataset_name }}"
+    state: present
+    extra_zfs_properties:
+      encryption: "{{ zfs.encryption.encryption }}"
+      keyformat: "{{ zfs.encryption.keyformat }}"
+      keylocation: "file://{{ zfs.encryption.keylocation }}"
+      compression: "{{ dataset.compression }}"
+      setuid: "{{ dataset.setuid }}"
+      mountpoint: "{{ dataset.mountpoint }}"
+      recordsize: "{{ dataset.recordsize | default(omit) }}"
+      dedup: off
+      exec: off
+      atime: off
+  loop: "{{ zfs.zfs_pools | subelements('datasets') }}"
+  loop_control:
+    label: "{{ dataset.dataset_name }}"
+  vars:
+    dataset: "{{ item.1 }}"
+
+- name: Set ownership on dataset mountpoints
+  ansible.builtin.file:
+    path: "{{ dataset.mountpoint }}"
+    owner: root
+    group: "{{ admin_group[0].name }}"
+    mode: "0775"
+    state: directory
+  loop: "{{ zfs.zfs_pools | subelements('datasets') }}"
+  loop_control:
+    label: "{{ dataset.dataset_name }}"
+  vars:
+    dataset: "{{ item.1 }}"
+
+- name: Recursively set owner and group for /data/priv
+  ansible.builtin.file:
+    path: /data/priv
+    owner: przemek
+    group: admins
+    recurse: yes
+
+- name: Set permissions on /data/priv top-level folder
+  ansible.builtin.file:
+    path: /data/priv
+    mode: '0777'

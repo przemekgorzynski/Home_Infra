@@ -1,0 +1,20 @@
+- name: Import existing ZFS pools
+  ansible.builtin.command: "zpool import -f {{ item.pool.pool_name }}"
+  when: not item.imported and item.importable
+  loop: "{{ pool_states }}"
+  loop_control:
+    label: "{{ item.pool.pool_name }}"
+
+- name: Load encryption keys for imported pools
+  ansible.builtin.command: "zfs load-key -a"
+  when: not item.imported and item.importable
+  loop: "{{ pool_states }}"
+  loop_control:
+    label: "{{ item.pool.pool_name }}"
+
+- name: Mount datasets for imported pools
+  ansible.builtin.command: "zfs mount -a"
+  when: not item.imported and item.importable
+  loop: "{{ pool_states }}"
+  loop_control:
+    label: "{{ item.pool.pool_name }}"

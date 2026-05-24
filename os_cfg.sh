@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
 
 echo ""
 echo "##################### STEP 1 ##############################"
@@ -24,11 +26,22 @@ echo "##################### STEP 2 ##############################"
 echo "Create/activate virtual environment"
 
 VENV_DIR=".venv"
-if [ ! -d "$VENV_DIR" ]; then
-    "$PYTHON_BIN" -m venv "$VENV_DIR"
+if [ ! -f "$VENV_DIR/bin/activate" ]; then
+    rm -rf "$VENV_DIR"
+    if ! "$PYTHON_BIN" -m venv "$VENV_DIR" 2>/dev/null; then
+        PYTHON_VERSION=$("$PYTHON_BIN" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+        echo "Installing python${PYTHON_VERSION}-venv..."
+        sudo apt-get install -y "python${PYTHON_VERSION}-venv"
+        "$PYTHON_BIN" -m venv "$VENV_DIR"
+    fi
 fi
 # shellcheck source=.venv/bin/activate
 source "$VENV_DIR/bin/activate"
+
+if ! python -m pip --version &>/dev/null; then
+    echo "Bootstrapping pip..."
+    python -m ensurepip --upgrade
+fi
 
 echo ""
 echo "##################### STEP 3 ##############################"
@@ -61,10 +74,14 @@ fi
 echo ""
 echo "##################### STEP 6 ##############################"
 
-if [ -n "$1" ]; then
-    echo "Running with tag: $1"
-    ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass --tags "$1"
+TAG="$1"
+shift || true
+EXTRA_ARGS="$*"
+
+if [ -n "$TAG" ]; then
+    echo "Running with tag: $TAG $EXTRA_ARGS"
+    ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass --tags "$TAG" $EXTRA_ARGS
 else
     echo "Running all tasks (no tags specified)"
-    ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass
+    ansible-playbook -i os_cfg_inventory.yml os_cfg_playbook.yml --ask-become-pass $EXTRA_ARGS
 fi
