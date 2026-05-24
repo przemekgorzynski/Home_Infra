@@ -53,7 +53,7 @@ all:
       hostname: wtr
       zfs:
         encryption:
-          encryption: aes-128-ccm
+          encryption: aes-256-gcm
           keyformat: raw
           keylocation: /root/zfs.key
         zfs_pools:
@@ -68,7 +68,7 @@ all:
                   - /dev/sdb
               - role: cache
                 disks:
-                  - /dev/nvme1n1
+                  - /dev/nvme0n1
             datasets:
               - dataset_name: tank/photos
                 compression: lz4
@@ -98,6 +98,7 @@ all:
                 compression: lz4
                 setuid: 'off'
                 mountpoint: '/data/priv'
+                recordsize: 1M
               - dataset_name: tank/public
                 compression: lz4
                 setuid: 'off'
