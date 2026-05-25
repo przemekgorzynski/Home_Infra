@@ -29,7 +29,7 @@ all:
       - python3-pip
       - zfsutils-linux
       - zfs-initramfs
-      - ca-certificates 
+      - ca-certificates
       - gnupg
       - lsb-release
       - apache2-utils
@@ -113,8 +113,8 @@ all:
         argocd:
           deploy: true
           namespace: argocd
-          values_files: 
+          values_files:
             - ArgoCD_config.yml
-      
+
     localhost:
       ansible_connection: local
