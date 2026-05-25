@@ -30,6 +30,17 @@
     state: absent
     user: root
 
+- name: Cap ZFS ARC to 8 GB
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/zfs.conf
+    mode: '0644'
+    content: "options zfs zfs_arc_max=8589934592\n"
+
+- name: Apply ZFS ARC cap immediately
+  ansible.builtin.shell: echo 8589934592 > /sys/module/zfs/parameters/zfs_arc_max
+  args:
+    executable: /bin/bash
+
 - name: Schedule monthly ZFS scrub
   ansible.builtin.cron:
     name: "Monthly ZFS scrub"
