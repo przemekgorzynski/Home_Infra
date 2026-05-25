@@ -45,6 +45,23 @@
         owner: false
         group: false
 
+- name: Detect EFI partition UUID
+  ansible.builtin.shell: blkid -t TYPE=vfat -o value -s UUID | head -1
+  register: detected_efi_uuid
+  changed_when: false
+
+- name: Fix /boot/efi fstab UUID to match current hardware
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '.*/boot/efi.*'
+    line: "/dev/disk/by-uuid/{{ detected_efi_uuid.stdout }} /boot/efi vfat defaults 0 1"
+  when: detected_efi_uuid.stdout != ""
+
+- name: Mask systemd-networkd-wait-online to prevent slow boot
+  ansible.builtin.systemd:
+    name: systemd-networkd-wait-online
+    masked: true
+
 - name: Install Docker via official script
   ansible.builtin.shell:
     cmd: curl -fsSL https://get.docker.com | sh
