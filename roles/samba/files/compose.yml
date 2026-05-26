@@ -14,6 +14,7 @@ services:
     volumes:
       - /data/public:/share/public
       - /data/priv:/share/priv
+      - /data/torrent:/share/torrent
       - /opt/stacks/samba/smb.conf:/etc/samba/smb.conf
     healthcheck:
       test: ["CMD", "pgrep", "smbd"]
