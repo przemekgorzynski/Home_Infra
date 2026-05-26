@@ -6,6 +6,7 @@ yaml-files:
 
 ignore:
   - .github/
+  - .venv/
 
 # https://yamllint.readthedocs.io/en/stable/configuration.html
 

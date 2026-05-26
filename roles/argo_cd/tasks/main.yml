@@ -68,8 +68,8 @@
         helm repo update
 
         helm upgrade --install argocd argo/argo-cd \
-          --namespace "{{ k3s.argocd.namespace }}" \
-          --values /argocd_values/values.yaml
+        --namespace "{{ k3s.argocd.namespace }}" \
+        --values /argocd_values/values.yaml
       environment:
         KUBECONFIG: "{{ k3s.kubeconfig_file }}"
       args:
@@ -162,4 +162,3 @@
         src: "{{ item }}"
       loop:
         - "/argocd_values/App_of_apps.yml"
-
