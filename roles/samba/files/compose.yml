@@ -15,6 +15,9 @@ services:
       - /data/public:/share/public
       - /data/priv:/share/priv
       - /data/torrent:/share/torrent
+      - /data/photos:/share/photos
+      - /data/media:/share/media
+      - /data/files:/share/files
       - /opt/stacks/samba/smb.conf:/etc/samba/smb.conf
     healthcheck:
       test: ["CMD", "pgrep", "smbd"]
