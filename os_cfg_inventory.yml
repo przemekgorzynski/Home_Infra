@@ -98,7 +98,7 @@ all:
                 compression: lz4
                 setuid: 'off'
                 mountpoint: '/data/priv'
-                recordsize: 1M
+                recordsize: '1048576'
               - dataset_name: tank/public
                 compression: lz4
                 setuid: 'off'
