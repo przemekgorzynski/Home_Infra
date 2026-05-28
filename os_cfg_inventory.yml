@@ -111,6 +111,7 @@ all:
                 compression: lz4
                 setuid: 'off'
                 mountpoint: '/data/torrent'
+                mode: '0777'
           - pool_name: ssd
             mount_directory: /data-ssd
             filesystem_properties:
@@ -124,6 +125,7 @@ all:
                 compression: lz4
                 setuid: 'off'
                 mountpoint: '/data-ssd/torrent'
+                mode: '0777'
       k3s:
         deploy: true
         kubeconfig_file: /etc/rancher/k3s/k3s.yaml
