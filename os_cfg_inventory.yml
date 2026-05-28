@@ -99,6 +99,10 @@ all:
                 setuid: 'off'
                 mountpoint: '/data/priv'
                 recordsize: '1048576'
+                owner: przemek
+                group: admins
+                mode: '0777'
+                recurse: true
               - dataset_name: tank/public
                 compression: lz4
                 setuid: 'off'
@@ -116,10 +120,6 @@ all:
                 disks:
                   - /dev/sdc
             datasets:
-              - dataset_name: ssd/k3s-runner
-                compression: lz4
-                setuid: 'off'
-                mountpoint: '/data-ssd/k3s-runner'
               - dataset_name: ssd/torrent
                 compression: lz4
                 setuid: 'off'

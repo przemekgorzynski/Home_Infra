@@ -23,24 +23,13 @@
 - name: Set ownership on dataset mountpoints
   ansible.builtin.file:
     path: "{{ dataset.mountpoint }}"
-    owner: root
-    group: "{{ admin_group[0].name }}"
-    mode: "0775"
+    owner: "{{ dataset.owner | default('root') }}"
+    group: "{{ dataset.group | default(admin_group[0].name) }}"
+    mode: "{{ dataset.mode | default('0775') }}"
+    recurse: "{{ dataset.recurse | default(false) }}"
     state: directory
   loop: "{{ zfs.zfs_pools | subelements('datasets') }}"
   loop_control:
     label: "{{ dataset.dataset_name }}"
   vars:
     dataset: "{{ item.1 }}"
-
-- name: Recursively set owner and group for /data/priv
-  ansible.builtin.file:
-    path: /data/priv
-    owner: przemek
-    group: admins
-    recurse: yes
-
-- name: Set permissions on /data/priv top-level folder
-  ansible.builtin.file:
-    path: /data/priv
-    mode: '0777'
