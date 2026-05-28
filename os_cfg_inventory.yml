@@ -112,7 +112,7 @@ all:
             filesystem_properties:
               compression: lz4
             vdevs:
-              - type: disk
+              - type: stripe
                 disks:
                   - /dev/sdc
             datasets:
