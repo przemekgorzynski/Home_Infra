@@ -1,6 +1,6 @@
 services:
   samba:
-    image: dockurr/samba:4.23.7
+    image: dockurr/samba:4.23.8
     container_name: samba
     hostname: samba.local
     environment:
