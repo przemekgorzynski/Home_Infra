@@ -1,13 +1,13 @@
 | Room              | Wall Plug | Store  | Patch Panel Port | Switch Port | VLAN | Notes         |
 |-------------------|-----------|--------|------------------|-------------|------|---------------|
-| -                 | -         | -      | 1                | -           | -    |               |
-| -                 | -         | -      | 2                | -           | -    |               |
-| -                 | -         | -      | 3                | -           | -    |               |
-| -                 | -         | -      | 4                | -           | -    |               |
+| -                 | -         | -      | 1                | -           | -    |  EMPTY        |
+| -                 | -         | -      | 2                | -           | -    |  EMPTY        |
+| -                 | -         | -      | 3                | -           | -    |  FREE         |
+| -                 | -         | -      | 4                | -           | -    |  FREE - CCA   |
 | Domofon furtka    | -         | -      | 5                | -           | -    |               |
 | Domofon srodek    | -         | -      | 6                | -           | -    |               |
-| -                 | -         | -      | 7                | -           | -    |               |
-| Pietro Korytarz   | R         | 1      | 8                | -           | 10   | Access Point  |
+| -                 | -         | -      | 7                | -           | -    | faulty ?      |
+| -                 | -         | -      | 8                | -           | 10   | faulty ?      |
 | Sypialnia         | L         | 1      | 9                | -           | 10   |               |
 | Sypialnia         | R         | 1      | 10               | -           | 10   |               |
 | Pokoj Goscinny    | L         | 1      | 11               | -           | 10   |               |
