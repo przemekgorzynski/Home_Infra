@@ -14,7 +14,7 @@ services:
     volumes:
       - /data/public:/share/public
       - /data/priv:/share/priv
-      - /data/torrent:/share/torrent
+      - /data-ssd/torrent:/share/torrent
       - /data/photos:/share/photos
       - /data/media:/share/media
       - /data/files:/share/files
