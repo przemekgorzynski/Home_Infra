@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended"
   ],
-  "helmValues": {
-    "fileMatch": ["roles/argo_cd/files/ArgoCD_config\\.yml"]
+  "helm-values": {
+    "managerFilePatterns": ["/(^|/)ArgoCD_config\\.yml$/"]
   }
 }
