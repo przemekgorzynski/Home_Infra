@@ -10,10 +10,10 @@ spec:
   source:
     repoURL: git@github.com:przemekgorzynski/ArgoCDApps.git
     targetRevision: main
-    path: .
-    directory:
-      recurse: true
-      include: "*/ArgoApp.yml"
+    path: app-of-apps
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
