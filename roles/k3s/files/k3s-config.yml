@@ -1,6 +1,6 @@
 # /etc/rancher/k3s/config.yaml
 
-write-kubeconfig-mode: "0644"
+write-kubeconfig-mode: "0600"
 
 # TLS certificates
 tls-san:
@@ -27,5 +27,30 @@ advertise-address: "{{ ansible_host }}"
 # Optional: bind K3s API only to this interface
 bind-address: "{{ ansible_host }}"
 
+# Encrypt secrets at rest in etcd
+secrets-encryption: true
 
-# helm install traefik traefik/traefik   --namespace kube-system   --set service.type=NodePort   --set deployment.kind=DaemonSet   --set ports.web.nodePort=31080   --set ports.websecure.nodePort=31443   --set ports.web.expose.enabled=true   --set ports.websecure.expose.enabled=true   --set additionalArguments="{--api.insecure=true,--api.dashboard=true, --log.level=DEBUG}"
+# Protect kernel defaults from being modified by workloads
+protect-kernel-defaults: true
+
+# API server hardening
+kube-apiserver-arg:
+  - "anonymous-auth=false"
+  - "profiling=false"
+  - "service-account-lookup=true"
+  - "audit-log-path=/var/log/k3s-audit.log"
+  - "audit-log-maxage=30"
+  - "audit-log-maxbackup=3"
+  - "audit-log-maxsize=100"
+
+# Kubelet hardening
+kubelet-arg:
+  - "anonymous-auth=false"
+  - "authorization-mode=Webhook"
+
+# Disable profiling on controller-manager and scheduler
+kube-controller-manager-arg:
+  - "profiling=false"
+
+kube-scheduler-arg:
+  - "profiling=false"
