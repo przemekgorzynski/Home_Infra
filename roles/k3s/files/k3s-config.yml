@@ -54,3 +54,8 @@ kube-controller-manager-arg:
 
 kube-scheduler-arg:
   - "profiling=false"
+
+# etcd snapshots — stored on ZFS tank mirror for resilience
+etcd-snapshot-schedule-cron: "0 */6 * * *"
+etcd-snapshot-retention: 14
+etcd-snapshot-dir: /data/k3s-etcd-snapshots

@@ -1,3 +1,11 @@
+- name: Ensure etcd snapshot directory exists on ZFS pool
+  ansible.builtin.file:
+    path: /data/k3s-etcd-snapshots
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
 - name: Download K3s install script
   get_url:
     url: https://get.k3s.io
