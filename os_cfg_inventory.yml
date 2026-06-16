@@ -107,15 +107,6 @@ all:
                 compression: lz4
                 setuid: 'off'
                 mountpoint: '/data/public'
-              - dataset_name: tank/torrent
-                compression: lz4
-                setuid: 'off'
-                mountpoint: '/data/torrent'
-                recordsize: '1048576'
-                owner: przemek
-                group: admins
-                mode: '0777'
-                recurse: true
           - pool_name: ssd
             mount_directory: /data-ssd
             filesystem_properties:
