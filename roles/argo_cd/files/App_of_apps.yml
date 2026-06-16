@@ -17,6 +17,14 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
+  ignoreDifferences:
+    # Kyverno's pre/post-delete Helm hooks make ArgoCD add extra finalizers
+    # to the managed Application objects at runtime. These aren't in git, so
+    # the root app would otherwise show them as permanent drift.
+    - group: argoproj.io
+      kind: Application
+      jsonPointers:
+        - /metadata/finalizers
   syncPolicy:
     automated:
       prune: true
