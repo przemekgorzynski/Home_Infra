@@ -121,6 +121,7 @@
   loop:
     - cert-manager
     - cloudflare-ddns
+    - wygiwyh
 
 - name: Create Cloudflare API token secret
   kubernetes.core.k8s:
@@ -141,6 +142,28 @@
   loop:
     - cert-manager
     - cloudflare-ddns
+
+# -----------------------------------------
+# WYGIWYH app secret
+# -----------------------------------------
+
+- name: Create WYGIWYH secret
+  kubernetes.core.k8s:
+    state: present
+    namespace: wygiwyh
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: wygiwyh-secret
+        namespace: wygiwyh
+      type: Opaque
+      stringData:
+        secret-key: "{{ WYGIWYH_SECRET_KEY }}"
+        sql-password: "{{ WYGIWYH_SQL_PASSWORD }}"
+  environment:
+    KUBECONFIG: "{{ k3s.kubeconfig_file }}"
+  no_log: true
 
 # -----------------------------------------
 # ArgoCD App of apps
