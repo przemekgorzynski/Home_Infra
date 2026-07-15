@@ -26,6 +26,23 @@
     group: root
     mode: "0644"
 
+- name: Set kernel sysctls required by kubelet protect-kernel-defaults
+  # protect-kernel-defaults=true makes the kubelet refuse to start unless
+  # these are already set. Persist them so a reboot cannot break k3s.
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/90-kubelet.conf
+    sysctl_set: true
+    reload: true
+    state: present
+  loop:
+    - { name: vm.panic_on_oom, value: '0' }
+    - { name: vm.overcommit_memory, value: '1' }
+    - { name: kernel.panic, value: '10' }
+    - { name: kernel.panic_on_oops, value: '1' }
+    - { name: kernel.keys.root_maxbytes, value: '25000000' }
+
 - name: Install K3s Server
   shell: |
     K3S_CONFIG_FILE="/etc/rancher/k3s/config.yaml"
