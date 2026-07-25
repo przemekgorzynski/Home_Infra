@@ -12,12 +12,15 @@ services:
     ports:
       - 445:445
     volumes:
-      - /data/public:/share/public
-      - /data/priv:/share/priv
-      - /data-ssd/torrent:/share/torrent
-      - /data/photos:/share/photos
-      - /data/media:/share/media
-      - /data/files:/share/files
+      - /data/public:/data/public
+      - /data/priv:/data/priv
+      - /data-ssd/torrent:/data/torrent
+      - /data/photos:/data/photos
+      - /data/media:/data/media
+      - /data/media/movies:/data/media/movies
+      - /data/media/tv-series:/data/media/tv-series
+      - /data/media/other:/data/media/other
+      - /data/files:/data/files
       - /opt/stacks/samba/smb.conf:/etc/samba/smb.conf
     healthcheck:
       test: ["CMD", "pgrep", "smbd"]
