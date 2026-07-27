@@ -62,6 +62,17 @@
     name: systemd-networkd-wait-online
     masked: true
 
+- name: Set inotify limits for k3s and Docker
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/99-inotify.conf
+    state: present
+    reload: true
+  with_items:
+    - { name: fs.inotify.max_user_watches, value: 524288 }
+    - { name: fs.inotify.max_user_instances, value: 8192 }
+
 - name: Install Docker via official script
   ansible.builtin.shell:
     cmd: curl -fsSL https://get.docker.com | sh
