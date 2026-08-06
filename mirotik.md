@@ -13,7 +13,7 @@
  
 | Device | MAC | IP | VLAN |
 |--------|-----|----|------|
-| NAS | 10:E7:C6:07:0B:39 | 192.168.10.10 | Home |
+| Dell | 10:E7:C6:07:0B:39 | 192.168.10.10 | Home |
 | WTR-ETH1 | C8:FF:BF:05:AA:08 | 192.168.10.20 | Home |
 | WTR-ETH2 | C8:FF:BF:05:AA:09 | 192.168.10.21 | Home |
  
@@ -22,8 +22,6 @@
 | Protocol | WAN port | Destination | Service |
 |----------|----------|-------------|---------|
 | TCP | 443 | 192.168.10.20:443 | k3s (Traefik) |
-| TCP | 30001 | 192.168.10.20:30001 | Matrix RTC (LiveKit TCP) |
-| UDP | 30002 | 192.168.10.20:30002 | Matrix RTC (LiveKit UDP) |
  
 ## VLAN access matrix
  
@@ -35,9 +33,13 @@
  
 ## DNS
  
+Split-horizon: homebay.dev resolves publicly to the WAN IP, but LAN clients get
+the internal address, so their traffic never leaves the switch.
+
 | Hostname | Resolves to | Note |
 |----------|-------------|------|
-| *.gorillabay.click | 192.168.10.10 | Wildcard — all subdomains → NAS |
+| homebay.dev + subdomains | 192.168.10.20 | k3s on WTR-ETH1 |
+| *.internal.homebay.dev | 192.168.10.20 | LAN-only names, no public record |
 | upstream | 45.90.28.197, 45.90.30.197 | NextDNS |
 | DOH | https://dns.nextdns.io/17695e | DNS-over-HTTPS |  
 
@@ -199,7 +201,7 @@ set www port=8080
 ## Add DHCP reservation
 ```routeros
 /ip dhcp-server lease
-add server=dhcp10 mac-address=10:E7:C6:07:0B:39 address=192.168.10.10 comment="NAS"
+add server=dhcp10 mac-address=10:E7:C6:07:0B:39 address=192.168.10.10 comment="Dell"
 add server=dhcp10 mac-address=C8:FF:BF:05:AA:08 address=192.168.10.20 comment="WTR-ETH1"
 add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="WTR-ETH2"
 ```
@@ -209,13 +211,15 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="W
 # ================================================
 # DNS: internal static entry
 # ================================================
-:if ([/ip dns static find name="*.gorillabay.click"] = "") do={
-    /ip dns static add name="*.gorillabay.click" address=192.168.10.10 \
-        comment="INTERNAL DNS: *.gorillabay.click → NAS"
+# match-subdomain covers the apex and every subdomain, at any depth. A "*."
+# name matches subdomains only, leaving the bare domain to resolve publicly.
+:if ([/ip dns static find name="homebay.dev"] = "") do={
+    /ip dns static add name="homebay.dev" match-subdomain=yes address=192.168.10.20 \
+        comment="INTERNAL DNS: homebay.dev -> k3s WTR-ETH1"
 }
 :if ([/ip dns static find name="*.internal.homebay.dev"] = "") do={
     /ip dns static add name="*.internal.homebay.dev" address=192.168.10.20 \
-        comment="INTERNAL DNS: *.internal.homebay.dev → k3s (LAN only)"
+        comment="INTERNAL DNS: *.internal.homebay.dev -> k3s (LAN only)"
 }
 ```
 
@@ -243,16 +247,6 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="W
         dst-address=192.168.10.20 dst-port=443 \
         out-interface=vlan10 action=masquerade \
         comment="NAT: hairpin k3s"
-}
-:if ([/ip firewall nat find comment="Matrix RTC TCP"] = "") do={
-    /ip firewall nat add chain=dstnat in-interface-list=WAN protocol=tcp \
-        dst-port=30001 action=dst-nat to-addresses=192.168.10.20 to-ports=30001 \
-        comment="Matrix RTC TCP"
-}
-:if ([/ip firewall nat find comment="Matrix RTC UDP"] = "") do={
-    /ip firewall nat add chain=dstnat in-interface-list=WAN protocol=udp \
-        dst-port=30002 action=dst-nat to-addresses=192.168.10.20 to-ports=30002 \
-        comment="Matrix RTC UDP"
 }
 
 # ================================================
