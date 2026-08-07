@@ -49,3 +49,19 @@
     hour: "2"
     day: "1"
     job: "zpool list -H -o name | xargs -I{} zpool scrub {}"
+
+- name: Create docker.service systemd drop-in directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    mode: '0755'
+
+- name: Make Docker wait for ZFS datasets to be decrypted and mounted at boot
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/docker.service.d/override.conf
+    mode: '0644'
+    content: |
+      [Unit]
+      After=zfs-load-encryption-keys.service
+      Requires=zfs-load-encryption-keys.service
+  notify: Reload systemd for Docker override
