@@ -1,12 +1,49 @@
 # Network reference
 
+## Topology
+
+```mermaid
+flowchart TD
+    NET(["Internet"]) --- WAN["ether1 — WAN<br/>masquerade"]
+    WAN --- BR{{"bridge<br/>vlan-filtering=yes"}}
+
+    BR --- V10["vlan10 · Home<br/>192.168.10.1/24"]
+    BR --- V20["vlan20 · Monitoring<br/>192.168.20.1/24"]
+    BR --- V30["vlan30 · IoT<br/>192.168.30.1/24"]
+
+    subgraph HOME [" "]
+        direction TB
+        E2["ether2"] --- DELL["Dell<br/>.10"]
+        E3["ether3"] --- K3S["WTR-ETH1 · k3s<br/>.20"]
+        E3 --- K3S2["WTR-ETH2<br/>.21"]
+        WIFI["HomeNET<br/>2.4GHz + 5GHz"]
+    end
+
+    subgraph MON [" "]
+        E4["ether4"]
+    end
+
+    subgraph IOT [" "]
+        I2["HomeIoT<br/>2.4GHz"]
+    end
+
+    V10 --- E2 & E3 & WIFI
+    V20 --- E4
+    V30 --- I2
+
+    NET -. "TCP 443 dst-nat" .-> K3S
+```
+
+Access matrix in short: Home may initiate into Monitoring and IoT; neither may
+reach back. Every VLAN reaches the internet.
+
 ## VLANs
  
 | VLAN | Name | Subnet | Gateway | DHCP range | Ports | Wi-Fi |
 |------|------|--------|---------|------------|-------|-------|
-| 10 | Home | 192.168.10.0/24 | 192.168.10.1 | .10 – .200 | ether2, ether3 | HomeNET |
+| 10 | Home | 192.168.10.0/24 | 192.168.10.1 | .10 – .200 | ether2, ether3 | HomeNET (2.4 + 5GHz) |
 | 20 | Monitoring | 192.168.20.0/24 | 192.168.20.1 | .10 – .200 | ether4 | — |
-| 30 | IoT | 192.168.30.0/24 | 192.168.30.1 | .10 – .200 | — | HomeIoT |
+| 30 | IoT | 192.168.30.0/24 | 192.168.30.1 | .10 – .200 | — | HomeIoT (2.4GHz) |
 | — | Management | 192.168.88.0/24 | 192.168.88.1 | — | — | — |
  
 ## Static DHCP leases
@@ -25,11 +62,15 @@
  
 ## VLAN access matrix
  
-| From | Internet | Home | Monitoring | IoT |
-|------|----------|------|------------|-----|
-| Home | allow | self | initiate only | initiate only |
-| Monitoring | allow | block | self | block |
-| IoT | allow | block | block | self |
+| From | Internet | Home | Monitoring | IoT | Router |
+|------|----------|------|------------|-----|--------|
+| Home | allow | self | initiate only | initiate only | ping, SSH, Winbox, WebUI:8080, DNS, DHCP |
+| Monitoring | allow | block | self | block | DNS, DHCP only |
+| IoT | allow | block | block | self | DNS, DHCP only |
+
+Enforced by explicit `drop all` rules at the end of both the input and forward
+chains — RouterOS' default chain policy is *accept*, so without them everything
+not named above is permitted.
  
 ## DNS
  
@@ -51,9 +92,17 @@ the internal address, so their traffic never leaves the switch.
 # Configuration
 
 ## Connect to router
+Both addresses work from the Home VLAN — 192.168.88.1 lives on the `bridge`
+interface and is reached by routing, not by an untagged VLAN path. The input
+chain allows SSH/Winbox from vlan10 only, so management from Monitoring or IoT
+is refused regardless of which address is used.
 ```routeros
-ssh admin@192.168.88.1
+ssh admin@192.168.10.1   # Home VLAN gateway
+ssh admin@192.168.88.1   # management address on the bridge
 ```
+
+If VLAN filtering ever locks you out, **ether5** is the recovery port: it is the
+only port left at `pvid=1`, the VLAN that carries the bridge's own 192.168.88.1.
 
 ## Check for updates
 ```routeros
@@ -87,9 +136,6 @@ add name=HomeNET-5G master-interface=wifi1 configuration.ssid=HomeNET configurat
 add name=HomeNET-2G master-interface=wifi2 configuration.ssid=HomeNET configuration.mode=ap \
     channel.band=2ghz-ax channel.width=20/40mhz \
     security.authentication-types=wpa2-psk,wpa3-psk comment="Home 2GHz" disabled=no
-add name=HomeIoT-5G master-interface=wifi1 configuration.ssid=HomeIoT configuration.mode=ap \
-    channel.band=5ghz-ax channel.width=20/40/80mhz \
-    security.authentication-types=wpa2-psk,wpa3-psk comment="IoT 5GHz" disabled=no
 add name=HomeIoT-2G master-interface=wifi2 configuration.ssid=HomeIoT configuration.mode=ap \
     channel.band=2ghz-ax channel.width=20/40mhz \
     security.authentication-types=wpa2-psk,wpa3-psk comment="IoT 2GHz" disabled=no
@@ -99,7 +145,6 @@ add name=HomeIoT-2G master-interface=wifi2 configuration.ssid=HomeIoT configurat
 ```routeros
 /interface wifi set HomeNET-5G security.passphrase=${WIFI_HOME_PASS}
 /interface wifi set HomeNET-2G security.passphrase=${WIFI_HOME_PASS}
-/interface wifi set HomeIoT-5G security.passphrase=${WIFI_IOT_PASS}
 /interface wifi set HomeIoT-2G security.passphrase=${WIFI_IOT_PASS}
 ```
 
@@ -120,7 +165,7 @@ Wi-Fi interfaces added as untagged so VLAN filtering allows their traffic throug
 /interface bridge vlan
 add bridge=bridge vlan-ids=10 tagged=bridge untagged=ether2,ether3,HomeNET-5G,HomeNET-2G
 add bridge=bridge vlan-ids=20 tagged=bridge untagged=ether4
-add bridge=bridge vlan-ids=30 tagged=bridge untagged=HomeIoT-5G,HomeIoT-2G
+add bridge=bridge vlan-ids=30 tagged=bridge untagged=HomeIoT-2G
 ```
 
 ## Set PVID (Port VLAN ID)
@@ -132,7 +177,6 @@ set [find interface=ether3] pvid=10
 set [find interface=ether4] pvid=20
 add bridge=bridge interface=HomeNET-5G pvid=10
 add bridge=bridge interface=HomeNET-2G pvid=10
-add bridge=bridge interface=HomeIoT-5G pvid=30
 add bridge=bridge interface=HomeIoT-2G pvid=30
 ```
 
@@ -270,6 +314,17 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="W
 :if ([/ip firewall filter find comment="INPUT: DNS+DHCP from LAN"] = "") do={
     /ip firewall filter add chain=input in-interface-list=LAN protocol=udp dst-port=53,67 action=accept comment="INPUT: DNS+DHCP from LAN"
 }
+:if ([/ip firewall filter find comment="INPUT: DNS TCP from LAN"] = "") do={
+    /ip firewall filter add chain=input in-interface-list=LAN protocol=tcp dst-port=53 action=accept comment="INPUT: DNS TCP from LAN"
+}
+:if ([/ip firewall filter find comment="INPUT: WebUI from HOME"] = "") do={
+    /ip firewall filter add chain=input in-interface=vlan10 protocol=tcp dst-port=8080 action=accept comment="INPUT: WebUI from HOME"
+}
+# Must stay LAST in the input chain. Without it the default policy is accept,
+# so Monitoring and IoT reach every router service that isn't otherwise bound.
+:if ([/ip firewall filter find comment="INPUT: drop all"] = "") do={
+    /ip firewall filter add chain=input action=drop comment="INPUT: drop all"
+}
 
 # ================================================
 # FORWARD chain
@@ -294,6 +349,17 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="W
 }
 :if ([/ip firewall filter find comment="FORWARD: BLOCK IOT → HOME"] = "") do={
     /ip firewall filter add chain=forward in-interface=vlan30 out-interface=vlan10 action=drop comment="FORWARD: BLOCK IOT → HOME"
+}
+# Keeps the WAN 443 port forward and the LAN hairpin alive once the chain ends
+# in a drop — both are forwarded traffic, not input.
+:if ([/ip firewall filter find comment="FORWARD: dstnat -> k3s"] = "") do={
+    /ip firewall filter add chain=forward connection-nat-state=dstnat protocol=tcp \
+        dst-address=192.168.10.20 dst-port=443 action=accept comment="FORWARD: dstnat -> k3s"
+}
+# Must stay LAST in the forward chain. This is what actually isolates
+# Monitoring from IoT — the BLOCK rules above only cover traffic toward Home.
+:if ([/ip firewall filter find comment="FORWARD: drop all"] = "") do={
+    /ip firewall filter add chain=forward action=drop comment="FORWARD: drop all"
 }
 ```
 
