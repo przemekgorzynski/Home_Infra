@@ -1,0 +1,69 @@
+#cloud-config
+# https://cloudinit.readthedocs.io/
+# https://cloudinit.readthedocs.io/en/latest/reference/examples.html
+
+hostname: k8s-master
+manage_etc_hosts: false
+
+apt:
+  conf: |
+    APT::Periodic::Update-Package-Lists "0";
+    APT::Periodic::Unattended-Upgrade "0";
+    Acquire {
+      Check-Date "false";
+    };
+
+groups:
+  - admins
+
+ssh_pwauth: false
+
+# Define user 'przemek' and add to groups including 'admins'
+users:
+  - name: przemek
+    gecos: Przemyslaw Gorzynski
+    groups: admins,users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILZBY8AiU6cRPY+HCUQ2jr5Sti7Xs5UpS5Ke00yYTkia Przemyslaw Gorzynski
+  - name: ansible
+    gecos: Ansible User
+    groups: admins,users,wheel
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILZBY8AiU6cRPY+HCUQ2jr5Sti7Xs5UpS5Ke00yYTkia Przemyslaw Gorzynski
+
+package_update: true
+package_upgrade: true
+
+## Install additional packages on first boot
+packages:
+  - avahi-daemon
+  - curl
+  - network-manager
+  - git
+  - net-tools
+  - vim
+  - wget
+  - ufw
+  - python3-pip
+
+package_remove:
+  - apparmor
+  - unattended-upgrades
+
+write_files:
+  # Create sudoers file for admins group
+  - path: /etc/sudoers.d/admins
+    content: |
+      %admins ALL=(ALL) NOPASSWD:ALL
+    permissions: '0440'
+
+# Restart the node at the end of cloud-init
+power_state:
+  mode: reboot
+  message: "Rebooting the system to apply all configurations."
+  timeout: 30  # Time in seconds before the reboot
+  condition: true
