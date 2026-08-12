@@ -13,7 +13,8 @@ flowchart TD
 
     subgraph HOME [" "]
         direction TB
-        E2["ether2"] --- DELL["Dell<br/>.10"]
+        NGX["nginx-proxy<br/>.10 · edge"]
+        E2["ether2"] --- DELL["Dell<br/>.30"]
         E3["ether3"] --- K3S["WTR-ETH1 · k3s<br/>.20"]
         E3 --- K3S2["WTR-ETH2<br/>.21"]
         WIFI["HomeNET<br/>2.4GHz + 5GHz"]
@@ -27,15 +28,20 @@ flowchart TD
         I2["HomeIoT<br/>2.4GHz"]
     end
 
-    V10 --- E2 & E3 & WIFI
+    V10 --- E2 & E3 & WIFI & NGX
     V20 --- E4
     V30 --- I2
 
-    NET -. "TCP 443 dst-nat" .-> K3S
+    NET -. "TCP 443 dst-nat" .-> NGX
+    NGX -. "SNI passthrough" .-> K3S
 ```
 
 Access matrix in short: Home may initiate into Monitoring and IoT; neither may
 reach back. Every VLAN reaches the internet.
+
+All inbound HTTPS lands on **nginx-proxy** (`.10`), which routes to a cluster by
+TLS SNI. See [Edge proxy](#edge-proxy-nginx-proxy). The router forwards 443 to
+one address and never needs changing again when a cluster is added.
 
 ## VLANs
  
@@ -50,15 +56,20 @@ reach back. Every VLAN reaches the internet.
  
 | Device | MAC | IP | VLAN |
 |--------|-----|----|------|
-| Dell | 10:E7:C6:07:0B:39 | 192.168.10.10 | Home |
+| nginx-proxy | DC:A6:32:B7:11:A1 | 192.168.10.10 | Home |
 | WTR-ETH1 | C8:FF:BF:05:AA:08 | 192.168.10.20 | Home |
 | WTR-ETH2 | C8:FF:BF:05:AA:09 | 192.168.10.21 | Home |
- 
+| Dell / PC | 10:E7:C6:07:0B:39 | 192.168.10.30 | Home |
+
 ## Port forwards (WAN → LAN)
  
 | Protocol | WAN port | Destination | Service |
 |----------|----------|-------------|---------|
-| TCP | 443 | 192.168.10.20:443 | k3s (Traefik) |
+| TCP | 80, 443 | 192.168.10.10 | nginx-proxy (sorts by website name) |
+
+One rule covers every website. The router forwards all web traffic to the proxy
+without looking at hostnames — it cannot see them — so adding a domain or a
+cluster never needs a change here.
  
 ## VLAN access matrix
  
@@ -77,16 +88,33 @@ not named above is permitted.
 Split-horizon: homebay.dev resolves publicly to the WAN IP, but LAN clients get
 the internal address, so their traffic never leaves the switch.
 
+It points at the edge proxy, not at a cluster — hostname-to-cluster routing is
+nginx's job, so DNS stays a single entry no matter how many clusters exist.
+
 | Hostname | Resolves to | Note |
 |----------|-------------|------|
-| homebay.dev + subdomains | 192.168.10.20 | k3s on WTR-ETH1 |
-| *.internal.homebay.dev | 192.168.10.20 | LAN-only names, no public record |
+| homebay.dev + subdomains | 192.168.10.10 | nginx-proxy, `match-subdomain=yes` |
+| huddleao.app + subdomains | 192.168.10.10 | nginx-proxy, `match-subdomain=yes` |
 | upstream | 45.90.28.197, 45.90.30.197 | NextDNS |
 | DOH | https://dns.nextdns.io/17695e | DNS-over-HTTPS |  
 
 
-<br/><br/>
-<br/><br/>
+## Routing map
+
+Who may reach what, and which layer enforces it:
+
+| Name | Reachable from | Backend | Enforced by |
+|------|----------------|---------|-------------|
+| homebay.dev + subdomains | internet + LAN | cluster 1 · `.20` | — |
+| internal.homebay.dev + subdomains | **LAN only** | cluster 1 · `.20` | nginx source-IP check |
+| huddleao.app + subdomains | internet + LAN | cluster 2 · `.30` | — |
+
+The LAN-only restriction on `internal.*` depends on the router's
+`NAT: hairpin proxy` rule carrying `src-address=192.168.0.0/16`. Without it the
+router masquerades internet traffic to `192.168.10.1` as well, every client
+looks local, and nginx's guard passes everything. Verified working against real
+internet traffic: an external address hit `internal.*` and was refused with zero
+bytes transferred, while reaching `homebay.dev` normally.
 
 
 # Configuration
@@ -245,52 +273,138 @@ set www port=8080
 ## Add DHCP reservation
 ```routeros
 /ip dhcp-server lease
-add server=dhcp10 mac-address=10:E7:C6:07:0B:39 address=192.168.10.10 comment="Dell"
+add server=dhcp10 mac-address=DC:A6:32:B7:11:A1 address=192.168.10.10 comment="nginx-proxy"
 add server=dhcp10 mac-address=C8:FF:BF:05:AA:08 address=192.168.10.20 comment="WTR-ETH1"
 add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="WTR-ETH2"
+add server=dhcp10 mac-address=10:E7:C6:07:0B:39 address=192.168.10.30 comment="Dell"
+```
+
+Changing an existing reservation does not move a host that already holds a
+lease. Drop the active lease and let the client re-DHCP, or the Dell keeps
+`.10` until its lease expires — while nginx-proxy is being handed the same
+address:
+```routeros
+/ip dhcp-server lease remove [find address=192.168.10.10 dynamic=yes]
 ```
 
 ## DNS entries
 ```routeros
 # ================================================
-# DNS: internal static entry
+# DNS: internal static entries
 # ================================================
-# match-subdomain covers the apex and every subdomain, at any depth. A "*."
-# name matches subdomains only, leaving the bare domain to resolve publicly.
+# DNS is the phone book that turns a name into an address.
+#
+# Out on the internet, homebay.dev points at our public address. These entries
+# override that for devices in the house, telling them "the proxy is right
+# here at 192.168.10.10" so their traffic goes straight to it instead of out
+# to the internet and back. Two phone books, one name, different answers --
+# that is what "split-horizon" means.
+#
+# ONE LINE PER DOMAIN, not per app. `match-subdomain=yes` means this single
+# entry also answers for argo.homebay.dev, filebrowser.internal.homebay.dev,
+# and anything else ending in homebay.dev, however deep. Adding a new app
+# needs NOTHING here.
+#
+# Do not add a separate "*.internal.homebay.dev" entry. It does nothing:
+# RouterOS treats the name as literal text and does not understand "*", and
+# the homebay.dev entry already covers it anyway.
 :if ([/ip dns static find name="homebay.dev"] = "") do={
-    /ip dns static add name="homebay.dev" match-subdomain=yes address=192.168.10.20 \
-        comment="INTERNAL DNS: homebay.dev -> k3s WTR-ETH1"
+    /ip dns static add name="homebay.dev" match-subdomain=yes address=192.168.10.10 \
+        comment="INTERNAL DNS: homebay.dev -> nginx-proxy"
 }
-:if ([/ip dns static find name="*.internal.homebay.dev"] = "") do={
-    /ip dns static add name="*.internal.homebay.dev" address=192.168.10.20 \
-        comment="INTERNAL DNS: *.internal.homebay.dev -> k3s (LAN only)"
+:if ([/ip dns static find name="huddleao.app"] = "") do={
+    /ip dns static add name="huddleao.app" match-subdomain=yes address=192.168.10.10 \
+        comment="INTERNAL DNS: huddleao.app -> nginx-proxy"
 }
 ```
 
 ## Firewall rules
+
+NAT means "rewriting addresses on packets as they pass through the router".
+There are two kinds used here:
+
+- **dstnat** changes *where a packet is going*. Used to send visitors to the
+  proxy.
+- **srcnat / masquerade** changes *who a packet appears to come from*. Used so
+  replies can find their way back.
+
 ```routeros
 # ================================================
 # NAT
 # ================================================
+
+# Lets the whole house share one public internet address. Every device's
+# private address is swapped for the public one on the way out, and swapped
+# back on the way in. Standard home-router behaviour.
 :if ([/ip firewall nat find comment="NAT: LAN → WAN"] = "") do={
     /ip firewall nat add chain=srcnat out-interface-list=WAN action=masquerade comment="NAT: LAN → WAN"
 }
-:if ([/ip firewall nat find comment="INTERNET HTTPS → k3s"] = "") do={
+
+# THE FRONT DOOR.
+# Anything arriving from the internet on port 80 or 443 (web traffic) is sent
+# to the proxy at 192.168.10.10. Note there is no mention of any website name
+# here -- the router cannot see website names. It forwards the lot, and the
+# proxy does the sorting. This is why adding a new domain never needs a change
+# on the router.
+:if ([/ip firewall nat find comment="INTERNET HTTP/HTTPS → proxy"] = "") do={
     /ip firewall nat add chain=dstnat in-interface-list=WAN protocol=tcp \
-        dst-port=443 action=dst-nat to-addresses=192.168.10.20 to-ports=443 \
-        comment="INTERNET HTTPS → k3s"
+        dst-port=80,443 action=dst-nat to-addresses=192.168.10.10 \
+        comment="INTERNET HTTP/HTTPS → proxy"
 }
-:if ([/ip firewall nat find comment="NAT: hairpin dstnat k3s"] = "") do={
+
+# "HAIRPIN", part 1 of 2.
+# Problem: a laptop in the house looks up homebay.dev, and if it gets the
+# PUBLIC address back it tries to go out to the internet and come straight
+# back in -- like a U-turn, hence "hairpin". This rule catches that U-turn and
+# points it at the proxy instead.
+# The public address below is kept up to date automatically by the
+# update-hairpin-nat script further down, because home internet addresses
+# change from time to time.
+:if ([/ip firewall nat find comment="NAT: hairpin dstnat proxy"] = "") do={
     /ip firewall nat add chain=dstnat in-interface-list=LAN protocol=tcp \
-        dst-address=89.70.195.41 dst-port=443 \
-        action=dst-nat to-addresses=192.168.10.20 to-ports=443 \
-        comment="NAT: hairpin dstnat k3s"
+        dst-address=89.70.195.41 dst-port=80,443 \
+        action=dst-nat to-addresses=192.168.10.10 \
+        comment="NAT: hairpin dstnat proxy"
 }
-:if ([/ip firewall nat find comment="NAT: hairpin k3s"] = "") do={
+
+# "HAIRPIN", part 2 of 2 -- and the most dangerous rule in this file.
+#
+# It makes those U-turning requests appear to come from the router, so the
+# reply comes back the same way instead of confusing the laptop.
+#
+# !! src-address=192.168.0.0/16 IS NOT OPTIONAL !!
+# It means "only do this for people already inside the house". Leave it out and
+# the rule also grabs visitors from the internet and stamps the router's
+# address on them too. The proxy then thinks EVERY visitor is a family member,
+# and its "family only" rule lets the entire internet into
+# internal.homebay.dev. This has actually happened -- it is how filebrowser
+# ended up reachable from outside. If that ever recurs, check this line first.
+:if ([/ip firewall nat find comment="NAT: hairpin proxy"] = "") do={
     /ip firewall nat add chain=srcnat protocol=tcp \
-        dst-address=192.168.10.20 dst-port=443 \
+        src-address=192.168.0.0/16 \
+        dst-address=192.168.10.10 dst-port=80,443 \
         out-interface=vlan10 action=masquerade \
-        comment="NAT: hairpin k3s"
+        comment="NAT: hairpin proxy"
+}
+
+# Forces every device in the house to use the router for name lookups.
+# Some devices ignore the router and ask Google or Cloudflare directly. Those
+# would be told internal.homebay.dev lives at our public address, which both
+# leaks the name to an outside company and sends the traffic the long way
+# round. These two rules quietly redirect all such questions back to us.
+# Does NOT catch browsers using "DNS over HTTPS", which hides lookups inside
+# ordinary web traffic -- the proxy's family-only rule is what stops those.
+# Check it works (the reply should come from us, not Google):
+#     dig +short x.internal.homebay.dev @8.8.8.8   -> 192.168.10.10
+:if ([/ip firewall nat find comment="DNS: force LAN queries to router (udp)"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface-list=LAN protocol=udp \
+        dst-port=53 action=redirect to-ports=53 \
+        comment="DNS: force LAN queries to router (udp)"
+}
+:if ([/ip firewall nat find comment="DNS: force LAN queries to router (tcp)"] = "") do={
+    /ip firewall nat add chain=dstnat in-interface-list=LAN protocol=tcp \
+        dst-port=53 action=redirect to-ports=53 \
+        comment="DNS: force LAN queries to router (tcp)"
 }
 
 # ================================================
@@ -328,6 +442,13 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="W
 
 # ================================================
 # FORWARD chain
+#
+# "forward" = traffic passing THROUGH the router between two other machines,
+# as opposed to "input", which is traffic aimed AT the router itself.
+#
+# Rules are read top to bottom and the FIRST match wins, like a queue of
+# bouncers. Order matters more than anything else here. The last rule drops
+# everything, so any traffic you want allowed must be accepted before it.
 # ================================================
 :if ([/ip firewall filter find comment="FORWARD: established/related"] = "") do={
     /ip firewall filter add chain=forward connection-state=established,related action=accept comment="FORWARD: established/related"
@@ -350,11 +471,16 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="W
 :if ([/ip firewall filter find comment="FORWARD: BLOCK IOT → HOME"] = "") do={
     /ip firewall filter add chain=forward in-interface=vlan30 out-interface=vlan10 action=drop comment="FORWARD: BLOCK IOT → HOME"
 }
-# Keeps the WAN 443 port forward and the LAN hairpin alive once the chain ends
-# in a drop — both are forwarded traffic, not input.
-:if ([/ip firewall filter find comment="FORWARD: dstnat -> k3s"] = "") do={
+# Lets web visitors actually reach the proxy.
+# The NAT rules above only change the ADDRESS on the packet; they do not grant
+# permission. Without this rule the packets get as far as the final "drop all"
+# below and are thrown away, and every website in the house stops working from
+# the internet. It must sit ABOVE that drop rule -- being placed after it is
+# the classic way this silently breaks.
+:if ([/ip firewall filter find comment="FORWARD: dstnat -> proxy"] = "") do={
     /ip firewall filter add chain=forward connection-nat-state=dstnat protocol=tcp \
-        dst-address=192.168.10.20 dst-port=443 action=accept comment="FORWARD: dstnat -> k3s"
+        dst-address=192.168.10.10 dst-port=80,443 action=accept \
+        comment="FORWARD: dstnat -> proxy"
 }
 # Must stay LAST in the forward chain. This is what actually isolates
 # Monitoring from IoT — the BLOCK rules above only cover traffic toward Home.
@@ -368,12 +494,70 @@ add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="W
 /system script add name=update-hairpin-nat source={
     :local wanip [/ip address get [find interface=ether1] address]
     :set wanip [:pick $wanip 0 [:find $wanip "/"]]
-    /ip firewall nat set [find comment="NAT: hairpin dstnat k3s"] dst-address=$wanip
+    /ip firewall nat set [find comment="NAT: hairpin dstnat proxy"] dst-address=$wanip
 }
 
 /system scheduler add name=update-hairpin-nat interval=1m \
     on-event=update-hairpin-nat comment="Update hairpin NAT with current WAN IP"
 ```
+
+## Migrating from direct-to-k3s forwarding
+
+The blocks above guard on `:if [find comment=...] = ""`, so they only ever
+*add*. Run them against a router that still holds the old `→ k3s` rules and you
+get duplicates — and since the old dst-nat for port 443 sits earlier in the
+chain, it wins and traffic keeps going to `.20`, making the cutover look like it
+silently did nothing. The old entries must be removed first.
+
+The whole sequence is scripted in
+[`mikrotik-proxy-cutover.rsc`](mikrotik-proxy-cutover.rsc):
+
+```routeros
+/import file=mikrotik-proxy-cutover.rsc
+```
+
+It refuses to run if `192.168.10.10` does not answer a ping — but that only
+proves the host is up, not that nginx is listening. Check first:
+
+```bash
+nc -z 192.168.10.10 443
+```
+
+Order matters, because nginx currently holds `.30` — the address Dell is about
+to take:
+
+1. Apply the reservations
+2. Release nginx's `.30` lease and let it re-DHCP onto `.10`; confirm 443 answers
+3. Only then cut over DNS and NAT — the moment DNS moves, `.10` must respond
+4. Bring the Dell back up; it picks up `.30`
+
+Verify afterwards:
+```routeros
+/ip firewall nat print where dst-port=443
+/ip dns static print
+/ip firewall connection print where dst-address~"192.168.10.10"
+```
+Clients cache DNS independently of the router — a LAN host that resolved
+`homebay.dev` to `.20` recently will keep using it until its own TTL expires.
+
+### Port 80
+
+`ssl_preread` routes on the TLS SNI extension, which plaintext HTTP does not
+have — the hostname lives only in the `Host` header. Port 80 therefore cannot be
+passed through by SNI; it needs http-mode proxying on the `Host` header, or a
+blanket redirect:
+
+```nginx
+server {
+    listen 80;
+    return 301 https://$host$request_uri;
+}
+```
+
+The router forwards only 443, so port 80 is LAN-only. Exposing it — for an
+http-01 ACME challenge or an internet-facing redirect — needs a second dst-nat
+plus a matching forward accept. Using DNS-01 for certificates avoids the
+question entirely.
 
 ## Hardening
 ```routeros
