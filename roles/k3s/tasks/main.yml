@@ -1,3 +1,4 @@
+---
 - name: Ensure etcd snapshot directory exists on ZFS pool
   ansible.builtin.file:
     path: /data/k3s-etcd-snapshots
