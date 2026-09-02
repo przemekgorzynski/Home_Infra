@@ -1,3 +1,4 @@
+---
 - name: Store ZFS encryption key
   ansible.builtin.copy:
     content: "{{ ZFS_ENCRYPTION_KEY | b64decode }}"

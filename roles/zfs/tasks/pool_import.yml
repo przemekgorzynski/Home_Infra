@@ -1,3 +1,4 @@
+---
 - name: Import existing ZFS pools
   ansible.builtin.command: "zpool import -f {{ item.pool.pool_name }}"
   when: not item.imported and item.importable

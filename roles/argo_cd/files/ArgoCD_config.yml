@@ -1,3 +1,5 @@
+---
+# yamllint disable rule:line-length
 crds:
   install: true
   keep: true

@@ -1,3 +1,4 @@
+---
 - name: Reload systemd for Docker override
   ansible.builtin.systemd:
     daemon_reload: true

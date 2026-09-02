@@ -1,3 +1,4 @@
+---
 - name: Clear existing filesystems from pool devices
   vars:
     _disks: "{{ item.pool.vdevs | map(attribute='disks') | flatten }}"
