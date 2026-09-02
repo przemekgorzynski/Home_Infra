@@ -1,3 +1,4 @@
+---
 - name: Check if ZFS pools are imported
   ansible.builtin.command: "zpool list {{ item.pool_name }}"
   register: zpool_imported

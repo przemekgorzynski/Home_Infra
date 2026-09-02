@@ -1,3 +1,4 @@
+---
 - name: Ensure etcd snapshot directory exists on ZFS pool
   ansible.builtin.file:
     path: /data/k3s-etcd-snapshots
@@ -61,5 +62,5 @@
   fetch:
     src: "{{ k3s.kubeconfig_file }}"
     dest: "~/.kube/config"
-    flat: yes
+    flat: true
     mode: 0644

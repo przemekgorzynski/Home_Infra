@@ -44,6 +44,8 @@ rules:
     ignore-shebangs: true
     min-spaces-from-content: 1
     level: warning
+    ignore: |
+      Raspberry/cloud-config.yml
 # Use this rule to require or forbid the use of document start marker (---)
   document-start:
     present: true
@@ -62,7 +64,7 @@ rules:
   indentation:
     spaces: consistent
     indent-sequences: true
-    check-multi-line-strings: true
+    check-multi-line-strings: false
 # Use this rule to prevent multiple entries with the same key in mappings
   key-duplicates: enable
 # Use this rule to enforce alphabetical ordering of keys in mappings

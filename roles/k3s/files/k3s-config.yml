@@ -1,3 +1,4 @@
+---
 # /etc/rancher/k3s/config.yaml
 
 write-kubeconfig-mode: "0600"

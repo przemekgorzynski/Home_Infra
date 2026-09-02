@@ -1,3 +1,4 @@
+---
 - name: Create samba stack directory
   ansible.builtin.file:
     path: /opt/stacks/samba

@@ -1,3 +1,4 @@
+---
 - name: Create ZFS datasets
   when: zfs.zfs_pools is defined and zfs.zfs_pools | length > 0
   community.general.zfs:
@@ -11,9 +12,9 @@
       setuid: "{{ dataset.setuid }}"
       mountpoint: "{{ dataset.mountpoint }}"
       recordsize: "{{ dataset.recordsize | default(omit) }}"
-      dedup: off
-      exec: off
-      atime: off
+      dedup: "off"
+      exec: "off"
+      atime: "off"
   loop: "{{ zfs.zfs_pools | subelements('datasets') }}"
   loop_control:
     label: "{{ dataset.dataset_name }}"

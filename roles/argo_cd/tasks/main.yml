@@ -1,3 +1,4 @@
+---
 - name: Install Helm via get_helm.sh script
   tags:
     - helm
@@ -7,7 +8,7 @@
         url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
         dest: /tmp/get_helm.sh
         mode: '0700'
-        force: no
+        force: false
     - name: Execute Helm install script
       command: /tmp/get_helm.sh
       args:

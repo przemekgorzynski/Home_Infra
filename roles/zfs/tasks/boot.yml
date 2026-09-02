@@ -1,3 +1,4 @@
+---
 - name: Deploy ZFS encryption key loader systemd service
   ansible.builtin.copy:
     dest: /etc/systemd/system/zfs-load-encryption-keys.service

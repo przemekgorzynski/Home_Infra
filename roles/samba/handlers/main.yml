@@ -1,5 +1,6 @@
+---
 - name: Restart Samba
   community.docker.docker_container:
     name: samba
     state: started
-    restart: yes
+    restart: true
