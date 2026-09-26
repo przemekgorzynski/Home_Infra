@@ -60,6 +60,8 @@ one address and never needs changing again when a cluster is added.
 | WTR-ETH1 | C8:FF:BF:05:AA:08 | 192.168.10.20 | Home |
 | WTR-ETH2 | C8:FF:BF:05:AA:09 | 192.168.10.21 | Home |
 | Dell / PC | 10:E7:C6:07:0B:39 | 192.168.10.30 | Home |
+| SG2428LP switch | 3C:78:95:5F:FD:8E | 192.168.10.2 | Home |
+| MikroTik AP | D0:EA:11:55:61:F0 | 192.168.10.3 | Home |
 
 ## Port forwards (WAN → LAN)
  
@@ -106,15 +108,7 @@ Who may reach what, and which layer enforces it:
 | Name | Reachable from | Backend | Enforced by |
 |------|----------------|---------|-------------|
 | homebay.dev + subdomains | internet + LAN | cluster 1 · `.20` | — |
-| internal.homebay.dev + subdomains | **LAN only** | cluster 1 · `.20` | nginx source-IP check |
 | huddleao.app + subdomains | internet + LAN | cluster 2 · `.30` | — |
-
-The LAN-only restriction on `internal.*` depends on the router's
-`NAT: hairpin proxy` rule carrying `src-address=192.168.0.0/16`. Without it the
-router masquerades internet traffic to `192.168.10.1` as well, every client
-looks local, and nginx's guard passes everything. Verified working against real
-internet traffic: an external address hit `internal.*` and was refused with zero
-bytes transferred, while reaching `homebay.dev` normally.
 
 
 # Configuration
@@ -189,12 +183,65 @@ add name=vlan30 interface=bridge vlan-id=30 comment="IoT"
 
 `untagged=etherX` → access port, connected device doesn't need to know about VLANs
 Wi-Fi interfaces added as untagged so VLAN filtering allows their traffic through
+
+`ether2` is the uplink to the SG2428LP switch: VLAN10 untagged (switch management
+and the access point's own address, PVID 10) plus VLAN30 tagged, so an access point
+on the switch can broadcast HomeIoT as well as HomeNET. VLAN20 is not sent to it.
 ```routeros
 /interface bridge vlan
 add bridge=bridge vlan-ids=10 tagged=bridge untagged=ether2,ether3,HomeNET-5G,HomeNET-2G
 add bridge=bridge vlan-ids=20 tagged=bridge untagged=ether4
-add bridge=bridge vlan-ids=30 tagged=bridge untagged=HomeIoT-2G
+add bridge=bridge vlan-ids=30 tagged=bridge,ether2 untagged=HomeIoT-2G
 ```
+
+Switch side (SG2428LP, set in its web page): the uplink port and the access point's
+port (port 7) are both VLAN10 untagged with PVID 10, plus VLAN30 tagged. On the
+access point, map `HomeNET` to the untagged VLAN and `HomeIoT` to VLAN30.
+
+## CAPsMAN: the router controls the access point
+The MikroTik access point (`192.168.10.3`, on the switch) takes its Wi-Fi settings from
+the router, so SSIDs, passwords and VLANs are set only here. The passphrases are copied
+from the router's own `HomeNET-2G` and `HomeIoT-2G`, so nothing secret is written down.
+The 2.4 GHz radio gets `HomeNET` plus `HomeIoT` (VLAN30); the 5 GHz radio gets `HomeNET`.
+```routeros
+/interface wifi configuration
+add name=cfg-homenet ssid=HomeNET country=Poland security.authentication-types=wpa2-psk,wpa3-psk \
+    security.passphrase=[/interface wifi get HomeNET-2G security.passphrase] datapath.bridge=bridge
+add name=cfg-homeiot ssid=HomeIoT country=Poland security.authentication-types=wpa2-psk,wpa3-psk \
+    security.passphrase=[/interface wifi get HomeIoT-2G security.passphrase] datapath.bridge=bridge datapath.vlan-id=30
+
+/interface wifi provisioning
+add action=create-dynamic-enabled supported-bands=2ghz-g,2ghz-n,2ghz-ax \
+    master-configuration=cfg-homenet slave-configurations=cfg-homeiot name-format=cap-2g-
+add action=create-dynamic-enabled supported-bands=5ghz-a,5ghz-n,5ghz-ac,5ghz-ax \
+    master-configuration=cfg-homenet name-format=cap-5g-
+
+# CAPWAP from the Home VLAN only, above "INPUT: drop all"
+/ip firewall filter add chain=input in-interface=vlan10 protocol=udp dst-port=5246,5247 \
+    action=accept comment="INPUT: CAPsMAN from HOME" place-before=[find where comment="INPUT: drop all"]
+
+/interface wifi capsman set enabled=yes interfaces=vlan10
+```
+
+One-time step on the access point itself (it cannot be pushed from the router).
+The AP is a cAP ax on the switch (port 7, `192.168.10.3`, reserved by MAC). To manage it
+from a laptop, plug into its second Ethernet port (the switch-facing port ignores
+web/SSH; it only answers ping) and open `http://192.168.88.1`. Then:
+```routeros
+/interface wifi cap set enabled=yes discovery-interfaces=bridge caps-man-addresses=192.168.10.1
+```
+(The factory reset alternative is the reset button held while powering on: flashing LED
+at ~5 s resets the config, solid at ~10 s enters CAP mode.)
+
+Afterwards the AP shows up under `/interface wifi capsman remote-cap` and its radios
+appear on the router as `cap-2g-*` / `cap-5g-*` under `/interface wifi`. If they do not,
+run `/interface wifi capsman remote-cap provision numbers=0`. On the AP the radios then
+read "managed by CAPsMAN ... traffic processing on CAP" and cannot be edited locally,
+which is expected. Verified: a HomeIoT client on the AP lands in VLAN30 and gets
+`192.168.30.x`.
+
+SG2428LP switch: VLAN 30 (IoT) is tagged on ports 1 (router uplink), 7 (AP) and 8, with
+nothing untagged and PVID 1 everywhere; VLAN 1 stays untagged on all ports.
 
 ## Set PVID (Port VLAN ID)
 Untagged frames arriving on this port get assigned to this VLAN
@@ -277,6 +324,8 @@ add server=dhcp10 mac-address=DC:A6:32:B7:11:A1 address=192.168.10.10 comment="n
 add server=dhcp10 mac-address=C8:FF:BF:05:AA:08 address=192.168.10.20 comment="WTR-ETH1"
 add server=dhcp10 mac-address=C8:FF:BF:05:AA:09 address=192.168.10.21 comment="WTR-ETH2"
 add server=dhcp10 mac-address=10:E7:C6:07:0B:39 address=192.168.10.30 comment="Dell"
+add server=dhcp10 mac-address=3C:78:95:5F:FD:8E address=192.168.10.2 comment="SG2428LP switch"
+add server=dhcp10 mac-address=D0:EA:11:55:61:F0 address=192.168.10.3 comment="MikroTik AP"
 ```
 
 Changing an existing reservation does not move a host that already holds a
