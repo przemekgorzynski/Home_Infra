@@ -24,3 +24,8 @@
 | Biuro             | Work-R    | 0      | 22               | -           | 10   |               |
 | Biuro             | TV-L      | 0      | 23               | -           | 10   |               |
 | Biuro             | TV-R      | 0      | 24               | -           | 10   |               |
+
+
+
+
+salomn R2 - przepiety w patchpanelu do POE - nr 7
