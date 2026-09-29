@@ -43,7 +43,7 @@ all:
 
   hosts:
     wtr:
-      ansible_host: 192.168.10.20
+      ansible_host: 192.168.0.20
       ansible_user: przemek
       ansible_gather_facts: true
       ansible_become: true
