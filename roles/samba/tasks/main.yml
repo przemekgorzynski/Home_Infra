@@ -5,6 +5,12 @@
     state: directory
     mode: '0755'
 
+- name: Ensure public share directory is guest-writable
+  ansible.builtin.file:
+    path: /data/public
+    state: directory
+    mode: '0777'
+
 - name: Deploy smb.conf
   ansible.builtin.copy:
     src: smb.conf
