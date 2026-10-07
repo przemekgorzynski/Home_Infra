@@ -11,6 +11,23 @@
     state: directory
     mode: '0777'
 
+- name: Check for share content not writable by admins
+  ansible.builtin.shell:
+    cmd: >-
+      find /data/files /data/media /data/photos
+      \( ! -group admins -o ! -perm -g+rw -o -type d ! -perm -g+xs \) -print -quit
+  register: samba_bad_perms
+  changed_when: false
+
+- name: Make share content group-writable for admins
+  ansible.builtin.shell:
+    cmd: |
+      set -e
+      chown -R :admins /data/files /data/media /data/photos
+      chmod -R g+rwX /data/files /data/media /data/photos
+      find /data/files /data/media /data/photos -type d -exec chmod g+s {} +
+  when: samba_bad_perms.stdout | length > 0
+
 - name: Deploy smb.conf
   ansible.builtin.copy:
     src: smb.conf

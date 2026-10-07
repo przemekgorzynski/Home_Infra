@@ -6,8 +6,10 @@ services:
     hostname: samba.local
     environment:
       TZ: Europe/Warsaw
-      PUID: 0
-      PGID: 0
+      # dockurr/samba reads UID/GID (not PUID/PGID). Match host przemek (1000)
+      # and admins (1100) so the user can write to root:admins 0775 datasets.
+      UID: 1000
+      GID: 1100
       USER: "przemek"
       PASS: ${SAMBA_PASSWORD_PRZEMEK}
     ports:
