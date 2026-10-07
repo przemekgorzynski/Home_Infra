@@ -14,7 +14,7 @@ global:
   }
   image:
     repository: quay.io/argoproj/argocd
-    tag: "v3.5.3"
+    tag: "v3.5.4"
     imagePullPolicy: IfNotPresent
   logging:
     format: text
