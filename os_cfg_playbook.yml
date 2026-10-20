@@ -16,7 +16,6 @@
     CLOUDFLARE_API_TOKEN: "{{ lookup('bitwarden.secrets.lookup', '1abe2ffd-03da-4703-b2c3-b44b0145e635') }}"
     SAMBA_PASSWORD_PRZEMEK: "{{ lookup('bitwarden.secrets.lookup', '33468bae-8840-465b-a9a7-b44b01461568') }}"
     ZFS_ENCRYPTION_KEY: "{{ lookup('bitwarden.secrets.lookup', '1b5bf94a-d9a4-4f6d-94ed-b3ee00ce2132') }}"
-    PIHOLE_ADMIN_PASS: "{{ lookup('bitwarden.secrets.lookup', 'bad97974-529e-46c0-9612-b4e90097b150') }}"
 
   tasks:
     - name: Import user_mgmnt role

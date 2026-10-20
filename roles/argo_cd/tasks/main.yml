@@ -122,7 +122,6 @@
   loop:
     - cert-manager
     - cloudflare-ddns
-    - pihole
 
 - name: Create Cloudflare API token secret
   kubernetes.core.k8s:
@@ -143,27 +142,6 @@
   loop:
     - cert-manager
     - cloudflare-ddns
-
-# -----------------------------------------
-# Pi-hole admin password secret
-# -----------------------------------------
-
-- name: Create Pi-hole admin password secret
-  kubernetes.core.k8s:
-    state: present
-    namespace: pihole
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: pihole-secret
-        namespace: pihole
-      type: Opaque
-      stringData:
-        password: "{{ PIHOLE_ADMIN_PASS }}"
-  environment:
-    KUBECONFIG: "{{ k3s.kubeconfig_file }}"
-  no_log: true
 
 # -----------------------------------------
 # ArgoCD App of apps
