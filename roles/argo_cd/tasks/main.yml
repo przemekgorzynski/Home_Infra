@@ -122,7 +122,7 @@
   loop:
     - cert-manager
     - cloudflare-ddns
-    - wygiwyh
+    - pihole
 
 - name: Create Cloudflare API token secret
   kubernetes.core.k8s:
@@ -145,23 +145,22 @@
     - cloudflare-ddns
 
 # -----------------------------------------
-# WYGIWYH app secret
+# Pi-hole admin password secret
 # -----------------------------------------
 
-- name: Create WYGIWYH secret
+- name: Create Pi-hole admin password secret
   kubernetes.core.k8s:
     state: present
-    namespace: wygiwyh
+    namespace: pihole
     definition:
       apiVersion: v1
       kind: Secret
       metadata:
-        name: wygiwyh-secret
-        namespace: wygiwyh
+        name: pihole-secret
+        namespace: pihole
       type: Opaque
       stringData:
-        secret-key: "{{ WYGIWYH_SECRET_KEY }}"
-        sql-password: "{{ WYGIWYH_SQL_PASSWORD }}"
+        password: "{{ PIHOLE_ADMIN_PASS }}"
   environment:
     KUBECONFIG: "{{ k3s.kubeconfig_file }}"
   no_log: true
