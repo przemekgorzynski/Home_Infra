@@ -24,3 +24,16 @@
 | Biuro             | Work-R    | 0      | 22               | -           | 10   |               |
 | Biuro             | TV-L      | 0      | 23               | -           | 10   |               |
 | Biuro             | TV-R      | 0      | 24               | -           | 10   |               |
+
+
+kamery
+
+| MAC               | Opis                       |
+|-------------------|----------------------------|
+| 98-9F-1A-70-B3-2C | Kamera - przod nad kuchnia |
+| 98-9F-1A-70-B2-31 | Kamera - przod nad biurem  |
+| 98-9F-1A-70-B3-1B | Kamera - garaz z boku      |
+| 98-9F-1A-70-B2-36 | Kamera - wykusz od ulicy   |
+| 98-9F-1A-70-B2-C7 | Kamera - wykusz od podwororza |
+| 98-9F-1A-70-B2-F8 | Kamera - wejscie nad garazem  |
+| 98-9F-1A-70-B2-0A | Kamera - podworze nad HS      |
