@@ -1,3 +1,5 @@
+# LAN
+---
 | Room              | Wall Plug | Store  | Patch Panel Port | Switch Port | VLAN | Notes         |
 |-------------------|-----------|--------|------------------|-------------|------|---------------|
 | -                 | -         | -      | 1                | -           | -    |  EMPTY        |
@@ -25,8 +27,9 @@
 | Biuro             | TV-L      | 0      | 23               | -           | 10   |               |
 | Biuro             | TV-R      | 0      | 24               | -           | 10   |               |
 
+---
+## Monitoring
 
-kamery
 
 | MAC               | Opis                       |
 |-------------------|----------------------------|
@@ -37,3 +40,4 @@ kamery
 | 98-9F-1A-70-B2-C7 | Kamera_wykusz_od_podworza |
 | 98-9F-1A-70-B2-F8 | Kamera_wejscie_nad_garazem  |
 | 98-9F-1A-70-B2-0A | Kamera_podworze_nad_HS      |
+|98-9F-1A-50-21-AB  | DVR |
