@@ -156,7 +156,9 @@
         namespace: cluster-utils
       type: Opaque
       stringData:
-        id_ed25519: "{{ SYSTEM_UPDATER_SSH_PRIVATE_KEY }}"
+        # OpenSSH's PEM parser requires a trailing newline after the END
+        # marker; Bitwarden strips it from the stored value.
+        id_ed25519: "{{ SYSTEM_UPDATER_SSH_PRIVATE_KEY }}\n"
   environment:
     KUBECONFIG: "{{ k3s.kubeconfig_file }}"
   no_log: true
