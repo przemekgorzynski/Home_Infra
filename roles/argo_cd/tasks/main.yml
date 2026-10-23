@@ -122,6 +122,7 @@
   loop:
     - cert-manager
     - cloudflare-ddns
+    - cluster-utils
 
 - name: Create Cloudflare API token secret
   kubernetes.core.k8s:
@@ -142,6 +143,23 @@
   loop:
     - cert-manager
     - cloudflare-ddns
+
+- name: Create system-updater SSH key secret
+  kubernetes.core.k8s:
+    state: present
+    namespace: cluster-utils
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: system-updater-ssh-key
+        namespace: cluster-utils
+      type: Opaque
+      stringData:
+        id_ed25519: "{{ SYSTEM_UPDATER_SSH_PRIVATE_KEY }}"
+  environment:
+    KUBECONFIG: "{{ k3s.kubeconfig_file }}"
+  no_log: true
 
 # -----------------------------------------
 # ArgoCD App of apps
