@@ -1,4 +1,17 @@
 ---
+- name: Deploy netplan config with corrected MTU (PPPoE WAN PMTU blackhole)
+  ansible.builtin.copy:
+    src: files/netplan-mtu.yaml
+    dest: /etc/netplan/00-installer-config.yaml
+    owner: root
+    group: root
+    mode: "0600"
+  register: netplan_mtu_config
+
+- name: Apply netplan config
+  ansible.builtin.command: netplan apply
+  when: netplan_mtu_config.changed
+
 - name: Ensure etcd snapshot directory exists on ZFS pool
   ansible.builtin.file:
     path: /data/k3s-etcd-snapshots

@@ -1,0 +1,21 @@
+---
+# This is the network config written by 'subiquity', with an explicit MTU added.
+#
+# The WAN link behind this host's router is PPPoE (MTU 1492), but enp2s0 defaults
+# to 1500. Packets at full MTU get silently dropped instead of properly fragmented
+# (PMTU blackhole) once they leave the LAN, causing hangs/stalls on larger transfers
+# (e.g. CI jobs pulling npm/pnpm packages). 1450 matches the MTU already used by the
+# k3s CNI (flannel/cni0) and the GitHub Actions runner's DinD sidecar, so nothing on
+# this node needs working PMTU discovery to reach the internet.
+network:
+  ethernets:
+    enp2s0:
+      dhcp4: true
+      dhcp6: true
+      mtu: 1450
+      match:
+        macaddress: c8:ff:bf:05:aa:08
+      set-name: enp2s0
+    enp3s0:
+      accept-ra: true
+  version: 2
