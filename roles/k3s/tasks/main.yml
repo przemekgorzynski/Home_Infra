@@ -57,6 +57,9 @@
     - { name: kernel.panic_on_oops, value: '1' }
     - { name: kernel.keys.root_maxbytes, value: '25000000' }
 
+- name: Configure AppArmor for k3s
+  ansible.builtin.import_tasks: apparmor.yml
+
 - name: Install K3s Server
   shell: |
     K3S_CONFIG_FILE="/etc/rancher/k3s/config.yaml"

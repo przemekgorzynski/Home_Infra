@@ -1,0 +1,49 @@
+---
+# Workaround: Ubuntu kernel 7.0.0-42 breaks AppArmor signal mediation for
+# containers. The cri-containerd profile denies processes in a container from
+# signalling each other, so postgres (gosu, pg_ctl, the postmaster) hangs.
+# With AppArmor off in the kernel, k3s/containerd stop applying the profile.
+# Remove once a fixed kernel ships (set k3s.disable_apparmor: false).
+
+- name: Disable AppArmor via kernel cmdline (GRUB drop-in)
+  ansible.builtin.copy:
+    dest: /etc/default/grub.d/99-disable-apparmor.cfg
+    mode: '0644'
+    content: |
+      # Managed by Ansible (Home_Infra k3s role)
+      GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX apparmor=0"
+  when: k3s.disable_apparmor | default(false)
+  notify: Update GRUB
+
+- name: Remove AppArmor GRUB drop-in when not disabling AppArmor
+  ansible.builtin.file:
+    path: /etc/default/grub.d/99-disable-apparmor.cfg
+    state: absent
+  when: not (k3s.disable_apparmor | default(false))
+  notify: Update GRUB
+
+- name: Remove manually added apparmor=0 from /etc/default/grub
+  # The drop-in above is the single source of truth.
+  ansible.builtin.replace:
+    path: /etc/default/grub
+    regexp: '^(GRUB_CMDLINE_LINUX="[^"]*?)\s*apparmor=0([^"]*")'
+    replace: '\1\2'
+  notify: Update GRUB
+
+- name: Set AppArmor service state
+  ansible.builtin.systemd:
+    name: apparmor
+    enabled: "{{ not (k3s.disable_apparmor | default(false)) }}"
+
+- name: Check whether AppArmor is enabled in the running kernel
+  ansible.builtin.slurp:
+    src: /sys/module/apparmor/parameters/enabled
+  register: apparmor_enabled
+  failed_when: false
+
+- name: Warn when a reboot is needed to apply the AppArmor setting
+  ansible.builtin.debug:
+    msg: "AppArmor state in the running kernel does not match k3s.disable_apparmor - reboot {{ inventory_hostname }} to apply."
+  when:
+    - apparmor_enabled.content is defined
+    - (apparmor_enabled.content | b64decode | trim == 'Y') == (k3s.disable_apparmor | default(false))

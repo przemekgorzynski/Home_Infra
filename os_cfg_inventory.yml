@@ -124,6 +124,9 @@ all:
       k3s:
         deploy: true
         kubeconfig_file: /etc/rancher/k3s/k3s.yaml
+        # Workaround for kernel 7.0.0-42 AppArmor breaking signals inside
+        # containers (see roles/k3s/tasks/apparmor.yml). Needs a reboot.
+        disable_apparmor: true
         argocd:
           deploy: true
           namespace: argocd
