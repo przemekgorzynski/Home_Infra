@@ -68,7 +68,7 @@ all:
                   - /dev/sdb
               - role: cache
                 disks:
-                  - /dev/nvme0n1
+                  - /dev/disk/by-id/nvme-WD_Red_SN700_500GB_252710800194
             datasets:
               - dataset_name: tank/photos
                 compression: lz4
