@@ -106,9 +106,8 @@
   no_log: true
 
 # -----------------------------------------
-# Cloudflare Secret for cert-manager
+# External Secrets Operator bootstrap token
 # -----------------------------------------
-
 - name: Create namespaces for pre-provisioned secrets
   kubernetes.core.k8s:
     state: present
@@ -120,45 +119,21 @@
   environment:
     KUBECONFIG: "{{ k3s.kubeconfig_file }}"
   loop:
-    - cert-manager
-    - cloudflare-ddns
-    - cluster-utils
+    - external-secrets
 
-- name: Create Cloudflare API token secret
+- name: Create External Secrets Operator Bitwarden access token secret
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ item }}"
+    namespace: external-secrets
     definition:
       apiVersion: v1
       kind: Secret
       metadata:
-        name: cloudflare-api-token
-        namespace: "{{ item }}"
+        name: bitwarden-access-token
+        namespace: external-secrets
       type: Opaque
       stringData:
-        api-token: "{{ CLOUDFLARE_API_TOKEN }}"
-  environment:
-    KUBECONFIG: "{{ k3s.kubeconfig_file }}"
-  no_log: true
-  loop:
-    - cert-manager
-    - cloudflare-ddns
-
-- name: Create system-updater SSH key secret
-  kubernetes.core.k8s:
-    state: present
-    namespace: cluster-utils
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: system-updater-ssh-key
-        namespace: cluster-utils
-      type: Opaque
-      stringData:
-        # OpenSSH's PEM parser requires a trailing newline after the END
-        # marker; Bitwarden strips it from the stored value.
-        id_ed25519: "{{ SYSTEM_UPDATER_SSH_PRIVATE_KEY }}\n"
+        token: "{{ ESO_BITWARDEN_ACCESS_TOKEN }}"
   environment:
     KUBECONFIG: "{{ k3s.kubeconfig_file }}"
   no_log: true
