@@ -12,7 +12,7 @@ Ansible playbook for full provisioning of a home server running Ubuntu. Configur
 | `os_mgmnt` | System update, standard packages, Docker, hostname, timezone, SSH hardening |
 | `samba` | Deploys Samba file server via Docker for LAN file sharing |
 | `k3s` | Installs k3s single-node cluster |
-| `argo_cd` | Installs ArgoCD via Helm, configures SSH repo credentials and admin password |
+| `argo_cd` | Installs ArgoCD via Helm, configures SSH repo credentials and admin password, bootstraps External Secrets Operator's Bitwarden access token |
 | `zfs` | ZFS pool and dataset setup (disabled by default) |
 
 After ArgoCD is running, all further workload deployments are managed through the [ArgoCDApps](https://github.com/przemekgorzynski/ArgoCDApps) app-of-apps repo — no further Ansible runs needed for applications.
@@ -45,9 +45,9 @@ export BWS_ACCESS_TOKEN=<token>
 | `ARGOCD_SSH_PRIVATE_KEY` | SSH private key for ArgoCD repo access |
 | `ARGOCD_SSH_PUBLIC_KEY` | SSH public key for ArgoCD repo access |
 | `ARGOCD_ADMIN_PASS` | ArgoCD admin password (bcrypt hash) |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API token for DNS |
 | `SAMBA_PASSWORD_PRZEMEK` | Samba password for `przemek` user |
 | `ZFS_ENCRYPTION_KEY` | ZFS dataset encryption key |
+| `ESO_BITWARDEN_ACCESS_TOKEN` | External Secrets Operator's Bitwarden access token |
 
 ### Required SSH keys
 
@@ -85,9 +85,11 @@ python3 -c "import bcrypt; print(bcrypt.hashpw(b'<password>', bcrypt.gensalt(rou
 
 **Port-forward** (no ingress required):
 
+ArgoCD server runs with `server.insecure: true` (plain HTTP, no TLS inside the pod):
+
 ```bash
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-# https://localhost:8080
+kubectl port-forward svc/argocd-server -n argocd 8080:80
+# http://localhost:8080
 ```
 
 **Ingress** (once ingress controller is deployed via [ArgoCDApps](https://github.com/przemekgorzynski/ArgoCDApps)):
@@ -122,7 +124,7 @@ Pool: tank
 │   ├── /dev/sda
 │   └── /dev/sdb
 └── vdev: cache (L2ARC read cache)
-    └── /dev/nvme1n1
+    └── /dev/disk/by-id/nvme-WD_Red_SN700_500GB_<serial>
 
 Datasets:
 tank                         → /data
@@ -135,9 +137,41 @@ tank                         → /data
 ├── tank/priv                → /data/priv
 ├── tank/public              → /data/public
 └── tank/torrent             → /data/torrent
+
+Pool: ssd
+└── vdev: stripe (no redundancy)
+    └── /dev/sdc
+
+Datasets:
+ssd                          → /data-ssd
+└── ssd/torrent              → /data-ssd/torrent
 ```
 
 All datasets use `lz4` compression.
+
+### Physical disks
+
+| Disk | Size | Usage |
+|------|------|-------|
+| `sda` | 8TB | `tank` mirror |
+| `sdb` | 8TB | `tank` mirror |
+| `sdc` | 1.8TB | `ssd` stripe |
+| `sdd` | 3.6TB | **Unused** — not part of either pool |
+| `nvme0n1` | ~1TB | OS boot disk (not ZFS) |
+| `nvme1n1` | 500GB | `tank` L2ARC cache |
+
+### Disk naming
+
+Pool vdev disks are referenced by stable `/dev/disk/by-id/...` paths where possible instead of raw `/dev/nvmeXnY` names. NVMe device enumeration (`nvme0n1`, `nvme1n1`, ...) is not guaranteed stable across reboots, and a cache device once got silently reassigned to the OS boot disk's name after a reboot. SATA disk names (`sda`, `sdb`, `sdc`, `sdd`) are generally stable on this host but `by-id` is preferred for any new disk added to a pool.
+
+### Checking pool/disk health
+
+```bash
+zpool status -v              # pool health, scrub/resilver state, cache device status
+zpool list                   # capacity/fragmentation overview
+sudo smartctl -H /dev/sda    # per-disk SMART health verdict
+sudo smartctl -a /dev/sda    # full SMART attributes (reallocated/pending sectors, etc.)
+```
 
 ## Known issues
 
