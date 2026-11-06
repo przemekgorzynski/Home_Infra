@@ -23,6 +23,7 @@ services:
       - /data/media/movies:/data/media/movies
       - /data/media/tv-series:/data/media/tv-series
       - /data/media/other:/data/media/other
+      - /data/media/audio:/data/media/audio
       - /data/files:/data/files
       - /opt/stacks/samba/smb.conf:/etc/samba/smb.conf
     healthcheck:

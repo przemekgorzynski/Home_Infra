@@ -90,6 +90,10 @@ all:
                 compression: lz4
                 setuid: 'off'
                 mountpoint: '/data/media/other'
+              - dataset_name: tank/media/audio
+                compression: lz4
+                setuid: 'off'
+                mountpoint: '/data/media/audio'
               - dataset_name: tank/files
                 compression: lz4
                 setuid: 'off'

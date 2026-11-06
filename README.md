@@ -132,7 +132,8 @@ tank                         → /data
 ├── tank/media               → /data/media
 │   ├── tank/media/movies    → /data/media/movies
 │   ├── tank/media/tv-series → /data/media/tv-series
-│   └── tank/media/other     → /data/media/other
+│   ├── tank/media/other     → /data/media/other
+│   └── tank/media/audio     → /data/media/audio
 ├── tank/files               → /data/files
 ├── tank/priv                → /data/priv
 ├── tank/public              → /data/public
