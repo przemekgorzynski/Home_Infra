@@ -64,8 +64,8 @@ all:
             vdevs:
               - type: mirror
                 disks:
-                  - /dev/sda
-                  - /dev/sdb
+                  - /dev/disk/by-id/ata-WDC_WD80EFPX-68C4ZN0_WD-1F02EU1U
+                  - /dev/disk/by-id/ata-WDC_WD80EFPX-68C4ZN0_WD-1F02DX8U
               - role: cache
                 disks:
                   - /dev/disk/by-id/nvme-WD_Red_SN700_500GB_252710800194
@@ -118,7 +118,7 @@ all:
             vdevs:
               - type: stripe
                 disks:
-                  - /dev/sdc
+                  - /dev/disk/by-id/ata-WDC_WDS400T1R0A-68A4W0_234057800492
             datasets:
               - dataset_name: ssd/torrent
                 compression: lz4
